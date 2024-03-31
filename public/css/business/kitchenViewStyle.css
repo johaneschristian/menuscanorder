@@ -1,0 +1,12 @@
+/* Kitchen View Styling */
+.progress-board {
+  width: 30%;
+}
+
+.progress-board > .card {
+  height: 10rem;
+}
+
+.table-header-card {
+  font-size: calc(0.7em + 0.2vw);
+}

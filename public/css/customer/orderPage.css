@@ -1,0 +1,22 @@
+/* Order Page Styling */
+.menu-category {
+  color: var(--secondary-font-color);
+}
+
+.menu-category.selected {
+  color: var(--main-bg-color) !important;
+  border-color: var(--main-bg-color) !important;
+}
+
+.menu-category:hover {
+  cursor: pointer;
+  color: var(--main-bg-color) !important;
+  border-color: var(--main-bg-color) !important;
+}
+
+.gray-image {
+  /* This CSS is taken from https://stackoverflow.com/questions/609273/convert-an-image-to-grayscale-in-html-css */
+  filter: gray; /* IE6-9 */
+  -webkit-filter: grayscale(1); /* Google Chrome, Safari 6+ & Opera 15+ */
+  filter: grayscale(1); /* Microsoft Edge and Firefox 35+ */
+}
