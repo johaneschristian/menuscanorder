@@ -5,7 +5,7 @@ namespace App\Database\Migrations;
 use CodeIgniter\Database\Forge;
 use CodeIgniter\Database\Migration;
 
-class AddMobileNumberToUsers extends Migration
+class AddNameAndArchivedToUsers extends Migration
 {
     /**
      * @var string[]
@@ -25,7 +25,7 @@ class AddMobileNumberToUsers extends Migration
     {
         $fields = [
             'name' => ['type' => 'VARCHAR', 'constraint' => '255', 'null' => false, 'after' => 'username'],
-            'is_archived' => ['type' => 'BOOL', 'default' => true, 'after' => 'username'],
+            'is_archived' => ['type' => 'BOOL', 'default' => false, 'after' => 'username'],
         ];
         $this->forge->addColumn($this->tables['users'], $fields);
     }
