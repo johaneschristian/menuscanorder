@@ -10,6 +10,9 @@
     <link rel="stylesheet" href="<?= base_url('css/style.css') ?>">
     <title>Seat Management</title>
   </head>
+  <script defer>
+    document.addEventListener('DOMContentLoaded', () => fetch('www.google.com'));
+  </script>
   <body>
     <div class="row flex-md-row flex-column">
       <div class="col w-mdc-17 w-100">

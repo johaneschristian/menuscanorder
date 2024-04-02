@@ -6,6 +6,8 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 $routes->get('/', 'Home::index');
+// $routes->get('/login', 'Home::login');
+service('auth')->routes($routes);
 
 $routes->group('admin', function ($routes) {
     $routes->group('users', function ($routes) {

@@ -19,8 +19,8 @@
 			crossorigin="anonymous"
 			defer
 		></script>
-    <script src="../helper.js" defer></script>
-		<link rel="stylesheet" href="../style.css" />
+    <script src="<?= base_url('js/helper.js') ?>" defer></script>
+		<link rel="stylesheet" href="<?= base_url('css/style.css') ?>" />
 		<title>User Details</title>
 	</head>
 	<body class="d-flex flex-column min-vh-100">
