@@ -6,8 +6,8 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 $routes->get('/', 'Home::index');
-// $routes->get('/login', 'Home::login');
-service('auth')->routes($routes);
+$routes->match(['get', 'post'], '/login', 'Home::login');
+$routes->match(['get', 'post'], '/register', 'Home::register');
 
 $routes->group('admin', function ($routes) {
     $routes->group('users', function ($routes) {
@@ -20,6 +20,8 @@ $routes->group('admin', function ($routes) {
 
 $routes->group('business', function ($routes) {
     $routes->get('categories', 'BusinessController::categoryList');
+    $routes->post('categories', 'BusinessController::categoryCreate');
+
     $routes->group('menu', function ($routes) {
         $routes->get('/', 'BusinessController::menuList');
         $routes->get('create', 'BusinessController::menuCreate');
@@ -41,5 +43,5 @@ $routes->group('customer', function ($routes) {
         $routes->get('menu/(:segment)', 'CustomerController::orderCreate/$1');
     });
     $routes->get('profile', 'CustomerController::profileEdit');
-    $routes->get('business', 'CustomerController::businessRegistration');
+    $routes->match(['get', 'post'], 'business', 'CustomerController::businessRegistration');
 });

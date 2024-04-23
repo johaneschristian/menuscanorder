@@ -19,8 +19,8 @@
 			crossorigin="anonymous"
 			defer
 		></script>
-    <script src="../helper.js" defer></script>
-		<link rel="stylesheet" href="../style.css" />
+    <script src="<?= base_url('js/helper.js') ?>" defer></script>
+		<link rel="stylesheet" href="<?= base_url('css/style.css') ?>" />
 		<title>User Details</title>
 	</head>
 	<body class="d-flex flex-column min-vh-100">
@@ -60,19 +60,19 @@
 					</div>
 					<div class="mb-3">
 						<label for="" class="form-label fw-bold lh-sm">Email</label>
-						<input type="email" class="form-control bg-soft-gray" required>
+						<input name="email" type="email" class="form-control bg-soft-gray" required>
 					</div>
 					<div class="mb-3">
 						<label for="" class="form-label fw-bold lh-sm">Name</label>
-						<input type="text" class="form-control bg-soft-gray" required>
+						<input name="name" type="text" class="form-control bg-soft-gray" required>
 					</div>
 					<div class="mb-3">
 						<label for="" class="form-label fw-bold lh-sm">Password</label>
-						<input type="password" class="form-control bg-soft-gray" required>
+						<input name="password" type="password" class="form-control bg-soft-gray" required>
 					</div>
 					<div class="mb-3">
 						<label for="" class="form-label fw-bold lh-sm" required>Password Confirmation</label>
-						<input type="password" class="form-control bg-soft-gray">
+						<input name="password_confirmation" type="password" class="form-control bg-soft-gray">
 					</div>
 					<div class="d-flex flex-row justify-content-between align-items-end mt-3">
 						<a href="http://">Does not have an account?</a>

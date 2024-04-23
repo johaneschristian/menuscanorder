@@ -68,16 +68,16 @@
             <div class="" id="affiliated-business-form">
               <div class="mb-3">
                 <label for="affiliated-business-name" class="form-label fw-bold lh-sm">Business Name</label>
-                <input id="affiliated-business-name" type="text" class="form-control">
+                <input id="affiliated-business-name" name="business_name" type="text" class="form-control">
               </div>
               <div class="mb-3">
                 <label for="affiliated-business-address" class="form-label fw-bold lh-sm">Business Address</label>
-                <textarea id="affiliated-business-address" type="text" rows="1" class="form-control"></textarea>
+                <textarea id="affiliated-business-address" name="address" type="text" rows="1" class="form-control"></textarea>
               </div>
               <div class="mb-3">
                 <label for="affiliated-business-table-quantity" class="form-label fw-bold lh-sm">Dine-In Business Size</label>
                 <div class="input-group">
-                  <input id="affiliated-business-table-quantity" type="number" step="1" class="form-control">
+                  <input id="affiliated-business-table-quantity" name="num_of_tables" type="number" step="1" class="form-control">
                   <span class="input-group-text bg-soft-gray">tables</span>
                 </div>
               </div>

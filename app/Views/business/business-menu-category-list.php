@@ -83,7 +83,7 @@
                   <p class="fw-bold fs-5">Create Category</p>
                   <label for="edited-category-name" class="form-label">Category Name</label>
                   <div class="input-group mb-3">
-                    <input type="text" class="form-control" id="created-category-name" name="category_name" aria-describedby="basic-addon3" required>
+                    <input name="category_name" type="text" class="form-control" id="created-category-name" name="category_name" aria-describedby="basic-addon3" required>
                   </div>
                 </div>
                 <div class="modal-footer">

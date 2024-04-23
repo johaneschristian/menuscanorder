@@ -2,10 +2,19 @@
 
 namespace App\Controllers;
 
+use App\Services\BusinessService;
+
 class BusinessController extends BaseController 
 {
     public function categoryList() {
         return view('business/business-menu-category-list');
+    }
+
+    public function categoryCreate() {
+        $user = auth()->user();
+        $categoryData = $this->request->getPost();
+        BusinessService::handleCategoryCreation($user, $categoryData);
+        return redirect()->to('/business/categories');
     }
 
     public function menuList() {
