@@ -95,140 +95,44 @@
           <div class="card shadow mb-3 ps-3 pe-3 pb-3 row d-flex flex-md-row flex-column justify-content-between align-items-center">
             <form action="" method="get" class="w-mdc-75 d-flex flex-md-row flex-column flex-sm-column">
               <div class="input-group mt-3 me-3 p-0 w-mdc-75 w-100">
-                <input type="text" class="form-control bg-soft-gray" name="menu_name" placeholder="Search Menu Name">
+                <input type="text" class="form-control bg-soft-gray" name="menu_name" placeholder="Search Menu Name" value="<?= esc($search) ?>">
                 <button class="btn bg-brown text-white" type="submit" id="search-button">Search</button>
               </div>
-              <select class="form-select mt-3 w-mdc-25 w-100 bg-soft-gray" name="category_name" onchange="this.form.submit()">
-                <option value="all" selected>All Category</option>
-                <option value="main">Main</option>
-                <option value="dessert">Dessert</option>
+              <select class="form-select mt-3 w-mdc-25 w-100 bg-soft-gray" name="category_id" onchange="this.form.submit()">
+                <option value="all" <?= $category_id === "all" ? "selected" : "" ?>>All Category</option>
+                <?php foreach ($categories as $category): ?>
+                  <option value="<?= esc($category['category_id']) ?>" <?= $category_id === $category['category_id'] ? "selected" : "" ?>><?= esc($category['name']) ?></option>
+                <?php endforeach; ?>
+                <option value="others" <?= $category_id === "others" ? "selected" : ""?>>Others</option>
               </select>
             </form>
             <div class="w-mdc-25 mt-3 d-flex flex-row justify-content-md-end justify-content-center gap-1">
-              <button type="button" class="btn bg-brown text-white" style="width: fit-content;">Modify Category</button>
-              <button type="button" class="btn bg-brown text-white" style="width: fit-content;">Add Menu</button>
+              <button type="button" class="btn bg-brown text-white" style="width: fit-content;" onclick="window.location.href = `<?= base_url('business/categories/') ?>`">Modify Category</button>
+              <button type="button" class="btn bg-brown text-white" style="width: fit-content;" onclick="window.location.href = `<?= base_url('business/menu/create') ?>`">Add Menu</button>
             </div>
           </div>
           <div class="row d-flex justify-content-center gy-3">
-            <div class="col-auto">
-              <div class="card shadow-sm" style="width: 18rem; height: 500px;">
-                <img src="https://images.slurrp.com/prod/recipe_images/asian-food-network/es-doger-1623090776_ZFLYTGBQBBABDYEETIF4.webp" class="card-img-top h-50" style="object-fit: cover;" alt="Nasi Goreng">
-                <div class="card-body d-flex flex-column justify-content-between">
-                  <h5 id="menu-menu_item_id_1-name" class="card-title m-0">Es Doger</h5>
-                  <div class="">
-                    <span class="badge rounded-pill bg-danger">Not Available</span>
-                    <span class="badge rounded-pill bg-dark">AUD5.00</span>
-                  </div>
-                  <p class="card-text trunc-4">Nasi goreng, often hailed as the national dish of Indonesia, is a tantalizing and aromatic fried rice dish that captivates the senses with its rich blend of flavors and textures. Rooted in Indonesian culinary heritage, nasi goreng is a beloved street food staple, frequently enjoyed across the archipelago and beyond.</p>
-                  <div class="d-flex flex-row justify-content-end gap-1">
-                    <a href="#" class="btn btn-warning">Edit</a>
-                    <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delete-confirmation-modal" onclick="setDeletionModal('menu_item_id_1')">Delete</a>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-auto">
-              <div class="card shadow-sm" style="width: 18rem; height: 500px;">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9MB0obFxFhXf-jRnhS_hherNUr9ZaoxSjZjFaD6H-VT5lSuK-" class="card-img-top h-50" style="object-fit: cover;" alt="Nasi Goreng">
-                <div class="card-body d-flex flex-column justify-content-between">
-                  <h5 id="menu-menu_item_id_1-name" class="card-title m-0">Nasi Goreng</h5>
-                  <div class="">
-                    <span class="badge rounded-pill bg-success">Available</span>
-                    <span class="badge rounded-pill bg-dark">AUD5.00</span>
-                  </div>
-                  <p class="card-text trunc-4">Nasi goreng, often hailed as the national dish of Indonesia, is a tantalizing and aromatic fried rice dish that captivates the senses with its rich blend of flavors and textures. Rooted in Indonesian culinary heritage, nasi goreng is a beloved street food staple, frequently enjoyed across the archipelago and beyond.</p>
-                  <div class="d-flex flex-row justify-content-end gap-1"> 
-                    <a href="#" class="btn btn-warning">Edit</a>
-                    <a href="#" class="btn btn-danger">Delete</a>
+            <?php foreach ($menus as $menu): ?>
+              <div class="col-auto">
+                <div class="card shadow-sm" style="width: 18rem; height: 500px;">
+                  <img src='<?= $menu->image_url ? base_url("/business/menu/{$menu->menu_item_id}/image") : "" ?>' class="card-img-top h-50" style="object-fit: cover;" alt="" onerror="this.src='https://theme-assets.getbento.com/sensei/7c1964e.sensei/assets/images/catering-item-placeholder-704x520.png'">
+                  <div class="card-body d-flex flex-column justify-content-between">
+                    <div class="">
+                      <h5 id="menu-menu_item_id_1-name" class="card-title m-0"><?= esc($menu->name) ?></h5>
+                      <div>
+                        <span class="badge rounded-pill bg-<?= esc($menu->is_available ? "success" : "danger") ?>"><?= esc($menu->is_available ? "Available" : "Not Available") ?></span>
+                        <span class="badge rounded-pill bg-dark">AUD<?= esc(number_format($menu->price, 2, '.')) ?></span>
+                      </div>
+                      <p class="card-text trunc-4 mt-3"><?= esc($menu->description) ?></p>
+                    </div>
+                    <div class="d-flex flex-row justify-content-end gap-1">
+                      <a href="#" class="btn btn-warning" onclick='window.location.href = `<?= base_url("business/menu/{$menu->menu_item_id}/edit") ?>`'>Edit</a>
+                      <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delete-confirmation-modal" onclick="setDeletionModal('menu_item_id_1')">Delete</a>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="col-auto">
-              <div class="card shadow-sm" style="width: 18rem; height: 500px;">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9MB0obFxFhXf-jRnhS_hherNUr9ZaoxSjZjFaD6H-VT5lSuK-" class="card-img-top h-50" style="object-fit: cover;" alt="Nasi Goreng">
-                <div class="card-body d-flex flex-column justify-content-between">
-                  <h5 class="card-title m-0">Nasi Goreng</h5>
-                  <div class="">
-                    <span class="badge rounded-pill bg-success">Available</span>
-                    <span class="badge rounded-pill bg-dark">AUD5.00</span>
-                  </div>
-                  <p class="card-text trunc-4">Nasi goreng, often hailed as the national dish of Indonesia, is a tantalizing and aromatic fried rice dish that captivates the senses with its rich blend of flavors and textures. Rooted in Indonesian culinary heritage, nasi goreng is a beloved street food staple, frequently enjoyed across the archipelago and beyond.</p>
-                  <div class="d-flex flex-row justify-content-end gap-1">
-                    <a href="#" class="btn btn-warning">Edit</a>
-                    <a href="#" class="btn btn-danger">Delete</a>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-auto">
-              <div class="card shadow-sm" style="width: 18rem; height: 500px;">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9MB0obFxFhXf-jRnhS_hherNUr9ZaoxSjZjFaD6H-VT5lSuK-" class="card-img-top h-50" style="object-fit: cover;" alt="Nasi Goreng">
-                <div class="card-body d-flex flex-column justify-content-between">
-                  <h5 class="card-title m-0">Nasi Goreng</h5>
-                  <div class="">
-                    <span class="badge rounded-pill bg-success">Available</span>
-                    <span class="badge rounded-pill bg-dark">AUD5.00</span>
-                  </div>
-                  <p class="card-text trunc-4">Nasi goreng, often hailed as the national dish of Indonesia, is a tantalizing and aromatic fried rice dish that captivates the senses with its rich blend of flavors and textures. Rooted in Indonesian culinary heritage, nasi goreng is a beloved street food staple, frequently enjoyed across the archipelago and beyond.</p>
-                  <div class="d-flex flex-row justify-content-end gap-1">
-                    <a href="#" class="btn btn-warning">Edit</a>
-                    <a href="#" class="btn btn-danger">Delete</a>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-auto">
-              <div class="card shadow-sm" style="width: 18rem; height: 500px;">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9MB0obFxFhXf-jRnhS_hherNUr9ZaoxSjZjFaD6H-VT5lSuK-" class="card-img-top h-50" style="object-fit: cover;" alt="Nasi Goreng">
-                <div class="card-body d-flex flex-column justify-content-between">
-                  <h5 class="card-title m-0">Nasi Goreng</h5>
-                  <div class="">
-                    <span class="badge rounded-pill bg-success">Available</span>
-                    <span class="badge rounded-pill bg-dark">AUD5.00</span>
-                  </div>
-                  <p class="card-text trunc-4">Nasi goreng, often hailed as the national dish of Indonesia, is a tantalizing and aromatic fried rice dish that captivates the senses with its rich blend of flavors and textures. Rooted in Indonesian culinary heritage, nasi goreng is a beloved street food staple, frequently enjoyed across the archipelago and beyond.</p>
-                  <div class="d-flex flex-row justify-content-end gap-1">
-                    <a href="#" class="btn btn-warning">Edit</a>
-                    <a href="#" class="btn btn-danger">Delete</a>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-auto">
-              <div class="card shadow-sm" style="width: 18rem; height: 500px;">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9MB0obFxFhXf-jRnhS_hherNUr9ZaoxSjZjFaD6H-VT5lSuK-" class="card-img-top h-50" style="object-fit: cover;" alt="Nasi Goreng">
-                <div class="card-body d-flex flex-column justify-content-between">
-                  <h5 class="card-title m-0">Nasi Goreng</h5>
-                  <div class="">
-                    <span class="badge rounded-pill bg-success">Available</span>
-                    <span class="badge rounded-pill bg-dark">AUD5.00</span>
-                  </div>
-                  <p class="card-text trunc-4">Nasi goreng, often hailed as the national dish of Indonesia, is a tantalizing and aromatic fried rice dish that captivates the senses with its rich blend of flavors and textures. Rooted in Indonesian culinary heritage, nasi goreng is a beloved street food staple, frequently enjoyed across the archipelago and beyond.</p>
-                  <div class="d-flex flex-row justify-content-end gap-1">
-                    <a href="#" class="btn btn-warning">Edit</a>
-                    <a href="#" class="btn btn-danger">Delete</a>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col-auto">
-              <div class="card shadow-sm" style="width: 18rem; height: 500px;">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9MB0obFxFhXf-jRnhS_hherNUr9ZaoxSjZjFaD6H-VT5lSuK-" class="card-img-top h-50" style="object-fit: cover;" alt="Nasi Goreng">
-                <div class="card-body d-flex flex-column justify-content-between">
-                  <h5 class="card-title m-0">Nasi Goreng</h5>
-                  <div class="">
-                    <span class="badge rounded-pill bg-success">Available</span>
-                    <span class="badge rounded-pill bg-dark">AUD5.00</span>
-                  </div>
-                  <p class="card-text trunc-4">Nasi goreng, often hailed as the national dish of Indonesia, is a tantalizing and aromatic fried rice dish that captivates the senses with its rich blend of flavors and textures. Rooted in Indonesian culinary heritage, nasi goreng is a beloved street food staple, frequently enjoyed across the archipelago and beyond.</p>
-                  <div class="d-flex flex-row justify-content-end gap-1">
-                    <a href="#" class="btn btn-warning">Edit</a>
-                    <a href="#" class="btn btn-danger">Delete</a>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <?php endforeach ?>
           </div>
         </div>
         <nav>

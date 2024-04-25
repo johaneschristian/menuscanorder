@@ -119,7 +119,7 @@
               <div class="col-md-6">
                 <form action="" method="get">
                   <div class="input-group mb-md-0 mb-3 me-3 p-0">
-                    <input type="text" class="form-control bg-soft-gray" name="search" placeholder="Search Table Number">
+                    <input type="text" class="form-control bg-soft-gray" name="search" placeholder="Search Table Number" value='<?= $searched_table_number === NULL ? "" : $searched_table_number?>'>
                     <button class="btn bg-brown text-white" type="submit" id="search-button">Search</button>
                   </div>
                 </form>
@@ -138,31 +138,59 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td id="table-num-1">1</td>
-                    <td>
-                      <img id="table-num-1-qr" src="<?= base_url('images/business/dummy-qr-code.png') ?>" style="width: 50px;" alt="" srcset="">
-                    </td>
-                    <td>
-                      <button class="btn btn-sm btn-primary mb-1" data-bs-toggle="modal" data-bs-target="#qr-code-view-modal" onclick="toggleQRView(1)"><i class="bi bi-eye-fill"></i></button>
-                      <button class="btn btn-sm btn-danger mb-1" onclick="downloadQRImage(1)"><i class="bi bi-download"></i></button>
-                      <button class="btn btn-sm btn-warning mb-1" onclick="printQRImage(1)"><i class="bi bi-printer"></i></button>
-                    </td>
-                  </tr>
+                  <?php if($searched_table_number === NULL): ?>
+                    <?php for($tableNum = ($current_page-1) * 10; $tableNum < ($current_page-1) * 10 + 10 && $tableNum < $business->num_of_tables; $tableNum++): ?>
+                      <tr>
+                        <td id="table-num-<?= esc($tableNum+1) ?>"><?= esc($tableNum+1) ?></td>
+                        <td>
+                          <img id="table-num-<?= esc($tableNum+1) ?>-qr" src='<?= base_url("business/seat-management/generate-qr/{$business->business_id}/" . ($tableNum + 1)) ?>' style="width: 50px;" alt="" srcset="">
+                        </td>
+                        <td>
+                          <button class="btn btn-sm btn-primary mb-1" data-bs-toggle="modal" data-bs-target="#qr-code-view-modal" onclick="toggleQRView(<?= esc($tableNum+1) ?>)"><i class="bi bi-eye-fill"></i></button>
+                          <button class="btn btn-sm btn-danger mb-1" onclick="downloadQRImage(<?= esc($tableNum+1) ?>)"><i class="bi bi-download"></i></button>
+                          <button class="btn btn-sm btn-warning mb-1" onclick="printQRImage(<?= esc($tableNum+1) ?>)"><i class="bi bi-printer"></i></button>
+                        </td>
+                      </tr>
+                    <?php endfor; ?>
+                  <?php else: ?>
+                    <?php if($searched_table_number <= $business->num_of_tables): ?>
+                      <tr>
+                        <td id="table-num-$searched_table_number"><?= esc($searched_table_number) ?></td>
+                        <td>
+                          <img id="table-num-$searched_table_number-qr" src="<?= base_url('images/business/dummy-qr-code.png') ?>" style="width: 50px;" alt="" srcset="">
+                        </td>
+                        <td>
+                          <button class="btn btn-sm btn-primary mb-1" data-bs-toggle="modal" data-bs-target="#qr-code-view-modal" onclick="toggleQRView(1)"><i class="bi bi-eye-fill"></i></button>
+                          <button class="btn btn-sm btn-danger mb-1" onclick="downloadQRImage(1)"><i class="bi bi-download"></i></button>
+                          <button class="btn btn-sm btn-warning mb-1" onclick="printQRImage(1)"><i class="bi bi-printer"></i></button>
+                        </td>
+                      </tr>
+                    <?php endif; ?>
+                  <?php endif; ?>
                 </tbody>
               </table>
               <nav>
                 <ul class="pagination justify-content-center">
-                  <li class="page-item disabled">
-                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                  <li class='page-item <?= $current_page === 1 ? "disabled" : "" ?>'>
+                    <a class="page-link" href='<?= base_url("/business/seat-management/?page=1") ?>' tabindex="-1" aria-disabled="true">First</a>
                   </li>
-                  <li class="page-item"><a class="page-link" href="#">1</a></li>
-                  <li class="page-item active" aria-current="page">
-                    <a class="page-link" href="#">2</a>
-                  </li>
-                  <li class="page-item"><a class="page-link" href="#">3</a></li>
-                  <li class="page-item">
-                    <a class="page-link" href="#">Next</a>
+
+                  <?php for($page = $current_page > $total_pages - 3 ? $total_pages - 6 : $current_page-3 ; $page < $current_page; $page++): ?>
+                    <?php if($page > 0): ?>
+                      <li class="page-item"><a class="page-link" href='<?= base_url("/business/seat-management/?page=$page") ?>'><?= esc($page) ?></a></li>
+                    <?php endif; ?>
+                  <?php endfor; ?>
+
+                  <li class="page-item"><a class="page-link active" href="#"><?= esc($current_page) ?></a></li>
+
+                  <?php for($page = $current_page+1; $current_page > 3 ? ($page < $current_page + 4) : ($page < 8); $page++): ?>
+                    <?php if($page <= $total_pages): ?>
+                      <li class="page-item"><a class="page-link" href='<?= base_url("/business/seat-management/?page=$page") ?>'><?= esc($page) ?></a></li>
+                    <?php endif; ?>
+                  <?php endfor; ?>
+              
+                  <li class='page-item <?= $current_page === $total_pages ? "disabled" : "" ?>'>
+                    <a class="page-link" href="<?= base_url("/business/seat-management/?page=$total_pages") ?>">Last</a>
                   </li>
                 </ul>
               </nav>

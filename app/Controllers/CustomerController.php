@@ -14,7 +14,7 @@ class CustomerController extends BaseController
         return view('customer/customer-order-details');
     }
 
-    public function orderCreate($businessId) {
+    public function orderCreate($businessId, $tableNumber) {
         return view('customer/order-page');
     }
 

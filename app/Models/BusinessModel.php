@@ -8,7 +8,7 @@ class BusinessModel extends Model
 {
     protected $table            = 'businesses';
     protected $primaryKey       = 'business_id';
-    protected $returnType       = 'array';
+    protected $returnType       = 'object';
     protected $allowedFields    = [
         'business_id',
         'owning_user_id',

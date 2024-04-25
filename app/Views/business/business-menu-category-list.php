@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous" defer></script>
     <script src="<?= base_url('js/business/categoryList.js') ?>" defer></script>
     <link rel="stylesheet" href="<?= base_url('css/style.css') ?>">
-    <title>Menu Page</title>
+    <title>Category Page</title>
   </head>
   <body>
     <div class="row flex-md-row flex-column">
@@ -96,7 +96,7 @@
         </div>
         <div class="modal fade" id="edit-category-modal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
           <div class="modal-dialog">
-            <form action="" method="post">
+            <form action="<?= base_url('business/categories/update') ?>" method="post">
               <div class="modal-content">
                 <div class="modal-body">
                   <p class="fw-bold fs-5">Edit Category</p>
@@ -140,7 +140,7 @@
             <div class="col-md-6">
               <form action="" method="get">
                 <div class="input-group mb-md-0 mb-3 me-3 p-0">
-                  <input type="text" class="form-control bg-soft-gray" name="search" placeholder="Search Category Name">
+                  <input type="text" class="form-control bg-soft-gray" name="search" placeholder="Search Category Name" value="<?= esc($search) ?>">
                   <button class="btn bg-brown text-white" type="submit" id="search-button">Search</button>
                 </div>
               </form>
@@ -160,33 +160,17 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>1</td>
-                  <td id="menu-category-category_id_1">Appetizer</td>
-                  <td>7</td>
-                  <td>
-                    <button class="btn btn-sm btn-primary me-2 mb-1" data-bs-toggle="modal" data-bs-target="#edit-category-modal" onclick="setCategoryEditModal('category_id_1')"><i class="bi bi-pencil-fill"></i></button>
-                    <button class="btn btn-sm btn-danger mb-1" data-bs-toggle="modal" data-bs-target="#delete-confirmation-modal" onclick="setCategoryDeleteModal('category_id_1')"><i class="bi bi-dash-circle-fill" ></i></button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>2</td>
-                  <td id="menu-category-category_id_2">Main</td>
-                  <td>28</td>
-                  <td>
-                    <button class="btn btn-sm btn-primary me-2 mb-1" data-bs-toggle="modal" data-bs-target="#edit-category-modal" onclick="setCategoryEditModal('category_id_2')"><i class="bi bi-pencil-fill"></i></button>
-                    <button class="btn btn-sm btn-danger mb-1" data-bs-toggle="modal" data-bs-target="#delete-confirmation-modal" onclick="setCategoryDeleteModal('category_id_2')"><i class="bi bi-dash-circle-fill"></i></button>
-                  </td>
-                </tr>
-                <tr>
-                  <td>3</td>
-                  <td id="menu-category-category_id_3">Dessert</td>
-                  <td>4</td>
-                  <td>
-                    <button class="btn btn-sm btn-primary me-2 mb-1" data-bs-toggle="modal" data-bs-target="#edit-category-modal" onclick="setCategoryEditModal('category_id_3')"><i class="bi bi-pencil-fill"></i></button>
-                    <button class="btn btn-sm btn-danger mb-1" data-bs-toggle="modal" data-bs-target="#delete-confirmation-modal" onclick="setCategoryDeleteModal('category_id_3')"><i class="bi bi-dash-circle-fill"></i></button>
-                  </td>
-                </tr>
+                <?php foreach ($categories as $categoryIndex => $category): ?>
+                  <tr>
+                    <td><?= esc($categoryIndex + 1) ?></td>
+                    <td id="menu-category-<?= esc($category['category_id']) ?>"><?= esc($category['name']) ?></td>
+                    <td><?= esc($category['menu_count']) ?></td>
+                    <td>
+                      <button class="btn btn-sm btn-primary me-2 mb-1" data-bs-toggle="modal" data-bs-target="#edit-category-modal" onclick="setCategoryEditModal(`<?= esc($category['category_id']) ?>`)"><i class="bi bi-pencil-fill"></i></button>
+                      <button class="btn btn-sm btn-danger mb-1" data-bs-toggle="modal" data-bs-target="#delete-confirmation-modal" onclick="setCategoryDeleteModal(`<?= esc($category['category_id']) ?>`)"><i class="bi bi-dash-circle-fill" ></i></button>
+                    </td>
+                  </tr>
+                <?php endforeach; ?>
               </tbody>
             </table>
             <nav>

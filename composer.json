@@ -11,6 +11,7 @@
     },
     "require": {
         "php": "^7.4 || ^8.0",
+        "chillerlan/php-qrcode": "^5.0",
         "codeigniter4/framework": "^4.0",
         "codeigniter4/shield": "^1.0",
         "ramsey/uuid": "^4.7"

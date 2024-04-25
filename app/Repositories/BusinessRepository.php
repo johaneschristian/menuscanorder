@@ -35,4 +35,11 @@ class BusinessRepository
             'business_is_archived' => FALSE,
         ]);
     } 
+
+    public static function updateBusinessData($businessID, $businessData) {
+        $business = new BusinessModel();
+        $business->where('business_id', $businessID)
+                 ->set($businessData)
+                 ->update();
+    }
 }
