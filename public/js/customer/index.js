@@ -1,10 +1,43 @@
 // Format
 // {
-//   menuNum: 1,
+//   menu_item_id: 1,
 //   quantity: 1,
 //   notes: ...
 // }
-let selectedMenu = [];
+let selectedMenus = [];
+
+function getCustomerTableNumber() {
+	return window.location.href.split('/').at(-1);
+}
+
+function getCurrentBusinessID() {
+	return window.location.href.split('/').at(-2);
+}
+
+function getCompleteSelectedMenu() {
+	for(let i=0; i<selectedMenus.length; i++) {
+		selectedMenus[i] = {
+			...selectedMenus[i],
+			notes: getMenuNote(selectedMenus[i].menu_item_id)
+		}
+	}
+}
+
+async function submitOrder() {
+	const orderData = {
+		business_id: getCurrentBusinessID(),
+		table_number: getCustomerTableNumber(),
+		selected_menus: getCompleteSelectedMenu(),
+	};
+
+	const response = await fetch('/customer/orders/submit', {
+		method: "POST",
+		mode: "cors",
+		body: JSON.stringify(orderData)
+	});
+
+	window.location.href = '/customer/orders/';
+}
 
 function toggleReadMore(menuItemId) {
 	const menuDetailImage = document.querySelector('#menu-detail-image');
@@ -55,6 +88,10 @@ function toggleCheckoutButton(shouldDisplay) {
 	toggleElement(checkoutButton, shouldDisplay);
 }
 
+function getMenuCategoryIDFromDOMSelectElement(elementID) {
+	return elementID.split("menu-category-")[1];
+}
+
 function setMenuCategoryActive(modifiedElement) {
 	document.querySelectorAll(".menu-category").forEach((elem) => {
 		if (elem.classList.contains("selected")) {
@@ -65,17 +102,25 @@ function setMenuCategoryActive(modifiedElement) {
 	if (!modifiedElement.classList.contains("selected")) {
 		modifiedElement.classList.add("selected");
 	}
+
+	document.querySelectorAll('[id^="category-holder-"]').forEach((elem) => {
+		toggleElement(elem, false);
+	});
+
+	const activeCategoryID = getMenuCategoryIDFromDOMSelectElement(modifiedElement.id);
+	const activeCategoryHolder = document.querySelector(`#category-holder-${activeCategoryID}`);
+	toggleElement(activeCategoryHolder, true);
 }
 
 function selectedMenuQuantityWithoutMenuItem(menuItemId) {
-	return selectedMenu.filter(
+	return selectedMenus.filter(
 		(menuQuantity) => menuQuantity.menu_item_id !== menuItemId
 	);
 }
 
 function updateSelectedMenuQuantity(menuItemId, newQuantity) {
   const nonModifiedMenuQuantities = selectedMenuQuantityWithoutMenuItem(menuItemId);
-	selectedMenu = [
+	selectedMenus = [
 		...nonModifiedMenuQuantities,
 		{
 			menu_item_id: menuItemId,
@@ -141,20 +186,24 @@ function removeMenuQuantity(menuItemId) {
   }
 
 	if (newQuantity === 0) {
-		selectedMenu = selectedMenuQuantityWithoutMenuItem(menuItemId);
+		selectedMenus = selectedMenuQuantityWithoutMenuItem(menuItemId);
 		toggleEditNoteButton(menuItemId, false);
 
-		if (selectedMenu.length === 0) {
+		if (selectedMenus.length === 0) {
 			toggleCheckoutButton(false);
 		}
 	}
 }
 
 function setCartContent() {
-	const cart_items_tbody = document.querySelector('#cart-items-table-body');
-	cart_items_tbody.innerText = "";
+	const tableNumber = getCustomerTableNumber();
+	const cartTableNumberSpan = document.querySelector('#order-table-number'); 
+	cartTableNumberSpan.innerText = tableNumber;
 
-	selectedMenu.forEach((selectedItem, index) => {
+	const cartItemsTBody = document.querySelector('#cart-items-table-body');
+	cartItemsTBody.innerText = "";
+
+	selectedMenus.forEach((selectedItem, index) => {
 		const itemRow = document.createElement('tr');
 
 		const itemNumber = document.createElement('td');
@@ -177,7 +226,7 @@ function setCartContent() {
 		itemNote.innerText = getMenuNote(selectedItem.menu_item_id);
 		itemRow.appendChild(itemNote);
 		
-		cart_items_tbody.appendChild(itemRow);
+		cartItemsTBody.appendChild(itemRow);
 	});
 }
 

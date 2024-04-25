@@ -118,7 +118,7 @@
                 <label for="" class="form-label fw-bold lh-sm">Category</label>
                 <select name="category_id" class="form-select bg-soft-gray">
                   <?php foreach ($categories as $category): ?>
-                    <option value="<?= esc($category['category_id']) ?>" <?= !$is_create ? ($menu->category_id === $category['category_id'] ? "selected" : "") : "" ?>><?= esc($category['name']) ?></option>
+                    <option value="<?= esc($category->category_id) ?>" <?= !$is_create ? ($menu->category_id === $category->category_id ? "selected" : "") : "" ?>><?= esc($category->name) ?></option>
                   <?php endforeach; ?>
                   <option value="others" <?= !$is_create ? ($menu->category_id === NULL ? "selected" : "") : "" ?>>Others</option>
                 </select>

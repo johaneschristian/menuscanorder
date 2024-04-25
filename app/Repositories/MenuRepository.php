@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\CustomExceptions\ObjectNotFoundException;
+use App\Models\CategoryModel;
 use App\Models\MenuItemModel;
 use App\Utils\Utils;
 
@@ -65,5 +66,26 @@ class MenuRepository
         }
         
         return $query->findAll();
+    }
+
+    public static function getMenuItemsOfBusinessGroupByCategory($businessID) {
+        $category = new CategoryModel();
+        $allCategories = $category->findAll();
+
+        $allCategoriesWithMenus = [];
+        foreach($allCategories as $category) {
+            $allCategoriesWithMenus[] = [
+                ...(array) $category,
+                'menus' => self::getMenuItemsOfBusinessMatchingNameAndCategory($businessID, "", $category->category_id)
+            ];
+        }
+
+        $allCategoriesWithMenus[] = [
+            'category_id' => NULL,
+            'name' => 'Others',
+            'menus' => self::getMenuItemsOfBusinessMatchingNameAndCategory($businessID, "", NULL), 
+        ];
+
+        return $allCategoriesWithMenus;
     }
 }

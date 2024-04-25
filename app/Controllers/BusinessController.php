@@ -81,12 +81,17 @@ class BusinessController extends BaseController
     }
 
     public function menuGetImage($menuId) {
-        $menuImageFile = BusinessService::handleMenuGetImage($menuId);
-        return $this->response
+        try {
+            $menuImageFile = BusinessService::handleMenuGetImage($menuId);
+            return $this->response
                     ->setHeader('Content-Type', $menuImageFile->getMimeType())
                     ->setHeader('Content-disposition', 'inline; filename="' . $menuImageFile->getBasename() . '"')
                     ->setStatusCode(200)
                     ->setBody(readfile($menuImageFile->getRealPath()));
+
+        } catch (\Exception) {
+            return "";
+        }
     }
 
     public function orderList() {

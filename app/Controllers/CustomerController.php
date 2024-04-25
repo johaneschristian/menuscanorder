@@ -6,18 +6,6 @@ use App\Services\CustomerService;
 
 class CustomerController extends BaseController
 {
-    public function orderList() {
-        return view('customer/customer-order-list');
-    }
-
-    public function orderDetail($orderId) {
-        return view('customer/customer-order-details');
-    }
-
-    public function orderCreate($businessId, $tableNumber) {
-        return view('customer/order-page');
-    }
-
     public function profileEdit() {
         return view('customer/customer-profile-edit');
     }

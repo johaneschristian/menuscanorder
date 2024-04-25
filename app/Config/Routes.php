@@ -45,9 +45,10 @@ $routes->group('business', function ($routes) {
 
 $routes->group('customer', function ($routes) {
     $routes->group('orders', function ($routes) {
-        $routes->get('/', 'CustomerController::orderList');
-        $routes->get('detail/(:segment)', 'CustomerController::orderDetail/$1');
-        $routes->get('menu/(:segment)/(:segment)', 'CustomerController::orderCreate/$1/$2');
+        $routes->get('/', 'OrderController::customerOrderList');
+        $routes->get('detail/(:segment)', 'OrderController::customerOrderDetail/$1');
+        $routes->get('menu/(:segment)/(:segment)', 'OrderController::orderMenu/$1/$2');
+        $routes->post('submit/', 'OrderController::orderCreate');
     });
     $routes->get('profile', 'CustomerController::profileEdit');
     $routes->match(['get', 'post'], 'business', 'CustomerController::businessRegistration');

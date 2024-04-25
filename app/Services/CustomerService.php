@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Repositories\BusinessRepository;
 use App\CustomExceptions\InvalidRegistrationException;
+use App\Repositories\MenuRepository;
 use App\Utils\Validator;
 
 class CustomerService 
@@ -42,6 +43,16 @@ class CustomerService
     public static function handleBusinessRegistration($user, $businessData) {
         self::validateBusinessData($user, $businessData);
         BusinessRepository::createBusiness($user, $businessData);
+    }
+
+    public static function handleGetBusinessMenus($businessID) {
+        $business = BusinessRepository::getBusinessByIdOrThrowException($businessID);
+        $categories_and_menu = MenuRepository::getMenuItemsOfBusinessGroupByCategory($businessID, "");
+
+        return [
+            'business' => $business,
+            'categories_and_menu' => $categories_and_menu
+        ];
     }
 }
 

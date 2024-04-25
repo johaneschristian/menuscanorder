@@ -101,7 +101,7 @@
               <select class="form-select mt-3 w-mdc-25 w-100 bg-soft-gray" name="category_id" onchange="this.form.submit()">
                 <option value="all" <?= $category_id === "all" ? "selected" : "" ?>>All Category</option>
                 <?php foreach ($categories as $category): ?>
-                  <option value="<?= esc($category['category_id']) ?>" <?= $category_id === $category['category_id'] ? "selected" : "" ?>><?= esc($category['name']) ?></option>
+                  <option value="<?= esc($category->category_id) ?>" <?= $category_id === $category->category_id ? "selected" : "" ?>><?= esc($category->name) ?></option>
                 <?php endforeach; ?>
                 <option value="others" <?= $category_id === "others" ? "selected" : ""?>>Others</option>
               </select>
@@ -118,7 +118,7 @@
                   <img src='<?= $menu->image_url ? base_url("/business/menu/{$menu->menu_item_id}/image") : "" ?>' class="card-img-top h-50" style="object-fit: cover;" alt="" onerror="this.src='https://theme-assets.getbento.com/sensei/7c1964e.sensei/assets/images/catering-item-placeholder-704x520.png'">
                   <div class="card-body d-flex flex-column justify-content-between">
                     <div class="">
-                      <h5 id="menu-menu_item_id_1-name" class="card-title m-0"><?= esc($menu->name) ?></h5>
+                      <h5 id=<?= "menu-{$menu->menu_item_id}-name" ?> class="card-title m-0"><?= esc($menu->name) ?></h5>
                       <div>
                         <span class="badge rounded-pill bg-<?= esc($menu->is_available ? "success" : "danger") ?>"><?= esc($menu->is_available ? "Available" : "Not Available") ?></span>
                         <span class="badge rounded-pill bg-dark">AUD<?= esc(number_format($menu->price, 2, '.')) ?></span>
@@ -127,7 +127,7 @@
                     </div>
                     <div class="d-flex flex-row justify-content-end gap-1">
                       <a href="#" class="btn btn-warning" onclick='window.location.href = `<?= base_url("business/menu/{$menu->menu_item_id}/edit") ?>`'>Edit</a>
-                      <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delete-confirmation-modal" onclick="setDeletionModal('menu_item_id_1')">Delete</a>
+                      <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delete-confirmation-modal" onclick='setDeletionModal("<?= esc($menu->menu_item_id) ?>")'>Delete</a>
                     </div>
                   </div>
                 </div>

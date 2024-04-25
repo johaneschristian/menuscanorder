@@ -8,6 +8,22 @@ use App\Utils\Utils;
 
 class BusinessRepository
 {
+    public static function getBusinessById($businessId) {
+        $businesses = new BusinessModel();
+        return $businesses->where('business_id', $businessId)->first();
+    }
+
+    public static function getBusinessByIdOrThrowException($businessId) {
+        $foundBusiness = self::getBusinessById($businessId);
+
+        if(is_null($foundBusiness)) {
+            throw new ObjectNotFoundException(sprintf("Business with ID % does not exist", $businessId));
+
+        } else {
+            return $foundBusiness;
+        }
+    }
+
     public static function getBusinessByUserId($owningUserId) {
         $businesses = new BusinessModel();
         return $businesses->where('owning_user_id', $owningUserId)->first();
@@ -15,6 +31,7 @@ class BusinessRepository
 
     public static function getBusinessByUserIdOrThrowException($owningUserId) {
         $foundBusiness = self::getBusinessByUserId($owningUserId);
+        
         if(is_null($foundBusiness)) {
             throw new ObjectNotFoundException(sprintf("Business belonging to user with ID % does not exist", $owningUserId));
 

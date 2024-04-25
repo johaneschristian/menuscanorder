@@ -31,15 +31,11 @@ class CategoryRepository
                                 ->like('name', $categoryNameSearch, 'both')
                                 ->findAll();
         
-        $businessCategoriesWithMenuCount = [];
         foreach($businessCategories as $category) {
-            $businessCategoriesWithMenuCount[] = [
-                ...(array) $category, 
-                'menu_count' => 0
-            ];
+            $category->menu_count = 0;
         }
 
-        return $businessCategoriesWithMenuCount;
+        return $businessCategories;
     }
 
     public static function getCategoryByID($categoryID) {

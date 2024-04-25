@@ -163,11 +163,11 @@
                 <?php foreach ($categories as $categoryIndex => $category): ?>
                   <tr>
                     <td><?= esc($categoryIndex + 1) ?></td>
-                    <td id="menu-category-<?= esc($category['category_id']) ?>"><?= esc($category['name']) ?></td>
-                    <td><?= esc($category['menu_count']) ?></td>
+                    <td id="menu-category-<?= esc($category->category_id) ?>"><?= esc($category->name) ?></td>
+                    <td><?= esc($category->menu_count) ?></td>
                     <td>
-                      <button class="btn btn-sm btn-primary me-2 mb-1" data-bs-toggle="modal" data-bs-target="#edit-category-modal" onclick="setCategoryEditModal(`<?= esc($category['category_id']) ?>`)"><i class="bi bi-pencil-fill"></i></button>
-                      <button class="btn btn-sm btn-danger mb-1" data-bs-toggle="modal" data-bs-target="#delete-confirmation-modal" onclick="setCategoryDeleteModal(`<?= esc($category['category_id']) ?>`)"><i class="bi bi-dash-circle-fill" ></i></button>
+                      <button class="btn btn-sm btn-primary me-2 mb-1" data-bs-toggle="modal" data-bs-target="#edit-category-modal" onclick="setCategoryEditModal(`<?= esc($category->category_id) ?>`)"><i class="bi bi-pencil-fill"></i></button>
+                      <button class="btn btn-sm btn-danger mb-1" data-bs-toggle="modal" data-bs-target="#delete-confirmation-modal" onclick="setCategoryDeleteModal(`<?= esc($category->category_id) ?>`)"><i class="bi bi-dash-circle-fill" ></i></button>
                     </td>
                   </tr>
                 <?php endforeach; ?>
