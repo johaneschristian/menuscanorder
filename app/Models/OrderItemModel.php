@@ -12,7 +12,7 @@ class OrderItemModel extends Model
     protected $allowedFields    = [
         'order_item_id',
         'num_of_items',
-        'subtotal',
+        'price_when_bought',
         'item_order_time',
         'order_item_status_id',
         'notes',

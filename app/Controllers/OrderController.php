@@ -26,6 +26,8 @@ class OrderController extends Controller {
     }
 
     public function customerOrderDetail($orderId) {
-        return view('customer/customer-order-details');
+        $user = auth()->user();
+        $orderData = OrderService::handleCustomerOrderDetail($user, $orderId);
+        return view('customer/customer-order-details', $orderData);
     }
 }

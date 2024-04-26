@@ -15,7 +15,7 @@ class AddOrderCompletedTimeToOrders extends Migration
             ]
         ];
 
-            $this->forge->addColumn('orders', $fields);
+        $this->forge->addColumn('orders', $fields);
     }
 
     public function down()

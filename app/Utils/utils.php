@@ -33,4 +33,14 @@ class Utils
         $dateTime = new DateTime($dateTimeText);
         return $dateTime->format('d M Y');
     }
+
+    public static function formatDateTimeForDisplay($dateTimeText) {
+        $dateTime = new DateTime($dateTimeText);
+        return $dateTime->format('d M Y H:i');
+    }
+
+    public static function getTimeFromDateTime($dateTimeText) {
+        $dateTime = new DateTime($dateTimeText);
+        return $dateTime->format('H:i:s');
+    }
 }

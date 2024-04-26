@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\CustomExceptions\InvalidRegistrationException;
+use App\Exceptions\NotAuthorizedException;
 use App\Repositories\BusinessRepository;
 use App\Repositories\MenuRepository;
 use App\Repositories\OrderItemRepository;
@@ -54,11 +55,20 @@ class OrderService
         foreach ($selectedMenus as $selectedMenu) {
             $convertedSelectedMenus[] = [
                 ...$selectedMenu,
+                'notes' => (!is_string($selectedMenu['notes']) || trim($selectedMenu['notes']) === "") ? NULL : trim($selectedMenu['notes']),
                 'menu_item' => MenuRepository::getMenuByIDOrThrowException($selectedMenu['menu_item_id']),
             ];
         }
 
         return $convertedSelectedMenus;
+    }
+
+    private static function validateAllSelectedMenuAreAvailable($selectedMenus) {
+        foreach ($selectedMenus as $selectedMenu) {
+            if(!$selectedMenu->menu_item->is_available) {
+                throw new InvalidRegistrationException("Menu with ID {$selectedMenu->menu_item_id} is currently not available");
+            }
+        }
     }
 
     private static function getOrCreateOrder($submittingUser, $receivingBusiness, $tableNumber) {
@@ -83,13 +93,10 @@ class OrderService
     }
 
     private static function computeOrderStatus($orderID) {
-        // Change to New Order, In-Progress, Completed
         $itemsOfOrder = OrderItemRepository::getOrderItemsOfOrder($orderID);
         $receivedOrderItemStatus = OrderItemRepository::getOrderItemStatusByName('received');
-        $servedOrderItemStatus = OrderItemRepository::getOrderItemStatusByName('served');
         
         $allAreReceived = TRUE;
-
         foreach ($itemsOfOrder as $itemOfOrder) {
             if ($itemOfOrder->order_item_status_id !== $receivedOrderItemStatus->id) {
                 $allAreReceived = FALSE;
@@ -114,14 +121,15 @@ class OrderService
     private static function registerOrderItem($orderID, $selectedMenus) {
         $totalPrice = 0;
         foreach($selectedMenus as $selectedMenu) {
-            $subtotal = $selectedMenu['menu_item']->price * $selectedMenu['quantity'];
             OrderItemRepository::createOrderItemModel([
                 'num_of_items' => $selectedMenu['quantity'],
-                'subtotal' => $subtotal,
+                'price_when_bought' => $selectedMenu['menu_item']->price,
                 'notes' => $selectedMenu['notes'],
                 'order_id' => $orderID,
                 'menu_item_id' => $selectedMenu['menu_item']->menu_item_id,
             ]);
+
+            $subtotal = $selectedMenu['menu_item']->price * $selectedMenu['quantity'];
             $totalPrice += $subtotal;
         }
 
@@ -133,6 +141,7 @@ class OrderService
         $receivingBusiness = BusinessRepository::getBusinessByIdOrThrowException($orderData['business_id'] ?? NULL);
         self::validateOrderCreation($receivingBusiness, $orderData);
         $convertedSelectedMenus = self::convertSelectedMenu($orderData['selected_menus']);
+        self::validateAllSelectedMenuAreAvailable($convertedSelectedMenus);
         $modifiedOrderID = self::getOrCreateOrder($user, $receivingBusiness, $orderData['table_number']);  
         self::registerOrderItem($modifiedOrderID, $convertedSelectedMenus);      
     }
@@ -161,6 +170,7 @@ class OrderService
         $order->status_name = OrderRepository::getOrderStatusByID($order->order_status_id)->status;
         $order->duration = Utils::calculateDuration($order->order_creation_time, $order->order_completion_time ?? date("c"));
         $order->start_date = Utils::getDateFromDateTime($order->order_creation_time);
+        $order->formatted_creation_time = Utils::formatDateTimeForDisplay($order->order_creation_time);
         return $order;
     }
 
@@ -188,6 +198,87 @@ class OrderService
             'statuses' => $allStatus,
             'search' => $requestData['business_name'] ?? '',
             'selected_status_id' => $requestData['status_id'] ?? '',
+        ];
+    }
+
+    private static function validateCustomerOrderOwnership($user, $order) {
+        // No-type safe is used as submitting_user_id is unexpectedly converted to string by PHP
+        if ($order->submitting_user_id != $user->id) {
+            throw new NotAuthorizedException("User is not the owner of order with ID {$order->order_id}");
+        }
+    }
+
+    private static function createOrderMenuItemIDAndPriceSummary($order, $menuItemID, $menuItemName, $price) {
+        // Get all order items matching them belonging to the same ORDER ID of menu item ID and price
+        // Have an aggregate summary:
+        // Get total quantity X
+        // Get individual item price X
+        // Set notes as an array containing multiple notes X
+        // Set subtotal X
+
+        $orderItemSummary = [
+            'menu_item_id' => $menuItemID,
+            'menu_item_name' => $menuItemName,
+            'num_of_items' => 0,
+            'price_when_bought' => $price,
+            'subtotal' => 0,
+            'notes' => []
+        ];
+
+        $orderItems = OrderItemRepository::getOrderItemsOfOrderMatchingMenuItemIDAndPrice($order->order_id, $menuItemID, $price);
+        foreach ($orderItems as $orderItem) {
+            $orderItemSummary['num_of_items'] += $orderItem->num_of_items;
+            $orderItemSummary['subtotal'] += $orderItem->num_of_items * $price;
+            
+            if ($orderItem->notes !== NULL) {
+                $orderItemSummary['notes'][] = $orderItem->notes;
+            }
+        }
+
+        return $orderItemSummary;        
+    }
+
+    private static function getOrderItemsSummary($order) {
+        $uniqueCombinationOfMenuItemAndPrice = OrderItemRepository::getDistinctCombinationOfMenuItemIDAndPriceOfOrder($order->order_id);
+        
+        $orderSummary = [];
+        foreach($uniqueCombinationOfMenuItemAndPrice as $menuItemAndPrice) {
+            $orderSummary[] = self::createOrderMenuItemIDAndPriceSummary(
+                $order, 
+                $menuItemAndPrice->menu_item_id,
+                $menuItemAndPrice->menu_item_name,
+                $menuItemAndPrice->price_when_bought
+            );
+        }
+
+        return $orderSummary;
+    }
+
+    private static function getFormattedOrderItemsOfOrder($order) {
+        $orderItems = OrderItemRepository::getOrderItemsOfOrder($order->order_id, TRUE, TRUE);
+
+        foreach($orderItems as $orderItem) {
+            $orderItem->formatted_item_order_date = Utils::getDateFromDateTime($orderItem->item_order_time);
+            $orderItem->formatted_item_order_time = Utils::getTimeFromDateTime($orderItem->item_order_time);
+        }
+
+        return $orderItems;
+    }
+
+    private static function getOrderCompleteDetails($order) {
+        $orderWithBaseInformation = self::appendRelevantInformationOfOrder($order);
+        $orderWithBaseInformation->order_summary = self::getOrderItemsSummary($order);
+        $orderWithBaseInformation->order_items = self::getFormattedOrderItemsOfOrder($order);
+        return $orderWithBaseInformation;
+    }
+
+    public static function handleCustomerOrderDetail($user, $orderID) {
+        $order = OrderRepository::getOrderByIDOrThrowException($orderID);
+        self::validateCustomerOrderOwnership($user, $order);
+        $orderWithCompleteDetails = self::getOrderCompleteDetails($order);
+
+        return [
+            'order' => $orderWithCompleteDetails,
         ];
     }
 }

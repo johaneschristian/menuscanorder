@@ -21,7 +21,7 @@
 		></script>
     <script src="<?= base_url('js/helper.js') ?>" defer></script>
 		<link rel="stylesheet" href="<?= base_url('css/style.css') ?>" />
-		<title>User Details</title>
+		<title>Order Details</title>
 	</head>
 	<body class="d-flex flex-column min-vh-100">
 		<header>
@@ -71,15 +71,19 @@
           <table class="table w-mdc-50 w-100 h6 align-middle">
             <tr>
               <td>Order ID</td>
-              <td>: a236d87b-aacc-4c0b-9fa9-9deff729b31d</td>
+              <td>: <?= esc($order->order_id) ?></td>
             </tr>
             <tr>
               <td>Order Time</td>
-              <td>: 03/03/2024 23:22</td>
+              <td>: <?= esc($order->formatted_creation_time) ?></td>
+            </tr>
+            <tr>
+              <td>Business Name</td>
+              <td>: <?= esc($order->business_name) ?></td>
             </tr>
             <tr>
               <td>Order Table</td>
-              <td>: 13</td>
+              <td>: <?= esc($order->table_number) ?></td>
             </tr>
           </table>
           <p class="h4 fw-bold mt-3 mb-3">Order Summary</p>
@@ -94,45 +98,28 @@
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>1</td>
-                <td class="d-flex flex-column">
-                  <span>Nasi Goreng</span>
-                  <span class="small text-secondary">- Less spicy, with pickles separated</span>
-                  <span class="small text-secondary">- One without egg</span>
-                </td>
-                <td>2</td>
-                <td>10.00</td>
-                <td>20.00</td>
-              </tr>
-              <tr>
-                <td>2</td>
-                <td class="d-flex flex-column">
-                  <span>Es Doger</span>
-                  <span class="small text-secondary">- Less ice, added caramel</span>
-                </td>
-                <td>3</td>
-                <td>10.00</td>
-                <td>30.00</td>
-              </tr>
-              <tr>
-                <td>3</td>
-                <td class="d-flex flex-column">
-                  <span>Mie Goreng</span>
-                  <span class="small text-secondary">- Less spicy, with pickles separated</span>
-                </td>
-                <td>2</td>
-                <td>10.00</td>
-                <td>20.00</td>
-              </tr>
+              <?php foreach($order->order_summary as $index => $order_item_summary): ?>
+                <tr>
+                  <td><?= esc($index+1) ?></td>
+                  <td class="d-flex flex-column">
+                    <span><?= esc($order_item_summary['menu_item_name']) ?></span>
+                    <?php foreach($order_item_summary['notes'] as $notes): ?>
+                      <span class="small text-secondary">- <?= esc($notes) ?></span>
+                    <?php endforeach; ?>
+                  </td>
+                  <td><?= esc($order_item_summary['num_of_items']) ?></td>
+                  <td><?= esc($order_item_summary['price_when_bought']) ?></td>
+                  <td><?= esc($order_item_summary['subtotal']) ?></td>
+                </tr>
+              <?php endforeach; ?>
             </tbody>
           </table>
           <div class="d-flex justify-content-end align-items-end">
-            <h6 class="me-1 h6">Order Total:</h6><h4 class="fw-bold">100.00 (AUD)</h4>
+            <h6 class="me-1 h6">Order Total:</h6><h4 class="fw-bold"><?= esc(number_format($order->total_price, 2, '.')) ?> (AUD)</h4>
           </div>
           <div class="d-flex justify-content-end align-items-end mt-3">
-            <button type="button" class="btn btn-success me-2">Go to Business Menu</button>
-            <button type="button" class="btn btn-outline-danger">Go Back to Orders Page</button>
+            <button type="button" class="btn btn-success me-2" onclick='window.location.href=`<?= base_url("/customer/orders/menu/{$order->receiving_business_id}/{$order->table_number}") ?>`'>Go to Business Menu</button>
+            <button type="button" class="btn btn-outline-danger" onclick='window.location.href=`<?= base_url("/customer/orders") ?>`'>Go Back to Orders Page</button>
           </div>
         </div>
         <div class="card shadow p-md-5 p-3 mt-3 mb-3">
@@ -156,129 +143,51 @@
               </div>
             </div>
           </div>
-          <div class="card w-100 p-3 mt-2 shadow-sm">
-            <div class="row d-flex flex-md-row flex-column align-items-md-center align-items-start">
-              <div class="col-md-1 d-flex flex-md-column flex-column-reverse">
-                <div class="row">
-                  <div class="fw-bold">1</div>
-                </div>
-                <div class="row">
-                  <div class="sub-text text-muted d-md-none">No.</div>
-                </div>
-              </div>
-              <div class="col-md-4 mt-md-0 mt-2 d-flex flex-column justify-content-end">
-                <div class="row">
-                  <span class="fw-bold d-md-block d-none">Nasi Goreng</span>
-                </div>
-                <div class="row d-flex flex-md-column flex-column-reverse">
-                  <div>
-                    <span class="fw-bold d-md-none d-block">Nasi Goreng</span>
-                    <span class="small text-secondary">- Less spicy, with pickles separated</span>
+          <?php foreach ($order->order_items as $index => $order_item): ?>
+            <div class="card w-100 p-3 mt-2 shadow-sm">
+              <div class="row d-flex flex-md-row flex-column align-items-md-center align-items-start">
+                <div class="col-md-1 d-flex flex-md-column flex-column-reverse">
+                  <div class="row">
+                    <div class="fw-bold"><?= esc($index+1) ?></div>
                   </div>
-                  <div class="sub-text text-muted d-md-none w-auto">Item</div>
+                  <div class="row">
+                    <div class="sub-text text-muted d-md-none">No.</div>
+                  </div>
                 </div>
-              </div>
-              <div class="col-md-2 fw-bold p-md-0 mt-md-0 mt-2">
-                <span class="fw-bold d-md-block d-none">1</span>
-              </div>
-              <div class="col-md-3 fw-bold p-md-0 mt-md-0 mt-2">
-                <div class="row">
-                  <span class="d-md-block d-none">00:30:00</span>
-                  <div class="sub-text text-muted d-md-none">Time Ordered</div>
-                  <span class="fw-bold d-md-none d-block">00:30:00, 12 March 2024</span>
+                <div class="col-md-4 mt-md-0 mt-2 d-flex flex-column justify-content-end">
+                  <div class="row">
+                    <span class="fw-bold d-md-block d-none"><?= esc($order_item->menu_item_name) ?></span>
+                  </div>
+                  <div class="row d-flex flex-md-column flex-column-reverse">
+                    <div>
+                      <span class="fw-bold d-md-none d-block"><?= esc($order_item->menu_item_name) ?></span>
+                      <?php if ($order_item->notes !== NULL): ?>
+                        <span class="small text-secondary">- <?= esc($order_item->notes) ?></span>
+                      <?php endif; ?>
+                    </div>
+                    <div class="sub-text text-muted d-md-none w-auto">Item</div>
+                  </div>
                 </div>
-                <div class="row">
-                  <span class="sub-text text-muted d-md-block d-none">12 March 2024</span>
+                <div class="col-md-2 fw-bold p-md-0 mt-md-0 mt-2">
+                  <span class="fw-bold d-md-block d-none">1</span>
                 </div>
-              </div>
-              <div class="col-md-2 fw-bold p-md-0 mt-md-0 mt-2">
-                <div class="sub-text text-muted d-md-none">Status</div>
-                <span class="badge rounded-pill bg-warning text-dark text-wrap">Being Prepared</span>
+                <div class="col-md-3 fw-bold p-md-0 mt-md-0 mt-2">
+                  <div class="row">
+                    <span class="d-md-block d-none"><?= esc($order_item->formatted_item_order_time) ?></span>
+                    <div class="sub-text text-muted d-md-none">Time Ordered</div>
+                    <span class="fw-bold d-md-none d-block"><?= esc($order_item->formatted_item_order_time) ?>, <?= esc($order_item->formatted_item_order_date) ?></span>
+                  </div>
+                  <div class="row">
+                    <span class="sub-text text-muted d-md-block d-none"><?= esc($order_item->formatted_item_order_date) ?></span>
+                  </div>
+                </div>
+                <div class="col-md-2 fw-bold p-md-0 mt-md-0 mt-2">
+                  <div class="sub-text text-muted d-md-none">Status</div>
+                  <span class="badge rounded-pill bg-warning text-dark text-wrap"><?= esc($order_item->status_name) ?></span>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="card w-100 p-3 mt-2 shadow-sm">
-            <div class="row d-flex flex-md-row flex-column align-items-md-center align-items-start">
-              <div class="col-md-1 d-flex flex-md-column flex-column-reverse">
-                <div class="row">
-                  <div class="fw-bold">2</div>
-                </div>
-                <div class="row">
-                  <div class="sub-text text-muted d-md-none">No.</div>
-                </div>
-              </div>
-              <div class="col-md-4 mt-md-0 mt-2 d-flex flex-column justify-content-end">
-                <div class="row">
-                  <span class="fw-bold d-md-block d-none">Nasi Goreng</span>
-                </div>
-                <div class="row d-flex flex-md-column flex-column-reverse">
-                  <div>
-                    <span class="fw-bold d-md-none d-block">Nasi Goreng</span>
-                    <span class="small text-secondary">- One without egg</span>
-                  </div>
-                  <div class="sub-text text-muted d-md-none w-auto">Item</div>
-                </div>
-              </div>
-              <div class="col-md-2 fw-bold p-md-0 mt-md-0 mt-2">
-                <span class="fw-bold d-md-block d-none">1</span>
-              </div>
-              <div class="col-md-3 fw-bold p-md-0 mt-md-0 mt-2">
-                <div class="row">
-                  <span class="d-md-block d-none">00:36:00</span>
-                  <div class="sub-text text-muted d-md-none">Time Ordered</div>
-                  <span class="fw-bold d-md-none d-block">00:36:00, 12 March 2024</span>
-                </div>
-                <div class="row">
-                  <span class="sub-text text-muted d-md-block d-none">12 March 2024</span>
-                </div>
-              </div>
-              <div class="col-md-2 fw-bold p-md-0 mt-md-0 mt-2">
-                <div class="sub-text text-muted d-md-none">Status</div>
-                <span class="badge rounded-pill bg-danger mt-2">Received</span>
-              </div>
-            </div>
-          </div>
-          <div class="card w-100 p-3 mt-2 shadow-sm">
-            <div class="row d-flex flex-md-row flex-column align-items-md-center align-items-start">
-              <div class="col-md-1 d-flex flex-md-column flex-column-reverse">
-                <div class="row">
-                  <div class="fw-bold">3</div>
-                </div>
-                <div class="row">
-                  <div class="sub-text text-muted d-md-none">No.</div>
-                </div>
-              </div>
-              <div class="col-md-4 mt-md-0 mt-2 d-flex flex-column justify-content-end">
-                <div class="row">
-                  <span class="fw-bold d-md-block d-none">Es Doger</span>
-                </div>
-                <div class="row d-flex flex-md-column flex-column-reverse">
-                  <div>
-                    <span class="fw-bold d-md-none d-block">Es Doger</span>
-                    <span class="small text-secondary">- Less ice, added caramel</span>
-                  </div>
-                  <div class="sub-text text-muted d-md-none w-auto">Item</div>
-                </div>
-              </div>
-              <div class="col-md-2 fw-bold p-md-0 mt-md-0 mt-2">
-                <span class="fw-bold d-md-block d-none">3</span>
-              </div>
-              <div class="col-md-3 fw-bold p-md-0 mt-md-0 mt-2">
-                <div class="row">
-                  <span class="d-md-block d-none">00:38:00</span>
-                  <div class="sub-text text-muted d-md-none">Time Ordered</div>
-                  <span class="fw-bold d-md-none d-block">00:38:00, 12 March 2024</span>
-                </div>
-                <div class="row">
-                  <span class="sub-text text-muted d-md-block d-none">12 March 2024</span>
-                </div>
-              </div>
-              <div class="col-md-2 fw-bold p-md-0 mt-md-0 mt-2">
-                <div class="sub-text text-muted d-md-none">Status</div>
-                <span class="badge rounded-pill bg-danger mt-2">Received</span>
-              </div>
-            </div>
-          </div>
+          <?php endforeach; ?>
         </div>
       </div>
 		</main>

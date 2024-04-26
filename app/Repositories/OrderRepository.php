@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\CustomExceptions\ObjectNotFoundException;
 use App\Models\OrderModel;
 use App\Models\OrderStatusModel;
 use App\Utils\Utils;
@@ -43,6 +44,18 @@ class OrderRepository
     public static function getOrderByID($orderID) {
         $order = new OrderModel();
         return $order->where('order_id', $orderID)->first();
+    }
+
+    
+    public static function getOrderByIDOrThrowException($orderID) {
+        $foundOrder = self::getOrderByID($orderID);
+
+        if ($foundOrder === NULL) {
+            throw new ObjectNotFoundException("Order with ID $orderID does not exist");
+
+        } else {
+            return $foundOrder;
+        }
     }
 
     public static function getLatestUncompleteOrderOfCustomerInBusiness($submittingUserID, $businessID, $tableNumber) {
