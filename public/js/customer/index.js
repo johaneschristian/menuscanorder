@@ -15,12 +15,12 @@ function getCurrentBusinessID() {
 }
 
 function getCompleteSelectedMenu() {
-	for(let i=0; i<selectedMenus.length; i++) {
-		selectedMenus[i] = {
-			...selectedMenus[i],
-			notes: getMenuNote(selectedMenus[i].menu_item_id)
-		}
-	}
+	const completeSelectedMenu = selectedMenus.map((selectedMenu) => ({
+		...selectedMenu,
+		notes: getMenuNote(selectedMenu.menu_item_id)
+	}));
+
+	return completeSelectedMenu;
 }
 
 async function submitOrder() {
@@ -36,7 +36,9 @@ async function submitOrder() {
 		body: JSON.stringify(orderData)
 	});
 
-	window.location.href = '/customer/orders/';
+	// TODO: Implement error handling here
+
+	// window.location.href = '/customer/orders/';
 }
 
 function toggleReadMore(menuItemId) {

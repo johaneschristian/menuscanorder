@@ -192,7 +192,7 @@
 									<div class="row g-0">
 										<div class="col-6">
 											<img
-												src='<?= base_url("/business/menu/{$menu->menu_item_id}/image") ?>'
+												src='<?= $menu->image_url !== NULL ? base_url("/business/menu/{$menu->menu_item_id}/image") : "" ?>'
 												id="menu-<?= esc($menu->menu_item_id) ?>-image"
 												class="w-100 object-fit-cover rounded-start"
 												style="object-fit: cover; height: 16rem"

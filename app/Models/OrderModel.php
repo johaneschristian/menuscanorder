@@ -16,6 +16,7 @@ class OrderModel extends Model
         'order_status_id',
         'table_number',
         'submitting_user_id',
-        'receiving_business_id'
+        'receiving_business_id',
+        'total_price',
     ];
 }

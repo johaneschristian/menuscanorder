@@ -13,8 +13,9 @@ class OrderController extends Controller {
 
     public function orderCreate() {
         $user = auth()->user();
-        $data = $this->request->getJSON(true);
-        return $this->response->setStatusCode(200)->setBody(json_encode(["message" => $user->username]));
+        $orderData = $this->request->getJSON(true);
+        OrderService::handleCreateOrder($user, $orderData);
+        return $this->response->setStatusCode(200)->setBody(json_encode($orderData));
     }
 
     public function customerOrderList() {
