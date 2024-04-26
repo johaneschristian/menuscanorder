@@ -11,15 +11,15 @@ class OrderStatusSeeder extends Seeder
         $order_status_data = [
             [
                 'id' => 1,
-                'status' => 'received',
+                'status' => 'New Order',
             ],
             [
                 'id' => 2,
-                'status' => 'being prepared',
+                'status' => 'In-Progress',
             ],
             [
                 'id' => 3,
-                'status' => 'completed',
+                'status' => 'Completed',
             ],
         ];
 

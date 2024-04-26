@@ -8,9 +8,19 @@ use App\Utils\Utils;
 
 class OrderRepository
 {
+    public static function getAllOrderStatus() {
+        $orderStatus = new OrderStatusModel();
+        return $orderStatus->findAll();
+    }
+
     public static function getOrderStatusByName($statusName) {
         $orderStatus = new OrderStatusModel();
         return $orderStatus->where('status', $statusName)->first();
+    }
+
+    public static function getOrderStatusByID($statusID) {
+        $orderStatus = new OrderStatusModel();
+        return $orderStatus->where('id', $statusID)->first();
     }
 
     public static function createOrder($submittingUser, $receivingBusiness, $tableNumber) {
@@ -51,5 +61,27 @@ class OrderRepository
         $order->where('order_id', $orderID)
               ->set('total_price', $totalPrice)
               ->update();
+    }
+
+    public static function setOrderStatus($orderID, $statusID) {
+        $order = new OrderModel();
+        $order->where('order_id', $orderID)
+              ->set('order_status_id', $statusID)
+              ->update();
+    }
+
+    public static function getOrdersOfUser($submittingUserID, $businessesID, $statusID) {
+        $order = new OrderModel();
+        $query = $order->where('submitting_user_id', $submittingUserID);
+
+        if ($businessesID !== NULL) {
+            $query = $query->whereIn('receiving_business_id', $businessesID);
+        }
+
+        if ($statusID !== NULL) {
+            $query = $query->where('order_status_id', $statusID);
+        }
+
+        return $query->orderBy('order_creation_time', 'DESC')->findAll();
     }
 }

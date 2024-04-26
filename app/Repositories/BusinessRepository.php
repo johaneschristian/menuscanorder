@@ -59,4 +59,9 @@ class BusinessRepository
                  ->set($businessData)
                  ->update();
     }
+
+    public static function getBusinessesMatchingName($businessName) {
+        $business = new BusinessModel();
+        return $business->like('business_name', $businessName, 'both', NULL, TRUE)->findAll();
+    }
 }

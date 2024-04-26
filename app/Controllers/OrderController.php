@@ -15,11 +15,14 @@ class OrderController extends Controller {
         $user = auth()->user();
         $orderData = $this->request->getJSON(true);
         OrderService::handleCreateOrder($user, $orderData);
-        return $this->response->setStatusCode(200)->setBody(json_encode($orderData));
+        return $this->response->setStatusCode(200)->setBody(['message' => 'Order is created successfully']);
     }
 
     public function customerOrderList() {
-        return view('customer/customer-order-list');
+        $user = auth()->user();
+        $requestData = $this->request->getGet();
+        $customerOrders = OrderService::handleCustomerOrderList($user, $requestData);
+        return view('customer/customer-order-list', $customerOrders);
     }
 
     public function customerOrderDetail($orderId) {

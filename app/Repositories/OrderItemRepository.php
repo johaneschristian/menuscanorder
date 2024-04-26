@@ -27,4 +27,9 @@ class OrderItemRepository
 
         return $orderItemID;
     }
+
+    public static function getOrderItemsOfOrder($orderID) {
+        $orderItem = new OrderItemModel();
+        return $orderItem->where('order_id', $orderID)->findAll();
+    }
 }
