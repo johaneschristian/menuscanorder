@@ -11,9 +11,9 @@ class CustomerService
 {
     private static function validateBusinessData($creatingUser, $businessData) {
         $rules = [
-            'business_name' => 'required|min_length[3]|max_length[255]',
+            'business_name' => 'required|string|min_length[3]|max_length[255]',
             'num_of_tables' => 'required|is_natural',
-            'address' => 'required'
+            'address' => 'required|string'
         ];
         $errors = [
             'business_name' => [
@@ -40,9 +40,18 @@ class CustomerService
         }
     }
 
+    private static function transformBusinessData($businessData) {
+        return [
+            ...$businessData,
+            'business_name' => trim($businessData['business_name']),
+            'address' => trim($businessData['address']),
+        ];
+    }
+
     public static function handleBusinessRegistration($user, $businessData) {
         self::validateBusinessData($user, $businessData);
-        BusinessRepository::createBusiness($user, $businessData);
+        $transformedBusinessData = self::transformBusinessData($businessData);
+        BusinessRepository::createBusiness($user, $transformedBusinessData);
     }
 }
 

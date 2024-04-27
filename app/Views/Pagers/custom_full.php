@@ -1,6 +1,6 @@
 <?php $pager->setSurroundCount(3) ?>
 
-<nav>
+<nav class="mt-5">
   <ul class="pagination justify-content-center">
     <li class="page-item">
       <a class='page-link <?= $pager->hasPreviousPage() ? "" : "disabled" ?>' href="<?= $pager->getPreviousPage() ?>" tabindex="-1" aria-disabled="<?= lang('Pager.previous') ?>">Previous</a>

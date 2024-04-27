@@ -8,6 +8,7 @@ use App\Exceptions\NotAuthorizedException;
 use App\Repositories\BusinessRepository;
 use App\Repositories\CategoryRepository;
 use App\Repositories\MenuRepository;
+use App\Utils\Utils;
 use App\Utils\Validator;
 use CodeIgniter\Files\File;
 use chillerlan\QRCode\{QRCode, QROptions};
@@ -40,7 +41,8 @@ class BusinessService
     public static function handleCategoryCreation($user, $categoryData) {
         self::validateCategoryData($categoryData);
         $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
-        CategoryRepository::createCategory($userBusiness, $categoryData);
+        $transformedCategoryData = Utils::trimAllString($categoryData);
+        CategoryRepository::createCategory($userBusiness, $transformedCategoryData);
     }
 
     public static function handleGetCategoryList($user, $search) {
@@ -57,7 +59,8 @@ class BusinessService
         $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
         $updatedCategory = CategoryRepository::getCategoryByIDOrThrowException($categoryData['category_id']);
         self::validateCategoryOwnership($userBusiness, $updatedCategory);
-        CategoryRepository::updateCategory($updatedCategory, $categoryData);
+        $transformedCategoryData = Utils::trimAllString($categoryData);
+        CategoryRepository::updateCategory($updatedCategory, $transformedCategoryData);
     }
 
     private static function validateMenuData($menuData, $menuImage) {
@@ -72,17 +75,19 @@ class BusinessService
         if(!($validationResult === TRUE)) {
             throw new InvalidRegistrationException($validationResult);
         }
+
+        // TODO: Validate image is of image type
     }
 
     private static function transformMenuData($menuData) {
         $dataToBeUpdated = [
-            'name' => $menuData['name'],
+            'name' => trim($menuData['name']),
             'price' => $menuData['price'],
             'is_available' => array_key_exists('is_available', $menuData),
         ];
 
-        if(array_key_exists('description', $menuData)) {
-            $dataToBeUpdated['description'] = $menuData['description'];
+        if(array_key_exists('description', $menuData) && trim($menuData['description']) !== '') {
+            $dataToBeUpdated['description'] = trim($menuData['description']);
         }
 
         if(array_key_exists('category_id', $menuData) || !$menuData['category_id'] === 'others') {
@@ -189,7 +194,6 @@ class BusinessService
         $menu = MenuRepository::getMenuByIDOrThrowException($menuID);
         self::validateMenuOwnership($userBusiness, $menu);
         $transformedMenuData = self::transformMenuData($menuData);
-        print_r($transformedMenuData);
         Menurepository::updateMenu($menuID, $transformedMenuData);
 
         if ($menuImage->isValid()) {
@@ -233,21 +237,14 @@ class BusinessService
         }
     }
 
-    private static function fillCapacityDataWithRemainingBusinessData($business, $capacityData)
-    {
-        return [
-            'business_name' => $business->business_name,
-            'num_of_tables' => $capacityData['new_table_quantity'],
-            'address' => $business->address,
-            'is_open' => $business->is_open,
-            'business_is_archived' => $business->business_is_archived,
-        ];
-    }
-
     public static function handleUpdateBusinessTableCapacity($user, $capacityData) {
         self::validateCapacityData($capacityData);
         $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
-        $transformedCapacityData = self::fillCapacityDataWithRemainingBusinessData($userBusiness, $capacityData);
-        BusinessRepository::updateBusinessData($userBusiness->business_id, $transformedCapacityData);
+        BusinessRepository::updateBusinessData(
+            $userBusiness->business_id, 
+            [
+                'num_of_tables' => $capacityData['new_table_quantity']
+            ]
+        );
     }
 }

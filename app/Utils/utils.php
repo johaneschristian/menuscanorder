@@ -43,4 +43,21 @@ class Utils
         $dateTime = new DateTime($dateTimeText);
         return $dateTime->format('H:i:s');
     }
+
+    public static function trimAllString($element) {
+        if (is_string($element) && trim($element) === "") {
+            return NULL;
+            
+        } else if (is_string($element)) {
+            return trim($element);
+            
+        } else if (is_array($element)) {
+            for($index = 0; $index < sizeof($element); $index++) {
+                $element[$index] = self::trimAllString($element[$index]);
+            }
+
+        } else {
+            return $element;
+        }
+    }
 }

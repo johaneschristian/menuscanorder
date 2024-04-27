@@ -30,9 +30,9 @@ $routes->group('business', function ($routes) {
         $routes->get('(:segment)/image', 'BusinessController::menuGetImage/$1');
     });
     $routes->group('orders', function ($routes) {
-        $routes->get('/', 'BusinessController::orderList');
-        $routes->get('kitchen-view/', 'BusinessController::orderKitchenView');
-        $routes->get('detail/(:segment)', 'BusinessController::orderDetails/$1');
+        $routes->get('/', 'OrderController::businessOrderList');
+        $routes->get('kitchen-view/', 'OrderController::businessOrderKitchenView');
+        $routes->get('detail/(:segment)', 'OrderController::businessOrderDetails/$1');
     });
     $routes->get('profile', 'BusinessController::profileEdit');
 

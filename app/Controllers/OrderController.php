@@ -30,4 +30,19 @@ class OrderController extends Controller {
         $orderData = OrderService::handleCustomerOrderDetail($user, $orderId);
         return view('customer/customer-order-details', $orderData);
     }
+
+    public function businessOrderList() {
+        $user = auth()->user();
+        $requestData = $this->request->getGet();
+        $businessOrders = OrderService::handleBusinessOrderList($user, $requestData);
+        return view('business/business-order-list', $businessOrders);
+    }
+
+    public function businessOrderKitchenView() {
+        return view('business/kitchen-view');
+    }
+
+    public function businessOrderDetails($orderId) {
+        return view('business/business-order-details');
+    }
 }

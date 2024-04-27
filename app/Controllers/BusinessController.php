@@ -94,18 +94,6 @@ class BusinessController extends BaseController
         }
     }
 
-    public function orderList() {
-        return view('business/business-order-list');
-    }
-
-    public function orderKitchenView() {
-        return view('business/kitchen-view');
-    }
-
-    public function orderDetails($orderId) {
-        return view('business/business-order-details');
-    }
-
     public function profileEdit() {
         return view('business/business-profile-edit');
     }

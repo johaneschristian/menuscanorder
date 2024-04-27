@@ -83,9 +83,12 @@ class OrderRepository
               ->update();
     }
 
-    private static function getQueryOrdersOfUser($submittingUserID, $businessesID, $statusID) {
-        $order = new OrderModel();
-        $query = $order->where('submitting_user_id', $submittingUserID);
+    private static function getOrdersQuery($submittingUserID = NULL, $businessesID = NULL, $statusID = NULL, $tableNumber = NULL) {
+        $query = new OrderModel();
+
+        if ($submittingUserID !== NULL) {
+            $query = $query->where('submitting_user_id', $submittingUserID);
+        }
 
         if ($businessesID !== NULL) {
             $query = $query->whereIn('receiving_business_id', $businessesID);
@@ -94,12 +97,16 @@ class OrderRepository
         if ($statusID !== NULL) {
             $query = $query->where('order_status_id', $statusID);
         }
+
+        if ($tableNumber !== NULL) {
+            $query = $query->where('table_number', $tableNumber);
+        }
         
         return $query->orderBy('order_creation_time', 'DESC');
     }
 
     public static function getOrdersOfUser($submittingUserID, $businessesID, $statusID) {
-        return self::getQueryOrdersOfUser(
+        return self::getOrdersQuery(
             $submittingUserID, 
             $businessesID, 
             $statusID
@@ -107,10 +114,24 @@ class OrderRepository
     }
 
     public static function getPaginatedOrdersOfUser($submittingUserID, $businessesID, $statusID, $perPage = 10, $currentPage = 1) {
-        $query = self::getQueryOrdersOfUser(
+        $query = self::getOrdersQuery(
             $submittingUserID, 
             $businessesID, 
             $statusID
+        );
+
+        return [
+            'result' => $query->paginate($perPage, 'default', $currentPage),
+            'pager' => $query->pager,
+        ];
+    }
+
+    public static function getPaginatedOrdersOfBusiness($businessID, $statusID, $tableNumber, $perPage = 10, $currentPage = 1) {
+        $query = self::getOrdersQuery(
+            NULL,
+            [$businessID],
+            $statusID,
+            $tableNumber,
         );
 
         return [

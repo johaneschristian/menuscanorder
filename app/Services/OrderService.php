@@ -146,7 +146,7 @@ class OrderService
         self::registerOrderItem($modifiedOrderID, $convertedSelectedMenus);      
     }
 
-    private static function transformOrderListRequestData($requestData) {
+    private static function transformCustomerOrderListRequestData($requestData) {
         $transformedRequestData = [
             'business_ids' => NULL,
             'status_id' => NULL,
@@ -184,7 +184,7 @@ class OrderService
     }
 
     public static function handleCustomerOrderList($user, $requestData) {
-        $transformedRequestData = self::transformOrderListRequestData($requestData);
+        $transformedRequestData = self::transformCustomerOrderListRequestData($requestData);
         $userOrdersPaginated = OrderRepository::getPaginatedOrdersOfUser(
             $user->id, 
             $transformedRequestData['business_ids'], 
@@ -283,6 +283,47 @@ class OrderService
 
         return [
             'order' => $orderWithCompleteDetails,
+        ];
+    }
+
+    private static function transformBusinessOrderListRequestData($requestData) {
+        $transformedRequestData = [
+            'table_number' => NULL,
+            'status_id' => NULL,
+            'page' => (int) ($requestData['page'] ?? 1), 
+        ];
+
+        if (array_key_exists('table_number', $requestData) && is_numeric($requestData['table_number'])) {
+            $transformedRequestData['table_number'] = (int) $requestData['table_number'];
+        }
+
+        if (array_key_exists('status_id', $requestData) && is_numeric($requestData['status_id'])) {
+            $transformedRequestData['status_id'] = (int) $requestData['status_id'];
+        }
+
+        return $transformedRequestData;
+    }
+
+    public static function handleBusinessOrderList($user, $requestData) {
+        $transformedRequestData = self::transformBusinessOrderListRequestData($requestData);
+        $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
+        $businessOrdersPaginated = OrderRepository::getPaginatedOrdersOfBusiness(
+            $userBusiness->business_id,
+            $transformedRequestData['status_id'],
+            $transformedRequestData['table_number'],
+            10,
+            $transformedRequestData['page'],
+        );
+
+        $businessCompleteOrderData = self::appendRelatedInformationOfOrders($businessOrdersPaginated['result']);
+        $allStatus = OrderRepository::getAllOrderStatus();
+
+        return [
+            'orders' => $businessCompleteOrderData,
+            'pager' => $businessOrdersPaginated['pager'],
+            'statuses' => $allStatus,
+            'search' => $requestData['table_number'] ?? '',
+            'selected_status_id' => $requestData['status_id'] ?? '',
         ];
     }
 }
