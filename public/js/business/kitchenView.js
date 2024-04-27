@@ -1,60 +1,66 @@
 window.addEventListener("load", async (e) => {
-	await setupKitchenViewPage();
+  await setupKitchenViewPage();
+  setInterval(async () => await setupKitchenViewPage(), 10000);
 });
 
 let statuses = [];
 
 let statusData = [
-  {
-    frontendID: 1,
-    name: "received",
-    quantity: 0, 
-    color: "danger text-light"
-  },
-  {
-    frontendID: 2,
-    name: "being prepared",
-    quantity: 0, 
-    color: "warning text-dark"
-  },
-  {
-    frontendID: 3,
-    name: "served",
-    quantity: 0, 
-    color: "success text-light"
-  },
+	{
+		frontendID: 1,
+		name: "received",
+		quantity: 0,
+		color: "danger text-light",
+	},
+	{
+		frontendID: 2,
+		name: "being prepared",
+		quantity: 0,
+		color: "warning text-dark",
+	},
+	{
+		frontendID: 3,
+		name: "served",
+		quantity: 0,
+		color: "success text-light",
+	},
 ];
 
 function getStatusQuantity(statusName) {
-  return Number(statusData.find((status) => status.name === statusName).quantity);
+	return Number(
+		statusData.find((status) => status.name === statusName).quantity
+	);
 }
 
 function getStatusColor(statusName) {
-  return statusData.find((status) => status.name === statusName).color;
+	return statusData.find((status) => status.name === statusName).color;
 }
 
 function updateStatusQuantity(statusName, newQuantity) {
-  const modifiedStatus = statusData.find((status) => status.name === statusName);
-  const nonModifiedStatus = statusData.filter((status) => status.name !== statusName);
-  statusData = [
-    ...nonModifiedStatus,
-    {
-      ...modifiedStatus,
-      quantity: newQuantity
-    }
-  ].sort(
-    (statusA, statusB) => statusA.frontendID-statusB.frontendID
-  );
+	const modifiedStatus = statusData.find(
+		(status) => status.name === statusName
+	);
+	const nonModifiedStatus = statusData.filter(
+		(status) => status.name !== statusName
+	);
+	statusData = [
+		...nonModifiedStatus,
+		{
+			...modifiedStatus,
+			quantity: newQuantity,
+		},
+	].sort((statusA, statusB) => statusA.frontendID - statusB.frontendID);
 }
 
 function getNextStatus(statusName) {
-  const statusIndex = statusData.findIndex((status) => status.name === statusName);
-  if (statusIndex + 1 < statusData.length) {
-    return statusData[statusIndex+1].name;
-    
-  } else {
-    return null;
-  }
+	const statusIndex = statusData.findIndex(
+		(status) => status.name === statusName
+	);
+	if (statusIndex + 1 < statusData.length) {
+		return statusData[statusIndex + 1].name;
+	} else {
+		return null;
+	}
 }
 
 async function getKitchenViewData() {
@@ -91,7 +97,7 @@ function setupOrderItemsList(orderItems) {
 
 	for (let i = 0; i < orderItems.length; i++) {
 		const orderItem = orderItems[i];
-    const orderItemNextStatus = getNextStatus(orderItem.status_name);
+		const orderItemNextStatus = getNextStatus(orderItem.status_name);
 
 		orderItemsHolder.innerHTML += `
       <div class="col-auto">
@@ -106,7 +112,9 @@ function setupOrderItemsList(orderItems) {
             <span class="badge rounded-pill bg-dark mt-2"
               >Ordered on ${orderItem.item_order_time}</span
             >
-            <span id="order-item-${orderItem.order_item_id}-status" class="badge rounded-pill bg-${getStatusColor(orderItem.status_name)} mt-2">${orderItem.status_name}</span>
+            <span id="order-item-${
+							orderItem.order_item_id
+						}-status" class="badge rounded-pill bg-${getStatusColor(orderItem.status_name)} mt-2">${orderItem.status_name}</span>
             <table class="table">
               <thead class="thead-dark">
                 <tr>
@@ -122,12 +130,32 @@ function setupOrderItemsList(orderItems) {
               </tbody>
             </table>
 
-            ${orderItem.notes === null ? "" : `<div class='collapse' id='note-${orderItem.order_item_id}'>${orderItem.notes}</div>`}
+            ${
+							orderItem.notes === null
+								? ""
+								: `<div class='collapse' id='note-${orderItem.order_item_id}'>${orderItem.notes}</div>`
+						}
            
             <div>
-              ${orderItem.status !== "served" ? `<button id="order-item-${orderItem.order_item_id}-action-button" onclick="updateItemStatus('${orderItem.order_item_id}')" class="btn btn-${getStatusColor(orderItemNextStatus)} mt-3">Mark as ${orderItem.status_name === "received" ? "Being Prepared" : "Served"}</button>` : ""}            
-              ${orderItem.notes === null ? "" : (
-                `<button
+              ${
+								orderItem.status !== "served"
+									? `<button id="order-item-${
+											orderItem.order_item_id
+									  }-action-button" onclick="updateItemStatus('${
+											orderItem.order_item_id
+									  }')" class="btn btn-${getStatusColor(
+											orderItemNextStatus
+									  )} mt-3">Mark as ${
+											orderItem.status_name === "received"
+												? "Being Prepared"
+												: "Served"
+									  }</button>`
+									: ""
+							}            
+              ${
+								orderItem.notes === null
+									? ""
+									: `<button
                   type="button"
                   class="btn btn-outline-primary mt-3"
                   data-bs-toggle="collapse"
@@ -150,7 +178,7 @@ function setupOrderItemsList(orderItems) {
                     />
                   </svg>
                 </button>`
-              )}
+							}
             </div>
           </div>
         </div>
@@ -159,87 +187,126 @@ function setupOrderItemsList(orderItems) {
 }
 
 async function setupKitchenViewPage() {
-  const kitchenViewData = await getKitchenViewData();
-  statuses = kitchenViewData.order_item_statuses;
+	const kitchenViewData = await getKitchenViewData();
+	statuses = kitchenViewData.order_item_statuses;
 
-  statusData.forEach((statusDatum) => {
-    updateStatusQuantity(statusDatum.name, kitchenViewData.order_item_summary.find((status) => status.status_name === statusDatum.name)?.total_quantity ?? 0);
-  });
-  
-  reloadKitchenViewOrderItemSummary(kitchenViewData.order_item_summary);
-  setupOrderItemsList(kitchenViewData.order_items);
+	statusData.forEach((statusDatum) => {
+		updateStatusQuantity(
+			statusDatum.name,
+			kitchenViewData.order_item_summary.find(
+				(status) => status.status_name === statusDatum.name
+			)?.total_quantity ?? 0
+		);
+	});
+
+	reloadKitchenViewOrderItemSummary(kitchenViewData.order_item_summary);
+	setupOrderItemsList(kitchenViewData.order_items);
 }
 
 function getOrderItemCurrentStatus(orderItemID) {
-  const orderItemStatusSpan = document.querySelector(`#order-item-${orderItemID}-status`);
-  return orderItemStatusSpan.innerHTML;
+	const orderItemStatusSpan = document.querySelector(
+		`#order-item-${orderItemID}-status`
+	);
+	return orderItemStatusSpan.innerHTML;
 }
 
 function updateItemStatusSpan(orderItemID, previousStatus, newStatus) {
-  const orderItemStatusSpan = document.querySelector(`#order-item-${orderItemID}-status`);  
-  orderItemStatusSpan.innerHTML = newStatus;
-  
-  const previousStatusClasses = `bg-${getStatusColor(previousStatus)}`.split(' ');
-  previousStatusClasses.forEach((previousClass) => {
-    if (orderItemStatusSpan.classList.contains(previousClass)) {
-      orderItemStatusSpan.classList.remove(previousClass);
-    }
-  });
-  
-  const newStatusClasses = `bg-${getStatusColor(newStatus)}`.split(' ');
-  newStatusClasses.forEach((newClass) => {
-    if (!orderItemStatusSpan.classList.contains(newClass)) {
-      orderItemStatusSpan.classList.add(newClass);
-    }
-  });
+	const orderItemStatusSpan = document.querySelector(
+		`#order-item-${orderItemID}-status`
+	);
+	orderItemStatusSpan.innerHTML = newStatus;
+
+	const previousStatusClasses = `bg-${getStatusColor(previousStatus)}`.split(
+		" "
+	);
+	previousStatusClasses.forEach((previousClass) => {
+		if (orderItemStatusSpan.classList.contains(previousClass)) {
+			orderItemStatusSpan.classList.remove(previousClass);
+		}
+	});
+
+	const newStatusClasses = `bg-${getStatusColor(newStatus)}`.split(" ");
+	newStatusClasses.forEach((newClass) => {
+		if (!orderItemStatusSpan.classList.contains(newClass)) {
+			orderItemStatusSpan.classList.add(newClass);
+		}
+	});
 }
 
 function updateItemActionButton(orderItemID, previousStatus, newStatus) {
-  const orderItemActionButton = document.querySelector(`#order-item-${orderItemID}-action-button`);
-  
-  // Get next status of new status
-  const newStatusNextStatus = getNextStatus(newStatus);
+	const orderItemActionButton = document.querySelector(
+		`#order-item-${orderItemID}-action-button`
+	);
 
-  // Hide action button if next status is null (new status is "served")
-  if (newStatusNextStatus === null) {
-    toggleElement(orderItemActionButton, false);
+	// Get next status of new status
+	const newStatusNextStatus = getNextStatus(newStatus);
 
-  } else {
-    const newStatusClasses = `btn-${getStatusColor(newStatus)}`.split(' ');
-    newStatusClasses.forEach((newClass) => {
-      if (orderItemActionButton.classList.contains(newClass)) {
-        orderItemActionButton.classList.remove(newClass);
-      }
-    });
+	// Hide action button if next status is null (new status is "served")
+	if (newStatusNextStatus === null) {
+		toggleElement(orderItemActionButton, false);
+	} else {
+		const newStatusClasses = `btn-${getStatusColor(newStatus)}`.split(" ");
+		newStatusClasses.forEach((newClass) => {
+			if (orderItemActionButton.classList.contains(newClass)) {
+				orderItemActionButton.classList.remove(newClass);
+			}
+		});
 
-    const nextStatusClasses = `btn-${getStatusColor(newStatusNextStatus)}`.split(' ');
-    nextStatusClasses.forEach((newClass) => {
-      if (!orderItemActionButton.classList.contains(newClass)) {
-        orderItemActionButton.classList.add(newClass);
-      }
-    });
+		const nextStatusClasses = `btn-${getStatusColor(
+			newStatusNextStatus
+		)}`.split(" ");
+		nextStatusClasses.forEach((newClass) => {
+			if (!orderItemActionButton.classList.contains(newClass)) {
+				orderItemActionButton.classList.add(newClass);
+			}
+		});
 
-    orderItemActionButton.innerHTML = `Mark as ${capitalizeFirstLetter(newStatusNextStatus)}`
-  }
+		orderItemActionButton.innerHTML = `Mark as ${capitalizeFirstLetter(
+			newStatusNextStatus
+		)}`;
+	}
 }
 
 function updateItemStatusDisplay(orderItemID, previousStatus, newStatus) {
-  updateItemStatusSpan(orderItemID, previousStatus, newStatus);
-  updateItemActionButton(orderItemID, previousStatus, newStatus);
+	updateItemStatusSpan(orderItemID, previousStatus, newStatus);
+	updateItemActionButton(orderItemID, previousStatus, newStatus);
+}
+
+async function submitItemStatusUpdate(orderItemID, newStatusID) {
+	const response = await fetch("/business/orders/item/update-status", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({
+			order_item_id: orderItemID,
+			new_status_id: newStatusID,
+		}),
+	});
+
+	if (!response.ok) {
+		throw new Error("An error occurred while submitting item status update.");
+	}
+
+	const responseData = await response.text();
+	return JSON.parse(responseData);
 }
 
 async function updateItemStatus(orderItemID) {
-  const currentStatus = getOrderItemCurrentStatus(orderItemID);
-  const nextStatus = getNextStatus(currentStatus);
-  const nextStatusID = statuses.find((status) => status.status === nextStatus).id;
-  
-  // Update remote data
+	const currentStatus = getOrderItemCurrentStatus(orderItemID);
+	const nextStatus = getNextStatus(currentStatus);
+	const nextStatusID = statuses.find(
+		(status) => status.status === nextStatus
+	).id;
 
-  // Update item summary
-  updateStatusQuantity(currentStatus, getStatusQuantity(currentStatus) - 1);
-  updateStatusQuantity(nextStatus, getStatusQuantity(nextStatus) + 1);
-  reloadKitchenViewOrderItemSummary();
+	// Update remote data
+  await submitItemStatusUpdate(orderItemID, nextStatusID);
 
-  // Update item text, color. and action button
-  updateItemStatusDisplay(orderItemID, currentStatus, nextStatus);
+	// Update item summary
+	updateStatusQuantity(currentStatus, getStatusQuantity(currentStatus) - 1);
+	updateStatusQuantity(nextStatus, getStatusQuantity(nextStatus) + 1);
+	reloadKitchenViewOrderItemSummary();
+
+	// Update item text, color. and action button
+	updateItemStatusDisplay(orderItemID, currentStatus, nextStatus);
 }

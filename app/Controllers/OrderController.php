@@ -53,12 +53,10 @@ class OrderController extends Controller {
 
     public function businessOrderKitchenView() {
         $user = auth()->user();
-        OrderService::handleBusinessGetOrderKitchenData($user, []);
         return view('business/kitchen-view');
     }
 
     public function businessGetOrderKitchenViewData() {
-        // Paginated
         // Number of products under new order (total quantity)
         // Number of products under In-Progress (total quantity)
         // Number of products under served (total quantity)
@@ -71,5 +69,15 @@ class OrderController extends Controller {
                     ->setContentType('application/json')
                     ->setStatusCode(200)
                     ->setBody(json_encode($responseData));
+    }
+
+    public function businessUpdateOrderItemStatus() {
+        $user = auth()->user();
+        $updateData = $this->request->getJSON(true);
+        OrderService::handleBusinessUpdateOrderItemStatus($user, $updateData);
+        return $this->response
+                ->setContentType('application/json')
+                ->setStatusCode(200)
+                ->setBody(json_encode(['message' => 'Order item was successfully updated']));
     }
 }

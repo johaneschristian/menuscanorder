@@ -31,6 +31,7 @@ $routes->group('business', function ($routes) {
     });
     $routes->group('orders', function ($routes) {
         $routes->get('/', 'OrderController::businessOrderList');
+        $routes->post('item/update-status/', 'OrderController::businessUpdateOrderItemStatus');
         $routes->post('complete/', 'OrderController::businessCompleteOrder');
         $routes->get('kitchen-view/', 'OrderController::businessOrderKitchenView');
         $routes->get('kitchen-view/data/', 'OrderController::businessGetOrderKitchenViewData');

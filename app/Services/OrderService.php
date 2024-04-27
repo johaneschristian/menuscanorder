@@ -4,8 +4,6 @@ namespace App\Services;
 
 use App\CustomExceptions\InvalidRegistrationException;
 use App\Exceptions\NotAuthorizedException;
-use App\Models\OrderItemModel;
-use App\Models\OrderItemStatusModel;
 use App\Repositories\BusinessRepository;
 use App\Repositories\MenuRepository;
 use App\Repositories\OrderItemRepository;
@@ -377,6 +375,31 @@ class OrderService
             'order_items' => $businessOrderItems,
             'order_item_statuses' => $allStatus,
         ];
+    }
+
+    private static function validateOrderItemStatusUpdate($orderItem, $newOrderItemStatusID) {
+        $currentOrderItemStatus = OrderItemRepository::getOrderItemStatusByIDOrThrowException($orderItem->order_item_id);
+        $newOrderItemStatus = OrderItemRepository::getOrderItemStatusByIDOrThrowException($newOrderItemStatusID);
+
+        if ($currentOrderItemStatus->status === "received" && $newOrderItemStatus !== "being prepared") {
+            throw new InvalidRegistrationException("Order item with status 'received' can only be updated to 'being prepared'");
+
+        } else if ($currentOrderItemStatus->status === "being prepared" && $newOrderItemStatus !== "served") {
+            throw new InvalidRegistrationException("Order item with status 'being prepared' can only be updated to 'served'");
+
+        } else if ($currentOrderItemStatus->status === "served") {
+            throw new InvalidRegistrationException("Order item with status 'served' can no longer be modified");
+        }
+    }
+
+    public static function handleBusinessUpdateOrderItemStatus($user, $updateData) {
+        $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
+        $orderItem = OrderItemRepository::getOrderItemByIDOrThrowException($updateData['order_item_id'] ?? '');
+        $orderOfItem = OrderRepository::getOrderByID($orderItem->order_id);
+        self::validateBusinessOrderOwnership($userBusiness, $orderOfItem);
+        self::validateOrderItemStatusUpdate($orderItem, $updateData['new_status_id'] ?? '');
+        OrderItemRepository::updateOrderItem($orderItem->order_item_id, ['order_item_status_id' =>  $updateData['new_status_id']]);
+        self::setOrderStatus($orderOfItem->order_id);
     }
 }
 
