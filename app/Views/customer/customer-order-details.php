@@ -62,7 +62,7 @@
       <div class="container mt-4 w-mdc-75 w-100">
         <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
           <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="#">Orders</a></li>
+            <li class="breadcrumb-item"><a href="<?= base_url("/customer/orders") ?>">Orders</a></li>
             <li class="breadcrumb-item active" aria-current="page">Order Details</li>
           </ol>
         </nav>
@@ -108,8 +108,8 @@
                     <?php endforeach; ?>
                   </td>
                   <td><?= esc($order_item_summary['num_of_items']) ?></td>
-                  <td><?= esc($order_item_summary['price_when_bought']) ?></td>
-                  <td><?= esc($order_item_summary['subtotal']) ?></td>
+                  <td><?= esc(number_format($order_item_summary['price_when_bought'], 2, '.')) ?></td>
+                  <td><?= esc(number_format($order_item_summary['subtotal'], 2, '.')) ?></td>
                 </tr>
               <?php endforeach; ?>
             </tbody>
@@ -118,7 +118,9 @@
             <h6 class="me-1 h6">Order Total:</h6><h4 class="fw-bold"><?= esc(number_format($order->total_price, 2, '.')) ?> (AUD)</h4>
           </div>
           <div class="d-flex justify-content-end align-items-end mt-3">
-            <button type="button" class="btn btn-success me-2" onclick='window.location.href=`<?= base_url("/customer/orders/menu/{$order->receiving_business_id}/{$order->table_number}") ?>`'>Go to Business Menu</button>
+            <?php if($order->status_name !== "Completed"): ?>
+              <button type="button" class="btn btn-success me-2" onclick='window.location.href=`<?= base_url("/customer/orders/menu/{$order->receiving_business_id}/{$order->table_number}") ?>`'>Go to Business Menu</button>
+            <?php endif; ?>
             <button type="button" class="btn btn-outline-danger" onclick='window.location.href=`<?= base_url("/customer/orders") ?>`'>Go Back to Orders Page</button>
           </div>
         </div>
@@ -169,7 +171,7 @@
                   </div>
                 </div>
                 <div class="col-md-2 fw-bold p-md-0 mt-md-0 mt-2">
-                  <span class="fw-bold d-md-block d-none">1</span>
+                  <span class="fw-bold d-md-block d-none"><?= esc($order_item->num_of_items) ?></span>
                 </div>
                 <div class="col-md-3 fw-bold p-md-0 mt-md-0 mt-2">
                   <div class="row">

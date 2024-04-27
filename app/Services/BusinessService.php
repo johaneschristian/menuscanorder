@@ -118,6 +118,7 @@ class BusinessService
     private static function transformMenuListRequestData($requestData) {
         $menuName = $requestData['menu_name'] ?? "";
         $categoryID = $requestData['category_id'] ?? "all";
+        $page = (int) ($requestData['page'] ?? 1);
 
         if ($categoryID === "others") {
             $categoryID = NULL;
@@ -125,7 +126,8 @@ class BusinessService
 
         return [
             'name' => $menuName,
-            'category_id' => $categoryID
+            'category_id' => $categoryID,
+            'page' => $page,
         ];
     }
 
@@ -133,14 +135,18 @@ class BusinessService
         $transformedRequestData = self::transformMenuListRequestData($requestData);
         $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
         $businessCategories = CategoryRepository::getCategoriesOfBusiness($userBusiness, "");
-        $businessMenus = MenuRepository::getMenuItemsOfBusinessMatchingNameAndCategory(
+        $businessMenusPaginated = MenuRepository::getPaginatedMenuItemsOfBusinessMatchingNameAndCategory(
             $userBusiness->business_id, 
             $transformedRequestData['name'], 
-            $transformedRequestData['category_id']
+            $transformedRequestData['category_id'],
+            FALSE,
+            12,
+            $transformedRequestData['page'],
         );
         
         return[
-            'menus' => $businessMenus,
+            'menus' => $businessMenusPaginated['result'],
+            'pager' => $businessMenusPaginated['pager'],
             'categories' => $businessCategories
         ];
     }

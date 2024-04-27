@@ -44,15 +44,5 @@ class CustomerService
         self::validateBusinessData($user, $businessData);
         BusinessRepository::createBusiness($user, $businessData);
     }
-
-    public static function handleGetBusinessMenus($businessID) {
-        $business = BusinessRepository::getBusinessByIdOrThrowException($businessID);
-        $categories_and_menu = MenuRepository::getMenuItemsOfBusinessGroupByCategory($businessID, "");
-
-        return [
-            'business' => $business,
-            'categories_and_menu' => $categories_and_menu
-        ];
-    }
 }
 

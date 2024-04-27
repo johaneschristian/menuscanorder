@@ -157,7 +157,7 @@
 								</table>
 							</div>
 							<div class="modal-footer">
-								<button type="button" class="btn bg-brown text-light">
+								<button type="button" class="btn bg-brown text-light" onclick="submitOrder()">
 									Yes, I would like to submit my order.
 								</button>
 								<button

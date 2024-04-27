@@ -14,7 +14,7 @@ class OrderService
 {
     public static function handleGetBusinessMenus($businessID) {
         $business = BusinessRepository::getBusinessByIdOrThrowException($businessID);
-        $categories_and_menu = MenuRepository::getMenuItemsOfBusinessGroupByCategory($businessID, "");
+        $categories_and_menu = MenuRepository::getMenuItemsOfBusinessGroupByCategory($businessID, TRUE);
 
         return [
             'business' => $business,
@@ -26,7 +26,7 @@ class OrderService
         if (!$business->is_open) {
             throw new InvalidRegistrationException("Business with ID {$business->business_id} is currently closed");
 
-        } else if (!array_key_exists('table_number', $orderData) || !is_int($orderData['table_number'])) {
+        } else if (!array_key_exists('table_number', $orderData) || !is_numeric($orderData['table_number'])) {
             throw new InvalidRegistrationException("Order must include table number");
 
         } else if (!array_key_exists('selected_menus', $orderData)) {
@@ -65,7 +65,7 @@ class OrderService
 
     private static function validateAllSelectedMenuAreAvailable($selectedMenus) {
         foreach ($selectedMenus as $selectedMenu) {
-            if(!$selectedMenu->menu_item->is_available) {
+            if(!$selectedMenu['menu_item']->is_available) {
                 throw new InvalidRegistrationException("Menu with ID {$selectedMenu->menu_item_id} is currently not available");
             }
         }
@@ -150,6 +150,7 @@ class OrderService
         $transformedRequestData = [
             'business_ids' => NULL,
             'status_id' => NULL,
+            'page' => (int) ($requestData['page'] ?? 1),
         ];
 
         if (array_key_exists('business_name', $requestData) && trim($requestData['business_name']) !== '') {
@@ -184,17 +185,20 @@ class OrderService
 
     public static function handleCustomerOrderList($user, $requestData) {
         $transformedRequestData = self::transformOrderListRequestData($requestData);
-        $userOrders = OrderRepository::getOrdersOfUser(
+        $userOrdersPaginated = OrderRepository::getPaginatedOrdersOfUser(
             $user->id, 
             $transformedRequestData['business_ids'], 
             $transformedRequestData['status_id'],
+            10,
+            $transformedRequestData['page'],
         );
         
-        $userCompleteOrderData = self::appendRelatedInformationOfOrders($userOrders);
+        $userCompleteOrderData = self::appendRelatedInformationOfOrders($userOrdersPaginated['result']);
         $allStatus = OrderRepository::getAllOrderStatus();
 
         return [
             'orders' => $userCompleteOrderData,
+            'pager' => $userOrdersPaginated['pager'],
             'statuses' => $allStatus,
             'search' => $requestData['business_name'] ?? '',
             'selected_status_id' => $requestData['status_id'] ?? '',

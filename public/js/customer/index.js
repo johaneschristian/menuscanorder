@@ -36,9 +36,7 @@ async function submitOrder() {
 		body: JSON.stringify(orderData)
 	});
 
-	// TODO: Implement error handling here
-
-	// window.location.href = '/customer/orders/';
+	window.location.href = '/customer/orders/';
 }
 
 function toggleReadMore(menuItemId) {

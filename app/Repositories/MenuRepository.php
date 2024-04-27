@@ -57,18 +57,45 @@ class MenuRepository
         return $menu->where('owning_business_id', $businessID)->findAll();
     }
 
-    public static function getMenuItemsOfBusinessMatchingNameAndCategory($businessID, $name, $categoryID) {
+    private static function getQueryOfMenuItemsOfBusinessMatchingNameAndCategory($businessID, $name, $categoryID, $mustBeAvailable = FALSE) {
         $menu = new MenuItemModel();
         $query = $menu->where('owning_business_id', $businessID)->like('name', $name, 'both', TRUE);
+
+        if ($mustBeAvailable) {
+            $query = $query->where('is_available', TRUE);
+        }
 
         if ($categoryID !== "all") {
             $query = $query->where('category_id', $categoryID);
         }
-        
-        return $query->findAll();
+
+        return $query;
     }
 
-    public static function getMenuItemsOfBusinessGroupByCategory($businessID) {
+    public static function getMenuItemsOfBusinessMatchingNameAndCategory($businessID, $name, $categoryID, $mustBeAvailable = FALSE) {
+        return self::getQueryOfMenuItemsOfBusinessMatchingNameAndCategory(
+            $businessID, 
+            $name, 
+            $categoryID, 
+            $mustBeAvailable
+        )->findAll();
+    }
+
+    public static function getPaginatedMenuItemsOfBusinessMatchingNameAndCategory($businessID, $name, $categoryID, $mustBeAvailable = FALSE, $perPage = 10, $currentPage = 1) {
+        $query = self::getQueryOfMenuItemsOfBusinessMatchingNameAndCategory(
+            $businessID, 
+            $name, 
+            $categoryID, 
+            $mustBeAvailable
+        );
+
+        return [
+            'result' => $query->paginate($perPage, 'default', $currentPage),
+            'pager' => $query->pager,
+        ];
+    }
+
+    public static function getMenuItemsOfBusinessGroupByCategory($businessID, $mustBeAvailable = FALSE) {
         $category = new CategoryModel();
         $allCategories = $category->findAll();
 
@@ -76,14 +103,14 @@ class MenuRepository
         foreach($allCategories as $category) {
             $allCategoriesWithMenus[] = [
                 ...(array) $category,
-                'menus' => self::getMenuItemsOfBusinessMatchingNameAndCategory($businessID, "", $category->category_id)
+                'menus' => self::getMenuItemsOfBusinessMatchingNameAndCategory($businessID, "", $category->category_id, $mustBeAvailable)
             ];
         }
 
         $allCategoriesWithMenus[] = [
             'category_id' => NULL,
             'name' => 'Others',
-            'menus' => self::getMenuItemsOfBusinessMatchingNameAndCategory($businessID, "", NULL), 
+            'menus' => self::getMenuItemsOfBusinessMatchingNameAndCategory($businessID, "", NULL, $mustBeAvailable), 
         ];
 
         return $allCategoriesWithMenus;

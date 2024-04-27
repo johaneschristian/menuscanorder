@@ -60,7 +60,7 @@ class OrderRepository
 
     public static function getLatestUncompleteOrderOfCustomerInBusiness($submittingUserID, $businessID, $tableNumber) {
         $order = new OrderModel();
-        $completedOrderStatus = self::getOrderStatusByName('completed');
+        $completedOrderStatus = self::getOrderStatusByName('Completed');
         return $order->where('submitting_user_id', $submittingUserID)
                      ->where('receiving_business_id', $businessID)
                      ->where('table_number', $tableNumber)
@@ -83,7 +83,7 @@ class OrderRepository
               ->update();
     }
 
-    public static function getOrdersOfUser($submittingUserID, $businessesID, $statusID) {
+    private static function getQueryOrdersOfUser($submittingUserID, $businessesID, $statusID) {
         $order = new OrderModel();
         $query = $order->where('submitting_user_id', $submittingUserID);
 
@@ -94,7 +94,28 @@ class OrderRepository
         if ($statusID !== NULL) {
             $query = $query->where('order_status_id', $statusID);
         }
+        
+        return $query->orderBy('order_creation_time', 'DESC');
+    }
 
-        return $query->orderBy('order_creation_time', 'DESC')->findAll();
+    public static function getOrdersOfUser($submittingUserID, $businessesID, $statusID) {
+        return self::getQueryOrdersOfUser(
+            $submittingUserID, 
+            $businessesID, 
+            $statusID
+        )->findAll();
+    }
+
+    public static function getPaginatedOrdersOfUser($submittingUserID, $businessesID, $statusID, $perPage = 10, $currentPage = 1) {
+        $query = self::getQueryOrdersOfUser(
+            $submittingUserID, 
+            $businessesID, 
+            $statusID
+        );
+
+        return [
+            'result' => $query->paginate($perPage, 'default', $currentPage),
+            'pager' => $query->pager,
+        ];
     }
 }
