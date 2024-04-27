@@ -89,7 +89,7 @@ class OrderService
     private static function recomputeOrderTotalPrice($orderID, $addedSubtotal) {
         $order = OrderRepository::getOrderByID($orderID);
         $orderNewTotal = $order->total_price + $addedSubtotal;
-        OrderRepository::updateOrderTotalPrice($orderID, $orderNewTotal);
+        OrderRepository::setOrderTotalPrice($orderID, $orderNewTotal);
     }
 
     private static function computeOrderStatus($orderID) {
@@ -325,6 +325,43 @@ class OrderService
             'search' => $requestData['table_number'] ?? '',
             'selected_status_id' => $requestData['status_id'] ?? '',
         ];
+    }
+
+    private static function validateBusinessOrderOwnership($business, $order) {
+        if ($order->receiving_business_id !== $business->business_id) {
+            throw new NotAuthorizedException("Business is not the owner of order with ID {$order->order_id}");
+        }
+    }
+
+    public static function handleBusinessOrderDetails($user, $orderID) {
+        $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
+        $order = OrderRepository::getOrderByIDOrThrowException($orderID);
+        self::validateBusinessOrderOwnership($userBusiness, $order);
+        $orderWithCompleteDetails = self::getOrderCompleteDetails($order);
+
+        return [
+            'order' => $orderWithCompleteDetails,
+        ];
+    }
+
+    private static function validateOrderCompletion($order, $completedOrderStatus) {
+        if ($order->order_status_id === $completedOrderStatus->id) {
+            throw new InvalidRegistrationException("Order with ID {$order->order_id} is already completed");
+        }
+    }
+
+    private static function completeOrder($order) {
+        $completedOrderStatus = OrderRepository::getOrderStatusByName('Completed');
+        self::validateOrderCompletion($order, $completedOrderStatus);
+        OrderRepository::setOrderStatus($order->order_id, $completedOrderStatus->id);
+        OrderRepository::setOrderCompletionTime($order->order_id, date("c"));
+    }
+
+    public static function handleBusinessCompleteOrder($user, $requestData) {
+        $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
+        $order = OrderRepository::getOrderByIDOrThrowException($requestData['order_id'] ?? '');
+        self::validateBusinessOrderOwnership($userBusiness, $order);
+        self::completeOrder($order);
     }
 }
 

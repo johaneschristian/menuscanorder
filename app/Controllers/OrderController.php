@@ -38,11 +38,20 @@ class OrderController extends Controller {
         return view('business/business-order-list', $businessOrders);
     }
 
-    public function businessOrderKitchenView() {
-        return view('business/kitchen-view');
+    public function businessOrderDetails($orderId) {
+        $user = auth()->user();
+        $orderData = OrderService::handleBusinessOrderDetails($user, $orderId);
+        return view('business/business-order-details', $orderData);
     }
 
-    public function businessOrderDetails($orderId) {
-        return view('business/business-order-details');
+    public function businessCompleteOrder() {
+        $user = auth()->user();
+        $requestData = $this->request->getPost();
+        OrderService::handleBusinessCompleteOrder($user, $requestData);
+        return redirect()->to('/business/orders/');
+    }
+
+    public function businessOrderKitchenView() {
+        return view('business/kitchen-view');
     }
 }

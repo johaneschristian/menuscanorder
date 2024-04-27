@@ -31,6 +31,7 @@ $routes->group('business', function ($routes) {
     });
     $routes->group('orders', function ($routes) {
         $routes->get('/', 'OrderController::businessOrderList');
+        $routes->post('complete/', 'OrderController::businessCompleteOrder');
         $routes->get('kitchen-view/', 'OrderController::businessOrderKitchenView');
         $routes->get('detail/(:segment)', 'OrderController::businessOrderDetails/$1');
     });

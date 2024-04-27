@@ -69,7 +69,7 @@ class OrderRepository
                      ->first();
     }
 
-    public static function updateOrderTotalPrice($orderID, $totalPrice) {
+    public static function setOrderTotalPrice($orderID, $totalPrice) {
         $order = new OrderModel();
         $order->where('order_id', $orderID)
               ->set('total_price', $totalPrice)
@@ -80,6 +80,13 @@ class OrderRepository
         $order = new OrderModel();
         $order->where('order_id', $orderID)
               ->set('order_status_id', $statusID)
+              ->update();
+    }
+
+    public static function setOrderCompletionTime($orderID, $completionTime) {
+        $order = new OrderModel();
+        $order->where('order_id', $orderID)
+              ->set('order_completion_time', $completionTime)
               ->update();
     }
 

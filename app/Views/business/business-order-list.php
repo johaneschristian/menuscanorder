@@ -108,7 +108,7 @@
           </div>
         </div>
         <?php foreach ($orders as $order): ?>
-          <div class="card clickable w-100 p-3 mt-3 shadow-sm" onclick='window.location.href=`<?= base_url("/customer/orders/detail/{$order->order_id}") ?>`'>
+          <div class="card clickable w-100 p-3 mt-3 shadow-sm" onclick='window.location.href=`<?= base_url("/business/orders/detail/{$order->order_id}") ?>`'>
             <div class="row fw-bold d-flex flex-md-row flex-column align-items-md-center align-items-start">
               <div class="col-md-4">
                 <div class="row">
