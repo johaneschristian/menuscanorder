@@ -213,13 +213,6 @@ class OrderService
     }
 
     private static function createOrderMenuItemIDAndPriceSummary($order, $menuItemID, $menuItemName, $price) {
-        // Get all order items matching them belonging to the same ORDER ID of menu item ID and price
-        // Have an aggregate summary:
-        // Get total quantity X
-        // Get individual item price X
-        // Set notes as an array containing multiple notes X
-        // Set subtotal X
-
         $orderItemSummary = [
             'menu_item_id' => $menuItemID,
             'menu_item_name' => $menuItemName,

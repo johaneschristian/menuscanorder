@@ -36,7 +36,7 @@ async function submitOrder() {
 		body: JSON.stringify(orderData)
 	});
 
-	window.location.href = '/customer/orders/';
+	// window.location.href = '/customer/orders/';
 }
 
 function toggleReadMore(menuItemId) {

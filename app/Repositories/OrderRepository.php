@@ -26,7 +26,7 @@ class OrderRepository
 
     public static function createOrder($submittingUser, $receivingBusiness, $tableNumber) {
         $order = new OrderModel();
-        $receivedOrderStatus = self::getOrderStatusByName('received');
+        $receivedOrderStatus = self::getOrderStatusByName('New Order');
         
         $orderID = Utils::generateUUID();
         $order->insert([

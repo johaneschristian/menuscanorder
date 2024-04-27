@@ -57,12 +57,6 @@ class OrderController extends Controller {
     }
 
     public function businessGetOrderKitchenViewData() {
-        // Number of products under new order (total quantity)
-        // Number of products under In-Progress (total quantity)
-        // Number of products under served (total quantity)
-        // Get each order items
-        // For each order items: Get table Number, item_creation_time, STATUS NAME, item name, notes, and quantity
-        // Get set of status and ID according to order (new order, in-progress, served)
         $user = auth()->user();
         $responseData = OrderService::handleBusinessGetOrderKitchenData($user);
         return $this->response
