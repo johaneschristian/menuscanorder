@@ -8,6 +8,11 @@ use App\Utils\Utils;
 
 class OrderItemRepository
 {
+    public static function getAllOrderItemStatus() {
+        $orderItemStatus = new OrderItemStatusModel();
+        return $orderItemStatus->findAll();
+    }
+
     public static function getOrderItemStatusByName($statusName) {
         $orderItemStatus = new OrderItemStatusModel();
         return $orderItemStatus->where('status', $statusName)->first();
@@ -63,5 +68,30 @@ class OrderItemRepository
                     ->where('menu_item_id', $menuItemID)
                     ->where('price_when_bought', $price)
                     ->findAll();
+    }
+
+    public static function getOrderItemsSummaryOfBusiness($businessID) {
+        $orderItem = new OrderItemModel();
+        return $orderItem
+                    ->select('order_items.order_item_status_id , order_item_statuses.status AS status_name, SUM(order_items.num_of_items) AS total_quantity')
+                    ->join('orders', 'order_items.order_id=orders.order_id')
+                    ->join('order_item_statuses', 'order_items.order_item_status_id=order_item_statuses.id')
+                    ->where('orders.receiving_business_id', $businessID)
+                    ->groupBy('order_items.order_item_status_id, order_item_statuses.status')
+                    ->findAll();
+    }
+
+    public static function getOrderItemsOfBusiness($businessID, $perPage = 10, $currentPage = 1) {
+        $orderItem = new OrderItemModel();
+        $query = $orderItem
+                    ->select('order_items.order_item_id, order_items.num_of_items, order_items.item_order_time, order_items.order_item_status_id, order_item_statuses.status AS status_name, order_items.notes, order_items.order_id, orders.table_number, order_items.menu_item_id, menu_items.name AS menu_item_name, order_items.price_when_bought')
+                    ->join('orders', 'order_items.order_id=orders.order_id')
+                    ->join('order_item_statuses', 'order_items.order_item_status_id=order_item_statuses.id')
+                    ->join('menu_items', 'order_items.menu_item_id=menu_items.menu_item_id')
+                    ->where('orders.receiving_business_id', $businessID);
+
+                    // Order status   
+                    // Filter non-served
+        return $query->findAll();
     }
 }

@@ -10,3 +10,12 @@ function toggleElement(element, shouldDisplay) {
 		}
 	}
 }
+
+/**
+ * https://www.squash.io/how-to-capitalize-first-letter-in-javascript/
+ * @param {*} string 
+ * @returns 
+ */
+function capitalizeFirstLetter(string) {
+  return string.replace(/^\w/, (c) => c.toUpperCase());
+}

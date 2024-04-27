@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\CustomExceptions\InvalidRegistrationException;
 use App\Exceptions\NotAuthorizedException;
+use App\Models\OrderItemModel;
+use App\Models\OrderItemStatusModel;
 use App\Repositories\BusinessRepository;
 use App\Repositories\MenuRepository;
 use App\Repositories\OrderItemRepository;
@@ -362,6 +364,19 @@ class OrderService
         $order = OrderRepository::getOrderByIDOrThrowException($requestData['order_id'] ?? '');
         self::validateBusinessOrderOwnership($userBusiness, $order);
         self::completeOrder($order);
+    }
+
+    public static function handleBusinessGetOrderKitchenData($user) {
+        $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
+        $businessOrderItemSumamry = OrderItemRepository::getOrderItemsSummaryOfBusiness($userBusiness->business_id);
+        $businessOrderItems = OrderItemRepository::getOrderItemsOfBusiness($userBusiness->business_id);
+        $allStatus = OrderItemRepository::getAllOrderItemStatus();
+
+        return [
+            'order_item_summary' => $businessOrderItemSumamry,
+            'order_items' => $businessOrderItems,
+            'order_item_statuses' => $allStatus,
+        ];
     }
 }
 

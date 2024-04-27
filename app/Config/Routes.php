@@ -33,6 +33,7 @@ $routes->group('business', function ($routes) {
         $routes->get('/', 'OrderController::businessOrderList');
         $routes->post('complete/', 'OrderController::businessCompleteOrder');
         $routes->get('kitchen-view/', 'OrderController::businessOrderKitchenView');
+        $routes->get('kitchen-view/data/', 'OrderController::businessGetOrderKitchenViewData');
         $routes->get('detail/(:segment)', 'OrderController::businessOrderDetails/$1');
     });
     $routes->get('profile', 'BusinessController::profileEdit');
