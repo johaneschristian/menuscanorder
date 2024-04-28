@@ -5,8 +5,8 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('additional_css_js') ?>
-<script src="<?= base_url('js/customer/index.js') ?>" defer></script>
 <link rel="stylesheet" href="<?= base_url('css/customer/orderPage.css') ?>">
+<script src="<?= base_url('js/customer/index.js') ?>" defer></script>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>

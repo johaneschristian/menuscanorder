@@ -23,22 +23,30 @@ class OrderController extends Controller {
     }
 
     public function orderCreate() {
-        // TODO: Implement frontend toast https://github.com/apvarun/toastify-js/blob/master/README.md
         try {
             $user = auth()->user();
             $orderData = $this->request->getJSON(true);
             OrderService::handleCreateOrder($user, $orderData);
+            throw new InvalidRegistrationException("HELLO WORLD");
             session()->setFlashdata('success', 'Order is created successfully');
-            return $this->response->setStatusCode(200)->setBody(['message' => 'Order is created successfully']);
+            return $this->response->setContentType('application/json')
+                                  ->setStatusCode(200)
+                                  ->setBody(json_encode(['message' => 'Order is created successfully']));
 
         } catch (InvalidRegistrationException $exception) {
-            return $this->response->setStatusCode(400)->setBody(['message' => $exception->getMessage()]);
+            return $this->response->setContentType('application/json')
+                                  ->setStatusCode(400)
+                                  ->setBody(json_encode(['message' => $exception->getMessage()]));
 
         } catch (ObjectNotFoundException $exception) {
-            return $this->response->setStatusCode(404)->setBody(['message' => $exception->getMessage()]);
+            return $this->response->setContentType('application/json')
+                                  ->setStatusCode(404)
+                                  ->setBody(json_encode(['message' => $exception->getMessage()]));
 
         } catch (Exception $exception) {
-            return $this->response->setStatusCode(500)->setBody(['message' => $exception->getMessage()]);
+            return $this->response->setContentType('application/json')
+                                  ->setStatusCode(500)
+                                  ->setBody(json_encode(['message' => $exception->getMessage()]));
         }
     }
 
@@ -131,7 +139,6 @@ class OrderController extends Controller {
     }
 
     public function businessGetOrderKitchenViewData() {
-        // TODO: Implement toast if fails
         try {
             $user = auth()->user();
             $responseData = OrderService::handleBusinessGetOrderKitchenData($user);
@@ -155,7 +162,6 @@ class OrderController extends Controller {
     }
 
     public function businessUpdateOrderItemStatus() {
-        // TODO: Implement toast
         try {
             $user = auth()->user();
             $updateData = $this->request->getJSON(true);

@@ -65,14 +65,13 @@ function getNextStatus(statusName) {
 
 async function getKitchenViewData() {
 	const response = await fetch("/business/orders/kitchen-view/data");
+	const responseData = JSON.parse(await response.text());
 
 	if (!response.ok) {
-		throw new Error("Failed to fetch kitchen data");
+		throw new Error(responseData.message);
 	}
 
-	const responseData = await response.text();
-
-	return JSON.parse(responseData);
+	return responseData;
 }
 
 function reloadKitchenViewOrderItemSummary() {
@@ -187,20 +186,25 @@ function setupOrderItemsList(orderItems) {
 }
 
 async function setupKitchenViewPage() {
-	const kitchenViewData = await getKitchenViewData();
-	statuses = kitchenViewData.order_item_statuses;
+	try {
+		const kitchenViewData = await getKitchenViewData();
+		statuses = kitchenViewData.order_item_statuses;
 
-	statusData.forEach((statusDatum) => {
-		updateStatusQuantity(
-			statusDatum.name,
-			kitchenViewData.order_item_summary.find(
-				(status) => status.status_name === statusDatum.name
-			)?.total_quantity ?? 0
-		);
-	});
+		statusData.forEach((statusDatum) => {
+			updateStatusQuantity(
+				statusDatum.name,
+				kitchenViewData.order_item_summary.find(
+					(status) => status.status_name === statusDatum.name
+				)?.total_quantity ?? 0
+			);
+		});
 
-	reloadKitchenViewOrderItemSummary(kitchenViewData.order_item_summary);
-	setupOrderItemsList(kitchenViewData.order_items);
+		reloadKitchenViewOrderItemSummary(kitchenViewData.order_item_summary);
+		setupOrderItemsList(kitchenViewData.order_items);
+
+	} catch (exception) {
+		displayErrorToast(exception.message);
+	}
 }
 
 function getOrderItemCurrentStatus(orderItemID) {
@@ -284,12 +288,13 @@ async function submitItemStatusUpdate(orderItemID, newStatusID) {
 		}),
 	});
 
+	const responseData = JSON.parse(await response.text());
+
 	if (!response.ok) {
-		throw new Error("An error occurred while submitting item status update.");
+		throw new Error(responseData.message);
 	}
 
-	const responseData = await response.text();
-	return JSON.parse(responseData);
+	return responseData;
 }
 
 async function updateItemStatus(orderItemID) {
@@ -299,14 +304,19 @@ async function updateItemStatus(orderItemID) {
 		(status) => status.status === nextStatus
 	).id;
 
-	// Update remote data
-  await submitItemStatusUpdate(orderItemID, nextStatusID);
+	try {
+		// Update remote data
+		await submitItemStatusUpdate(orderItemID, nextStatusID);
 
-	// Update item summary TODO: FIX -quantity
-	updateStatusQuantity(currentStatus, getStatusQuantity(currentStatus) - 1);
-	updateStatusQuantity(nextStatus, getStatusQuantity(nextStatus) + 1);
-	reloadKitchenViewOrderItemSummary();
+		// Update item summary TODO: FIX -quantity
+		updateStatusQuantity(currentStatus, getStatusQuantity(currentStatus) - 1);
+		updateStatusQuantity(nextStatus, getStatusQuantity(nextStatus) + 1);
+		reloadKitchenViewOrderItemSummary();
 
-	// Update item text, color. and action button
-	updateItemStatusDisplay(orderItemID, currentStatus, nextStatus);
+		// Update item text, color. and action button
+		updateItemStatusDisplay(orderItemID, currentStatus, nextStatus);
+
+	} catch (exception) {
+		displayErrorToast(exception.message);
+	}
 }

@@ -19,3 +19,18 @@ function toggleElement(element, shouldDisplay) {
 function capitalizeFirstLetter(string) {
   return string.replace(/^\w/, (c) => c.toUpperCase());
 }
+
+function displayErrorToast(errorMessage) {
+	Toastify({
+		text: errorMessage,
+		duration: 5000,
+		offset: {
+			x: 50, // horizontal axis - can be a number or a string indicating unity. eg: '2em'
+			y: 10 // vertical axis - can be a number or a string indicating unity. eg: '2em'
+		},
+		gravity: "bottom",
+		style: {
+			background: "red",
+		}
+	}).showToast();
+}

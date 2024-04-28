@@ -36,7 +36,13 @@ async function submitOrder() {
 		body: JSON.stringify(orderData)
 	});
 
-	// window.location.href = '/customer/orders/';
+	if (response.ok) {
+		window.location.href = '/customer/orders/';
+
+	} else {
+		const errorResponse = JSON.parse(await response.text());
+		displayErrorToast(errorResponse.message);
+	}
 }
 
 function toggleReadMore(menuItemId) {
