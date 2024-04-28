@@ -302,7 +302,7 @@ async function updateItemStatus(orderItemID) {
 	// Update remote data
   await submitItemStatusUpdate(orderItemID, nextStatusID);
 
-	// Update item summary
+	// Update item summary TODO: FIX -quantity
 	updateStatusQuantity(currentStatus, getStatusQuantity(currentStatus) - 1);
 	updateStatusQuantity(nextStatus, getStatusQuantity(nextStatus) + 1);
 	reloadKitchenViewOrderItemSummary();
