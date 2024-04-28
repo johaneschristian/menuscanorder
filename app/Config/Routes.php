@@ -12,9 +12,9 @@ $routes->match(['get', 'post'], '/register', 'Home::register');
 $routes->group('admin', function ($routes) {
     $routes->group('users', function ($routes) {
         $routes->get('/', 'AdminController::userList');
-        $routes->get('create', 'AdminController::userCreate');
+        $routes->match(['get', 'post'], 'create', 'AdminController::userCreate');
         $routes->get('(:segment)', 'AdminController::userDetails/$1');
-        $routes->get('(:segment)/edit', 'AdminController::userEdit/$1');
+        $routes->match(['get', 'post'], '(:segment)/edit', 'AdminController::userEdit/$1');
     });
 });
 

@@ -1,6 +1,6 @@
 window.addEventListener("load", async (e) => {
-  await setupKitchenViewPage();
-  setInterval(async () => await setupKitchenViewPage(), 10000);
+	await setupKitchenViewPage();
+	setInterval(async () => await setupKitchenViewPage(), 10000);
 });
 
 let statuses = [];
@@ -124,7 +124,7 @@ function setupOrderItemsList(orderItems) {
               <tbody>
                 <tr>
                   <td>${orderItem.menu_item_name}</td>
-                  <td>${orderItem.num_of_items}</td>
+                  <td id="order-item-${orderItem.order_item_id}-quantity">${orderItem.num_of_items}</td>
                 </tr>
               </tbody>
             </table>
@@ -201,17 +201,19 @@ async function setupKitchenViewPage() {
 
 		reloadKitchenViewOrderItemSummary(kitchenViewData.order_item_summary);
 		setupOrderItemsList(kitchenViewData.order_items);
-
 	} catch (exception) {
 		displayErrorToast(exception.message);
 	}
 }
 
 function getOrderItemCurrentStatus(orderItemID) {
-	const orderItemStatusSpan = document.querySelector(
-		`#order-item-${orderItemID}-status`
+	return document.querySelector(`#order-item-${orderItemID}-status`).innerHTML;
+}
+
+function getOrderItemQuantity(orderItemID) {
+	return Number(
+		document.querySelector(`#order-item-${orderItemID}-quantity`).innerHTML
 	);
-	return orderItemStatusSpan.innerHTML;
 }
 
 function updateItemStatusSpan(orderItemID, previousStatus, newStatus) {
@@ -308,14 +310,13 @@ async function updateItemStatus(orderItemID) {
 		// Update remote data
 		await submitItemStatusUpdate(orderItemID, nextStatusID);
 
-		// Update item summary TODO: FIX -quantity
-		updateStatusQuantity(currentStatus, getStatusQuantity(currentStatus) - 1);
-		updateStatusQuantity(nextStatus, getStatusQuantity(nextStatus) + 1);
+		// Update item summary
+		updateStatusQuantity(currentStatus, getStatusQuantity(currentStatus) - getOrderItemQuantity(orderItemID));
+		updateStatusQuantity(nextStatus, getStatusQuantity(nextStatus) + getOrderItemQuantity(orderItemID));
 		reloadKitchenViewOrderItemSummary();
 
 		// Update item text, color. and action button
 		updateItemStatusDisplay(orderItemID, currentStatus, nextStatus);
-
 	} catch (exception) {
 		displayErrorToast(exception.message);
 	}

@@ -55,7 +55,7 @@ class OrderService
         foreach ($selectedMenus as $selectedMenu) {
             $convertedSelectedMenus[] = [
                 ...$selectedMenu,
-                'notes' => (!is_string($selectedMenu['notes']) || trim($selectedMenu['notes']) === "") ? NULL : trim($selectedMenu['notes']),
+                'notes' => (!is_string($selectedMenu['notes']) || empty(trim($selectedMenu['notes']))) ? NULL : trim($selectedMenu['notes']),
                 'menu_item' => MenuRepository::getMenuByIDOrThrowException($selectedMenu['menu_item_id']),
             ];
         }
@@ -82,7 +82,7 @@ class OrderService
             return $userLatestUncompleteOrderInBusiness->order_id;
 
         } else {
-            return OrderRepository::createOrder($submittingUser, $receivingBusiness, $tableNumber);
+            return OrderRepository::createOrder($submittingUser->id, $receivingBusiness->business_id, $tableNumber);
         }
     }
 
@@ -153,7 +153,7 @@ class OrderService
             'page' => (int) ($requestData['page'] ?? 1),
         ];
 
-        if (array_key_exists('business_name', $requestData) && trim($requestData['business_name']) !== '') {
+        if (array_key_exists('business_name', $requestData) && !empty(trim($requestData['business_name']))) {
             $businessesMatchingName = BusinessRepository::getBusinessesMatchingName(trim($requestData['business_name']));
             $businessesIDMatchingName = array_map(function ($business) { return $business->business_id; }, $businessesMatchingName);
             $transformedRequestData['business_ids'] = $businessesIDMatchingName;

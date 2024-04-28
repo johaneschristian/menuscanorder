@@ -11,11 +11,11 @@ class UserModel extends ShieldUserModel
     protected function initialize(): void
     {
         parent::initialize();
-
         $this->allowedFields = [
             ...$this->allowedFields,
             'name',
-            'email'
+            'is_archived',
+            'is_admin',
             // 'first_name',
         ];
     }

@@ -32,7 +32,7 @@ class BusinessService
 
         $validationResult = Validator::validate($rules, [], $categoryData);
 
-        if(!($validationResult === TRUE)) {
+        if($validationResult !== TRUE) {
             throw new InvalidRegistrationException($validationResult);
         }
     }
@@ -51,12 +51,12 @@ class BusinessService
         self::validateCategoryData($categoryData);
         $userBusiness = self::getBusinessByUserOrNonAuthorized($user);
         $transformedCategoryData = Utils::trimAllString($categoryData);
-        CategoryRepository::createCategory($userBusiness, $transformedCategoryData);
+        CategoryRepository::createCategory($userBusiness->business_id, $transformedCategoryData);
     }
 
     public static function handleGetCategoryList($user, $search) {
         $userBusiness = self::getBusinessByUserOrNonAuthorized($user);
-        $businessCategories = CategoryRepository::getCategoriesOfBusiness($userBusiness, $search ?? '');
+        $businessCategories = CategoryRepository::getCategoriesOfBusiness($userBusiness->business_id, $search ?? '');
         return [
             'business' => $userBusiness,
             'categories' => $businessCategories,
@@ -81,7 +81,7 @@ class BusinessService
 
         $validationResult = Validator::validate($rules, [], $menuData);
 
-        if(!($validationResult === TRUE)) {
+        if($validationResult !== TRUE) {
             throw new InvalidRegistrationException($validationResult);
         }
 
@@ -95,7 +95,7 @@ class BusinessService
             'is_available' => array_key_exists('is_available', $menuData),
         ];
 
-        if(array_key_exists('description', $menuData) && trim($menuData['description']) !== '') {
+        if(array_key_exists('description', $menuData) && !empty(trim($menuData['description']))) {
             $dataToBeUpdated['description'] = trim($menuData['description']);
         }
 
@@ -123,7 +123,7 @@ class BusinessService
         self::validateMenuData($menuData, $menuImage);
         $userBusiness = self::getBusinessByUserOrNonAuthorized($user);
         $transformedMenuData = self::transformMenuData($menuData);
-        $createdMenuID = MenuRepository::createMenu($userBusiness, $transformedMenuData);
+        $createdMenuID = MenuRepository::createMenu($userBusiness->business_id, $transformedMenuData);
         if ($menuImage->isValid()) {
             self::saveImageFile($userBusiness->business_id, $createdMenuID, $menuImage);
         }
@@ -146,34 +146,23 @@ class BusinessService
     }
 
     public static function handleBusinessMenuList($user, $requestData) {
-        try {
-            $transformedRequestData = self::transformMenuListRequestData($requestData);
-            try {       
-                $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
-
-            } catch (ObjectNotFoundException $exception) {
-                throw new NotAuthorizedException($exception->getMessage());
-            }
-
-            $businessCategories = CategoryRepository::getCategoriesOfBusiness($userBusiness, "");
-            $businessMenusPaginated = MenuRepository::getPaginatedMenuItemsOfBusinessMatchingNameAndCategory(
-                $userBusiness->business_id, 
-                $transformedRequestData['name'], 
-                $transformedRequestData['category_id'],
-                FALSE,
-                12,
-                $transformedRequestData['page'],
-            );
-            
-            return[
-                'menus' => $businessMenusPaginated['result'],
-                'pager' => $businessMenusPaginated['pager'],
-                'categories' => $businessCategories
-            ];
-
-        } catch (ObjectNotFoundException $exception) {
-            throw new NotAuthorizedException($exception->getMessage());
-        }
+        $transformedRequestData = self::transformMenuListRequestData($requestData);
+        $userBusiness = self::getBusinessByUserOrNonAuthorized($user);
+        $businessCategories = CategoryRepository::getCategoriesOfBusiness($userBusiness->business_id, "");
+        $businessMenusPaginated = MenuRepository::getPaginatedMenuItemsOfBusinessMatchingNameAndCategory(
+            $userBusiness->business_id, 
+            $transformedRequestData['name'], 
+            $transformedRequestData['category_id'],
+            FALSE,
+            12,
+            $transformedRequestData['page'],
+        );
+        
+        return[
+            'menus' => $businessMenusPaginated['result'],
+            'pager' => $businessMenusPaginated['pager'],
+            'categories' => $businessCategories
+        ];        
     }
 
     private static function validateMenuOwnership($business, $menu) {
@@ -183,17 +172,11 @@ class BusinessService
     }
 
     public static function handleBusinessGetMenuData($user, $menuID) {
-        try {
-            $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
-
-        } catch (ObjectNotFoundException $exception) {
-            throw new NotAuthorizedException($exception->getMessage());
-        }
-        
+        $userBusiness = self::getBusinessByUserOrNonAuthorized($user);
         $menu = MenuRepository::getMenuByIDOrThrowException($menuID);
         self::validateMenuOwnership($userBusiness, $menu);
 
-        $businessCategories = CategoryRepository::getCategoriesOfBusiness($userBusiness, '');
+        $businessCategories = CategoryRepository::getCategoriesOfBusiness($userBusiness->business_id, '');
         return [
             'menu' => $menu,
             'categories' => $businessCategories,
@@ -235,7 +218,7 @@ class BusinessService
             'business' => $userBusiness,
             'current_page' => (int) ($requestData['page'] ?? 1),
             'total_pages' => (int) ceil($userBusiness->num_of_tables / 10),
-            'searched_table_number' => !array_key_exists('search', $requestData) || $requestData['search'] === "" ?  NULL : (int) $requestData['search']
+            'searched_table_number' => !array_key_exists('search', $requestData) || empty($requestData['search']) ?  NULL : (int) $requestData['search']
         ];
     }
 
@@ -258,7 +241,7 @@ class BusinessService
 
         $validationResult = Validator::validate($rules, [], $capacityData);
 
-        if(!($validationResult === TRUE)) {
+        if($validationResult !== TRUE) {
             throw new InvalidRegistrationException($validationResult);
         }
     }
@@ -266,7 +249,7 @@ class BusinessService
     public static function handleUpdateBusinessTableCapacity($user, $capacityData) {
         self::validateCapacityData($capacityData);
         $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
-        BusinessRepository::updateBusinessData(
+        BusinessRepository::updateBusiness(
             $userBusiness->business_id, 
             [
                 'num_of_tables' => $capacityData['new_table_quantity']

@@ -9,25 +9,27 @@ use App\Utils\Utils;
 
 class CategoryRepository
 {
-    public static function createCategory($owningBusiness, $categoryData) {
+    // TODO: Clean, simplify
+    public static function createCategory($owningBusinessID, $categoryData) {
         $category = new CategoryModel();
         return $category->insert([
             'category_id' => Utils::generateUUID(),
-            'owning_business_id' => $owningBusiness->business_id,
+            'owning_business_id' => $owningBusinessID,
             'name' => $categoryData['category_name'],
         ], TRUE);
     }
 
     public static function updateCategory($updatedCategory, $categoryData) {
+        // TODO: Change format
         $category = new CategoryModel();
-        $updatedCategory->name= $categoryData['category_name'];
+        $updatedCategory->name = $categoryData['category_name'];
         $category->save($updatedCategory);
     }
 
-    public static function getCategoriesOfBusiness($owningBusiness, $categoryNameSearch) {
+    public static function getCategoriesOfBusiness($owningBusinessID, $categoryNameSearch) {
         $category = new CategoryModel();
         $businessCategories = $category
-                                ->where('owning_business_id', $owningBusiness->business_id)
+                                ->where('owning_business_id', $owningBusinessID)
                                 ->like('name', $categoryNameSearch, 'both')
                                 ->findAll();
         

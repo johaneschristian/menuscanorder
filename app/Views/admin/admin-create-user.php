@@ -83,33 +83,33 @@
           <span class="fw-bold fs-4 mb-3">Personal Information</span>
           <div class="mb-3">
             <label for="" class="form-label fw-bold lh-sm">Email</label>
-            <input type="email" class="form-control">
+            <input name="email" type="email" class="form-control">
           </div>
           <div class="mb-3">
             <label for="" class="form-label fw-bold lh-sm">Name</label>
-            <input type="email" class="form-control">
+            <input name="name" type="text" class="form-control">
           </div>
           <div class="mb-3">
             <label for="" class="form-label fw-bold lh-sm">Account Type</label>
-            <select class="form-select">
+            <select name="account_type" class="form-select">
               <option value="user" selected>user</option>
               <option value="admin">admin</option>
             </select>
           </div>
           <div class="mb-3">
             <label for="" class="form-label fw-bold lh-sm">Subscription Status</label>
-            <select class="form-select">
+            <select name="subscription_status" class="form-select">
               <option value="active" selected>active</option>
               <option value="archived">archived</option>
             </select>
           </div>
           <div class="mb-3">
             <label for="" class="form-label fw-bold lh-sm">Password</label>
-            <input type="password" class="form-control">
+            <input name="password" type="password" class="form-control">
           </div>
           <div class="mb-3">
             <label for="" class="form-label fw-bold lh-sm">Password Confirmation</label>
-            <input type="password" class="form-control">
+            <input name="password_confirmation" type="password" class="form-control">
           </div>
         </div>
 
@@ -118,22 +118,22 @@
           <div class="d-none" id="affiliated-business-form">
             <div class="mb-3">
               <label for="affiliated-business-name" class="form-label fw-bold lh-sm">Business Name</label>
-              <input id="affiliated-business-name" type="text" class="form-control">
+              <input name="business_name" id="affiliated-business-name" type="text" class="form-control">
             </div>
             <div class="mb-3">
               <label for="affiliated-business-address" class="form-label fw-bold lh-sm">Business Address</label>
-              <textarea id="affiliated-business-address" type="text" rows="1" class="form-control"></textarea>
+              <textarea name="address" id="affiliated-business-address" type="text" rows="1" class="form-control"></textarea>
             </div>
             <div class="mb-3">
               <label for="affiliated-business-table-quantity" class="form-label fw-bold lh-sm">Dine-In Business Size</label>
               <div class="input-group">
-                <input id="affiliated-business-table-quantity" type="number" step="1" class="form-control">
+                <input name="num_of_tables" id="affiliated-business-table-quantity" type="number" step="1" class="form-control">
                 <span class="input-group-text bg-soft-gray">tables</span>
               </div>
             </div>
             <div class="mb-3">
               <label for="affiliated-business-subcription-status" class="form-label fw-bold lh-sm">Business Subscription Status</label>
-              <select id="affiliated-business-subcription-status" class="form-select">
+              <select name="business_subscription_status" id="affiliated-business-subcription-status" class="form-select">
                 <option value="active" selected>active</option>
                 <option value="archived">archived</option>
               </select>

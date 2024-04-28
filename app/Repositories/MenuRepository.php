@@ -9,12 +9,12 @@ use App\Utils\Utils;
 
 class MenuRepository 
 {
-    public static function createMenu($owningBusiness, $menuData) {
+    public static function createMenu($owningBusinessID, $menuData) {
         $menu = new MenuItemModel();
         $menuItemID = Utils::generateUUID();
         $dataToBeInserted = [
             'menu_item_id' => $menuItemID,
-            'owning_business_id' => $owningBusiness->business_id,
+            'owning_business_id' => $owningBusinessID,
             ...$menuData,
         ];
 
@@ -24,9 +24,7 @@ class MenuRepository
 
     public static function updateMenu($menuItemID, $menuData) {
         $menu = new MenuItemModel();
-        $menu->where('menu_item_id', $menuItemID)
-             ->set($menuData)
-             ->update();
+        $menu->update($menuItemID, $menuData);
     }
 
     public static function updateMenuImage($menuItemID, $imageURL) {
@@ -45,6 +43,7 @@ class MenuRepository
         $foundMenu = self::getMenuByID($menuItemID);
 
         if ($foundMenu === NULL) {
+            // TODO: Change to is_null
             throw new ObjectNotFoundException("Menu with ID $menuItemID does not exist.");
         
         } else {

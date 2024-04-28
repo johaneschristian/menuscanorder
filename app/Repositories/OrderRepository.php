@@ -24,7 +24,7 @@ class OrderRepository
         return $orderStatus->where('id', $statusID)->first();
     }
 
-    public static function createOrder($submittingUser, $receivingBusiness, $tableNumber) {
+    public static function createOrder($submittingUserID, $receivingBusinessID, $tableNumber) {
         $order = new OrderModel();
         $receivedOrderStatus = self::getOrderStatusByName('New Order');
         
@@ -34,8 +34,8 @@ class OrderRepository
             'order_creation_time' => date('c'),
             'order_status_id' => $receivedOrderStatus->id,
             'table_number' => $tableNumber,
-            'submitting_user_id' => $submittingUser->id,
-            'receiving_business_id' => $receivingBusiness->business_id,
+            'submitting_user_id' => $submittingUserID,
+            'receiving_business_id' => $receivingBusinessID,
         ]);
 
         return $orderID;

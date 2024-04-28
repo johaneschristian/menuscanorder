@@ -45,7 +45,7 @@ class Utils
     }
 
     public static function trimAllString($element) {
-        if (is_string($element) && trim($element) === "") {
+        if (is_string($element) && empty(trim($element))) {
             return NULL;
             
         } else if (is_string($element)) {

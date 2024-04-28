@@ -40,24 +40,22 @@ class BusinessRepository
         }
     }
 
-    public static function createBusiness($creatingUser, $businessData) {
+    public static function createBusiness($creatingUserID, $businessData) {
         $businesses = new BusinessModel();
         $businesses->insert([
             'business_id' => Utils::generateUUID(),
-            'owning_user_id' => $creatingUser->id,
+            'owning_user_id' => $creatingUserID,
             'business_name' => $businessData['business_name'],
             'num_of_tables' => $businessData['num_of_tables'],
             'address' => $businessData['address'],
             'is_open' => FALSE,
-            'business_is_archived' => FALSE,
+            'business_is_archived' => $businessData['business_is_archived'] ?? FALSE,
         ]);
     } 
 
-    public static function updateBusinessData($businessID, $businessData) {
+    public static function updateBusiness($businessID, $businessData) {
         $business = new BusinessModel();
-        $business->where('business_id', $businessID)
-                 ->set($businessData)
-                 ->update();
+        $business->update($businessID, $businessData);
     }
 
     public static function getBusinessesMatchingName($businessName) {

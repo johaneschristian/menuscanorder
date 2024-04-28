@@ -68,9 +68,7 @@ class OrderItemRepository
 
     public static function updateOrderItem($orderItemID, $newData) {
         $orderItem = new OrderItemModel();
-        return $orderItem->where('order_item_id', $orderItemID)
-                         ->set($newData)
-                         ->update();
+        return $orderItem->update($orderItemID, $newData);
     }
 
     public static function getOrderItemsOfOrder($orderID, $ordered = FALSE, $completeData = FALSE) {
@@ -102,6 +100,7 @@ class OrderItemRepository
     }
 
     public static function getOrderItemsOfOrderMatchingMenuItemIDAndPrice($orderID, $menuItemID, $price) {
+        // TODO: Maybe to specific
         $orderItem = new OrderItemModel();
         return $orderItem
                     ->where('order_id', $orderID)

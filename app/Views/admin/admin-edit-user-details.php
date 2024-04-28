@@ -83,60 +83,61 @@
           <span class="fw-bold fs-4 mb-3">Personal Information</span>
           <div class="mb-3">
             <label for="" class="form-label fw-bold lh-sm">Email</label>
-            <input type="email" class="form-control bg-disabled" value="j.tarigan@uqconnect.edu.au" readonly>
+            <input name="email" type="email" class="form-control bg-disabled" value="<?= esc($user->email) ?>" readonly>
           </div>
           <div class="mb-3">
             <label for="" class="form-label fw-bold lh-sm">Name</label>
-            <input type="email" class="form-control" value="Johanes Christian Lewi Putrael">
+            <input name="name" type="email" class="form-control" value="<?= esc($user->name) ?>">
           </div>
           <div class="mb-3">
             <label for="" class="form-label fw-bold lh-sm">Account Type</label>
-            <select class="form-select">
-              <option value="user" selected>user</option>
-              <option value="admin">admin</option>
+            <select name="account_type" class="form-select">
+              <option value="user" <?= $user->is_admin ? "" : "selected"?>>user</option>
+              <option value="admin" <?= $user->is_admin ? "selected" : ""?>>admin</option>
             </select>
           </div>
           <div class="mb-3">
             <label for="" class="form-label fw-bold lh-sm">Subscription Status</label>
-            <select class="form-select">
-              <option value="active" selected>active</option>
-              <option value="archived">archived</option>
+            <select name="subscription_status" class="form-select">
+              <option value="active" <?= $user->is_archived ? "" : "selected"?>>active</option>
+              <option value="archived" <?= $user->is_archived ? "" : "selected"?>>archived</option>
             </select>
           </div>
         </div>
-
         <div class="card shadow w-mdc-50 w-100 pt-3 pb-3 ps-5 pe-5 mt-3">
           <span class="fw-bold fs-4 mb-3">Affiliated Business Information</span>
-          <div class="" id="affiliated-business-form">
+          <div class="<?= $user->has_business ? "" : "d-none" ?>" id="affiliated-business-form">
             <div class="mb-3">
               <label for="" class="form-label fw-bold lh-sm">Business ID</label>
-              <input type="text" class="form-control bg-disabled" value="9bd43657-90fa-40bf-be17-41e0b2a6a1d9" readonly>
+              <input type="text" class="form-control bg-disabled" value="<?= $user->has_business ? esc($user->business->business_id) : "" ?>" readonly>
             </div>
             <div class="mb-3">
               <label for="affiliated-business-name" class="form-label fw-bold lh-sm">Business Name</label>
-              <input id="affiliated-business-name" type="text" class="form-control" value="Warteg Bahari">
+              <input name="business_name" id="affiliated-business-name" type="text" class="form-control" value="<?= $user->has_business ? esc($user->business->business_name) : "" ?>">
             </div>
             <div class="mb-3">
               <label for="affiliated-business-address" class="form-label fw-bold lh-sm">Business Address</label>
-              <textarea id="affiliated-business-address" type="text" rows="1" class="form-control">43820 Tremblay Circle, Reidview, Queensland 2369, Australia</textarea>
+              <textarea name="address" id="affiliated-business-address" type="text" rows="1" class="form-control"><?= $user->has_business ? esc($user->business->address) : "" ?></textarea>
             </div>
             <div class="mb-3">
               <label for="affiliated-business-table-quantity" class="form-label fw-bold lh-sm">Dine-In Business Size</label>
               <div class="input-group">
-                <input id="affiliated-business-table-quantity" type="number" step="1" class="form-control" value="20">
+                <input name="num_of_tables" id="affiliated-business-table-quantity" type="number" step="1" class="form-control" value="<?= $user->has_business ? esc($user->business->num_of_tables) : "" ?>">
                 <span class="input-group-text bg-soft-gray">tables</span>
               </div>
             </div>
             <div class="mb-3">
               <label for="affiliated-business-subcription-status" class="form-label fw-bold lh-sm">Business Subscription Status</label>
-              <select id="affiliated-business-subcription-status" class="form-select">
-                <option value="active" selected>active</option>
-                <option value="archived">archived</option>
+              <select name="business_subscription_status" id="affiliated-business-subcription-status" class="form-select">
+                <option value="active" <?= ($user->has_business && $user->business->business_is_archived) ? "" : "selected" ?>>active</option>
+                <option value="archived" <?= ($user->has_business && $user->business->business_is_archived) ? "selected" : "" ?>>archived</option>
               </select>
             </div>
           </div>
-          <!-- <button id="add-business-button" type="button" class="btn btn-success" onclick="displayAffiliatedBusinessForm()">Create a Business for User</button>
-          <button id="remove-business-button" type="button" class="btn btn-secondary d-none" onclick="hideAffiliatedBusinessForm()">Remove Business from User</button> -->
+          <?php if(!$user->has_business): ?>
+            <button id="add-business-button" type="button" class="btn btn-success" onclick="displayAffiliatedBusinessForm()">Create a Business for User</button>
+            <button id="remove-business-button" type="button" class="btn btn-secondary d-none" onclick="hideAffiliatedBusinessForm()">Remove Business from User</button>
+          <?php endif; ?>
         </div>
       </form>
       <div class="card shadow w-mdc-50 w-100 p-3 d-flex flex-sm-row flex-column justify-content-between mt-3">

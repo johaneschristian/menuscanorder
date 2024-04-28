@@ -9,7 +9,7 @@ use App\Utils\Validator;
 
 class CustomerService 
 {
-    private static function validateBusinessData($creatingUser, $businessData) {
+    public static function validateBusinessData($businessData) {
         $rules = [
             'business_name' => 'required|string|min_length[3]|max_length[255]',
             'num_of_tables' => 'required|is_natural',
@@ -32,10 +32,14 @@ class CustomerService
 
         $validationResult = Validator::validate($rules, $errors, $businessData);
         
-        if(!($validationResult === TRUE)) {
+        if($validationResult !== TRUE) {
             throw new InvalidRegistrationException($validationResult);
 
-        } else if (!is_null(BusinessRepository::getBusinessByUserId($creatingUser->id))) {
+        }
+    }
+
+    private static function validateUserBusinessEligibility($creatingUser) {
+        if (!is_null(BusinessRepository::getBusinessByUserId($creatingUser->id))) {
             throw new InvalidRegistrationException("A user can only have one business.");
         }
     }
@@ -49,9 +53,10 @@ class CustomerService
     }
 
     public static function handleBusinessRegistration($user, $businessData) {
-        self::validateBusinessData($user, $businessData);
+        self::validateBusinessData($businessData);
+        self::validateUserBusinessEligibility($user);
         $transformedBusinessData = self::transformBusinessData($businessData);
-        BusinessRepository::createBusiness($user, $transformedBusinessData);
+        BusinessRepository::createBusiness($user->id, $transformedBusinessData);
     }
 }
 

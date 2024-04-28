@@ -111,7 +111,7 @@
 										<p id="menu-<?= esc($menu->menu_item_id) ?>-description" class="card-text trunc-3 mb-1">
 											<small><?= esc($menu->description) ?></small>
 										</p>
-										<?php if ($menu->description !== "" && $menu->description !== NULL) : ?>
+										<?php if (!empty($menu->description) && $menu->description !== NULL) : ?>
 											<button class="badge rounded-pill bg-dark mb-3 border-0" data-bs-toggle="modal" data-bs-target="#menu-item-modal" onclick="toggleReadMore('<?= esc($menu->menu_item_id) ?>')">
 												Read More
 											</button>
