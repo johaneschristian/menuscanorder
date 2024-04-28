@@ -1,8 +1,10 @@
 <?php 
 
 namespace App\Controllers;
-use App\Services\CustomerService;
 
+use App\CustomExceptions\InvalidRegistrationException;
+use App\Services\CustomerService;
+use Exception;
 
 class CustomerController extends BaseController
 {
@@ -14,10 +16,17 @@ class CustomerController extends BaseController
         $user = auth()->user();
 
         if ($this->request->getMethod() === 'post') {
-            $request_data = $this->request->getPost();
-            CustomerService::handleBusinessRegistration($user, $request_data);
-        }
+            try {
+                $request_data = $this->request->getPost();
+                CustomerService::handleBusinessRegistration($user, $request_data);
+                session()->setFlashData('success', "Business is created successfully");
+                return redirect()->to('/business/orders/');
 
+            } catch (InvalidRegistrationException $exception) {
+                session()->setFlashData('error', $exception->getMessage()); 
+            }
+        }
+                
         return view('customer/customer-business-registration');
     }
 }

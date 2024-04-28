@@ -50,6 +50,14 @@
 		</nav>
 	</header>
 	<main>
+		<?php if (session()->getFlashData('success')) : ?>
+			<div class="alert alert-success w-50 ms-auto me-auto mt-3"><?= esc(session()->getFlashData('success')) ?></div>
+		<?php endif; ?>
+
+		<?php if (session()->getFlashData('error')) : ?>
+			<div class="alert alert-danger w-50 ms-auto me-auto mt-3"><?= esc(session()->getFlashData('error')) ?></div>
+		<?php endif; ?>
+
 		<?= $this->renderSection('content') ?>
 	</main>
 	<footer class="bg-brown text-light py-4 mt-auto">

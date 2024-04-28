@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\CustomExceptions\InvalidRegistrationException;
 use App\CustomExceptions\ObjectNotFoundException;
-use App\Exceptions\NotAuthorizedException;
+use App\CustomExceptions\NotAuthorizedException;
 use App\Repositories\BusinessRepository;
 use App\Repositories\CategoryRepository;
 use App\Repositories\MenuRepository;
@@ -16,6 +16,15 @@ use chillerlan\QRCode\{QRCode, QROptions};
 
 class BusinessService 
 {
+    public static function getBusinessByUserOrNonAuthorized($user) {
+        try {       
+            return BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
+
+        } catch (ObjectNotFoundException $exception) {
+            throw new NotAuthorizedException($exception->getMessage());
+        }
+    }
+
     private static function validateCategoryData($categoryData) {
         $rules = [
             'category_name' => 'required|min_length[3]|max_length[255]',
@@ -40,13 +49,13 @@ class BusinessService
 
     public static function handleCategoryCreation($user, $categoryData) {
         self::validateCategoryData($categoryData);
-        $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
+        $userBusiness = self::getBusinessByUserOrNonAuthorized($user);
         $transformedCategoryData = Utils::trimAllString($categoryData);
         CategoryRepository::createCategory($userBusiness, $transformedCategoryData);
     }
 
     public static function handleGetCategoryList($user, $search) {
-        $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
+        $userBusiness = self::getBusinessByUserOrNonAuthorized($user);
         $businessCategories = CategoryRepository::getCategoriesOfBusiness($userBusiness, $search ?? '');
         return [
             'business' => $userBusiness,
@@ -56,7 +65,7 @@ class BusinessService
 
     public static function handleUpdateCategory($user, $categoryData) {
         self::validateCategoryData($categoryData);
-        $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
+        $userBusiness = self::getBusinessByUserOrNonAuthorized($user);        
         $updatedCategory = CategoryRepository::getCategoryByIDOrThrowException($categoryData['category_id']);
         self::validateCategoryOwnership($userBusiness, $updatedCategory);
         $transformedCategoryData = Utils::trimAllString($categoryData);
@@ -112,7 +121,7 @@ class BusinessService
 
     public static function handleMenuCreation($user, $menuData, $menuImage) {
         self::validateMenuData($menuData, $menuImage);
-        $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
+        $userBusiness = self::getBusinessByUserOrNonAuthorized($user);
         $transformedMenuData = self::transformMenuData($menuData);
         $createdMenuID = MenuRepository::createMenu($userBusiness, $transformedMenuData);
         if ($menuImage->isValid()) {
@@ -137,23 +146,34 @@ class BusinessService
     }
 
     public static function handleBusinessMenuList($user, $requestData) {
-        $transformedRequestData = self::transformMenuListRequestData($requestData);
-        $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
-        $businessCategories = CategoryRepository::getCategoriesOfBusiness($userBusiness, "");
-        $businessMenusPaginated = MenuRepository::getPaginatedMenuItemsOfBusinessMatchingNameAndCategory(
-            $userBusiness->business_id, 
-            $transformedRequestData['name'], 
-            $transformedRequestData['category_id'],
-            FALSE,
-            12,
-            $transformedRequestData['page'],
-        );
-        
-        return[
-            'menus' => $businessMenusPaginated['result'],
-            'pager' => $businessMenusPaginated['pager'],
-            'categories' => $businessCategories
-        ];
+        try {
+            $transformedRequestData = self::transformMenuListRequestData($requestData);
+            try {       
+                $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
+
+            } catch (ObjectNotFoundException $exception) {
+                throw new NotAuthorizedException($exception->getMessage());
+            }
+
+            $businessCategories = CategoryRepository::getCategoriesOfBusiness($userBusiness, "");
+            $businessMenusPaginated = MenuRepository::getPaginatedMenuItemsOfBusinessMatchingNameAndCategory(
+                $userBusiness->business_id, 
+                $transformedRequestData['name'], 
+                $transformedRequestData['category_id'],
+                FALSE,
+                12,
+                $transformedRequestData['page'],
+            );
+            
+            return[
+                'menus' => $businessMenusPaginated['result'],
+                'pager' => $businessMenusPaginated['pager'],
+                'categories' => $businessCategories
+            ];
+
+        } catch (ObjectNotFoundException $exception) {
+            throw new NotAuthorizedException($exception->getMessage());
+        }
     }
 
     private static function validateMenuOwnership($business, $menu) {
@@ -163,7 +183,13 @@ class BusinessService
     }
 
     public static function handleBusinessGetMenuData($user, $menuID) {
-        $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
+        try {
+            $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
+
+        } catch (ObjectNotFoundException $exception) {
+            throw new NotAuthorizedException($exception->getMessage());
+        }
+        
         $menu = MenuRepository::getMenuByIDOrThrowException($menuID);
         self::validateMenuOwnership($userBusiness, $menu);
 
@@ -190,7 +216,7 @@ class BusinessService
 
     public static function handleMenuEdit($user, $menuID, $menuData, $menuImage) {
         self::validateMenuData($menuData, $menuImage);
-        $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
+        $userBusiness = self::getBusinessByUserOrNonAuthorized($user);
         $menu = MenuRepository::getMenuByIDOrThrowException($menuID);
         self::validateMenuOwnership($userBusiness, $menu);
         $transformedMenuData = self::transformMenuData($menuData);

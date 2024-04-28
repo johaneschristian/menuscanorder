@@ -52,9 +52,11 @@ class Utils
             return trim($element);
             
         } else if (is_array($element)) {
-            for($index = 0; $index < sizeof($element); $index++) {
-                $element[$index] = self::trimAllString($element[$index]);
+            foreach ($element as $key => $value) {
+                $element[$key] = self::trimAllString($value);
             }
+
+            return $element;
 
         } else {
             return $element;
