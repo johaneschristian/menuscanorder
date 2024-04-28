@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\CustomExceptions\InvalidRegistrationException;
-use App\Exceptions\NotAuthorizedException;
+use App\CustomExceptions\NotAuthorizedException;
 use App\Repositories\BusinessRepository;
 use App\Repositories\MenuRepository;
 use App\Repositories\OrderItemRepository;
@@ -299,7 +299,7 @@ class OrderService
 
     public static function handleBusinessOrderList($user, $requestData) {
         $transformedRequestData = self::transformBusinessOrderListRequestData($requestData);
-        $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
+        $userBusiness = BusinessService::getBusinessByUserOrNonAuthorized($user);
         $businessOrdersPaginated = OrderRepository::getPaginatedOrdersOfBusiness(
             $userBusiness->business_id,
             $transformedRequestData['status_id'],
@@ -327,7 +327,7 @@ class OrderService
     }
 
     public static function handleBusinessOrderDetails($user, $orderID) {
-        $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
+        $userBusiness = BusinessService::getBusinessByUserOrNonAuthorized($user);
         $order = OrderRepository::getOrderByIDOrThrowException($orderID);
         self::validateBusinessOrderOwnership($userBusiness, $order);
         $orderWithCompleteDetails = self::getOrderCompleteDetails($order);
@@ -351,14 +351,14 @@ class OrderService
     }
 
     public static function handleBusinessCompleteOrder($user, $requestData) {
-        $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
+        $userBusiness = BusinessService::getBusinessByUserOrNonAuthorized($user);
         $order = OrderRepository::getOrderByIDOrThrowException($requestData['order_id'] ?? '');
         self::validateBusinessOrderOwnership($userBusiness, $order);
         self::completeOrder($order);
     }
 
     public static function handleBusinessGetOrderKitchenData($user) {
-        $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
+        $userBusiness = BusinessService::getBusinessByUserOrNonAuthorized($user);
         $businessOrderItemSumamry = OrderItemRepository::getOrderItemsSummaryOfBusiness($userBusiness->business_id);
         $businessOrderItems = OrderItemRepository::getOrderItemsOfBusiness($userBusiness->business_id);
         $allStatus = OrderItemRepository::getAllOrderItemStatus();
@@ -386,7 +386,7 @@ class OrderService
     }
 
     public static function handleBusinessUpdateOrderItemStatus($user, $updateData) {
-        $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
+        $userBusiness = BusinessService::getBusinessByUserOrNonAuthorized($user);
         $orderItem = OrderItemRepository::getOrderItemByIDOrThrowException($updateData['order_item_id'] ?? '');
         $orderOfItem = OrderRepository::getOrderByID($orderItem->order_id);
         self::validateBusinessOrderOwnership($userBusiness, $orderOfItem);

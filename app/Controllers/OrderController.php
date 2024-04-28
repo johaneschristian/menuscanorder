@@ -2,76 +2,192 @@
 
 namespace App\Controllers;
 
+use App\CustomExceptions\InvalidRegistrationException;
+use App\CustomExceptions\NotAuthorizedException;
+use App\CustomExceptions\ObjectNotFoundException;
+use App\Services\BusinessService;
 use App\Services\OrderService;
 use CodeIgniter\Controller;
+use Exception;
 
 class OrderController extends Controller {
     public function orderMenu($businessId, $tableNumber) {
-        $menuData = OrderService::handleGetBusinessMenus($businessId);
-        return view('customer/order-page', $menuData);
+        try {
+            $menuData = OrderService::handleGetBusinessMenus($businessId);
+            return view('customer/order-page', $menuData);
+
+        } catch (Exception $exception) {
+            session()->setFlashdata('error', $exception->getMessage());
+            return redirect()->to('/customer/orders');
+        }
     }
 
     public function orderCreate() {
-        $user = auth()->user();
-        $orderData = $this->request->getJSON(true);
-        OrderService::handleCreateOrder($user, $orderData);
-        return $this->response->setStatusCode(200)->setBody(['message' => 'Order is created successfully']);
+        // TODO: Implement frontend toast https://github.com/apvarun/toastify-js/blob/master/README.md
+        try {
+            $user = auth()->user();
+            $orderData = $this->request->getJSON(true);
+            OrderService::handleCreateOrder($user, $orderData);
+            session()->setFlashdata('success', 'Order is created successfully');
+            return $this->response->setStatusCode(200)->setBody(['message' => 'Order is created successfully']);
+
+        } catch (InvalidRegistrationException $exception) {
+            return $this->response->setStatusCode(400)->setBody(['message' => $exception->getMessage()]);
+
+        } catch (ObjectNotFoundException $exception) {
+            return $this->response->setStatusCode(404)->setBody(['message' => $exception->getMessage()]);
+
+        } catch (Exception $exception) {
+            return $this->response->setStatusCode(500)->setBody(['message' => $exception->getMessage()]);
+        }
     }
 
     public function customerOrderList() {
-        $user = auth()->user();
-        $requestData = $this->request->getGet();
-        $customerOrders = OrderService::handleCustomerOrderList($user, $requestData);
-        return view('customer/customer-order-list', $customerOrders);
+        try {
+            $user = auth()->user();
+            $requestData = $this->request->getGet();
+            $customerOrders = OrderService::handleCustomerOrderList($user, $requestData);
+            return view('customer/customer-order-list', $customerOrders);   
+            
+        } catch (Exception $exception) {
+            session()->setFlashdata('error', $exception->getMessage());
+            return redirect()->to('/');
+        }
     }
 
     public function customerOrderDetail($orderId) {
-        $user = auth()->user();
-        $orderData = OrderService::handleCustomerOrderDetail($user, $orderId);
-        return view('customer/customer-order-details', $orderData);
+        try {
+            $user = auth()->user();
+            $orderData = OrderService::handleCustomerOrderDetail($user, $orderId);
+            return view('customer/customer-order-details', $orderData);
+
+        } catch (ObjectNotFoundException | NotAuthorizedException $exception) {
+            session()->setFlashdata('error', $exception->getMessage());
+            return redirect()->to('customer/orders');
+
+        } catch (Exception $exception) {
+            session()->setFlashdata('error', $exception->getMessage());
+            return redirect()->to('/');
+        }
     }
 
     public function businessOrderList() {
-        $user = auth()->user();
-        $requestData = $this->request->getGet();
-        $businessOrders = OrderService::handleBusinessOrderList($user, $requestData);
-        return view('business/business-order-list', $businessOrders);
+        try {
+            $user = auth()->user();
+            $requestData = $this->request->getGet();
+            $businessOrders = OrderService::handleBusinessOrderList($user, $requestData);
+            return view('business/business-order-list', $businessOrders);
+
+        } catch (Exception $exception) {
+            session()->setFlashdata('error', $exception->getMessage());
+            return redirect()->to('/');
+        }
     }
 
     public function businessOrderDetails($orderId) {
-        $user = auth()->user();
-        $orderData = OrderService::handleBusinessOrderDetails($user, $orderId);
-        return view('business/business-order-details', $orderData);
+        try {
+            $user = auth()->user();
+            $orderData = OrderService::handleBusinessOrderDetails($user, $orderId);
+            return view('business/business-order-details', $orderData);
+
+        } catch (ObjectNotFoundException | NotAuthorizedException $exception) {
+            session()->setFlashdata('error', $exception->getMessage());
+            return redirect()->to('/business/orders');
+        
+        } catch (Exception $exception) {
+            session()->setFlashdata('error', $exception->getMessage());
+            return redirect()->to('/');
+        }
     }
 
     public function businessCompleteOrder() {
-        $user = auth()->user();
-        $requestData = $this->request->getPost();
-        OrderService::handleBusinessCompleteOrder($user, $requestData);
-        return redirect()->to('/business/orders/');
+        try {
+            $user = auth()->user();
+            $requestData = $this->request->getPost();
+            OrderService::handleBusinessCompleteOrder($user, $requestData);
+            session()->setFlashdata('success', 'Order status is updated successfully');
+            return redirect()->to('/business/orders/');
+
+        } catch (ObjectNotFoundException | NotAuthorizedException $exception) {
+            session()->setFlashdata('error', $exception->getMessage());
+            return redirect()->to('/business/orders');
+        
+        } catch (Exception $exception) {
+            session()->setFlashdata('error', $exception->getMessage());
+            return redirect()->to('/');
+        }
     }
 
     public function businessOrderKitchenView() {
-        $user = auth()->user();
-        return view('business/kitchen-view');
+        try {
+            $user = auth()->user();
+            $userBusiness = BusinessService::getBusinessByUserOrNonAuthorized($user);
+            return view('business/kitchen-view');
+
+        } catch (Exception $exception) {
+            session()->setFlashdata('error', $exception->getMessage());
+            return redirect()->to('/');
+        }        
     }
 
     public function businessGetOrderKitchenViewData() {
-        $user = auth()->user();
-        $responseData = OrderService::handleBusinessGetOrderKitchenData($user);
-        return $this->response
-                    ->setContentType('application/json')
-                    ->setStatusCode(200)
-                    ->setBody(json_encode($responseData));
+        // TODO: Implement toast if fails
+        try {
+            $user = auth()->user();
+            $responseData = OrderService::handleBusinessGetOrderKitchenData($user);
+            return $this->response
+                        ->setContentType('application/json')
+                        ->setStatusCode(200)
+                        ->setBody(json_encode($responseData));
+
+        } catch (NotAuthorizedException $exception) {
+            return $this->response
+                        ->setContentType('application/json')
+                        ->setStatusCode(403)
+                        ->setBody(json_encode(['message' => $exception->getMessage()]));
+
+        } catch (Exception $exception) {
+            return $this->response
+                        ->setContentType('application/json')
+                        ->setStatusCode(500)
+                        ->setBody(json_encode(['message' => $exception->getMessage()]));
+        }
     }
 
     public function businessUpdateOrderItemStatus() {
-        $user = auth()->user();
-        $updateData = $this->request->getJSON(true);
-        OrderService::handleBusinessUpdateOrderItemStatus($user, $updateData);
-        return $this->response
-                ->setContentType('application/json')
-                ->setStatusCode(200)
-                ->setBody(json_encode(['message' => 'Order item was successfully updated']));
+        // TODO: Implement toast
+        try {
+            $user = auth()->user();
+            $updateData = $this->request->getJSON(true);
+            OrderService::handleBusinessUpdateOrderItemStatus($user, $updateData);
+            return $this->response
+                    ->setContentType('application/json')
+                    ->setStatusCode(200)
+                    ->setBody(json_encode(['message' => 'Order item was successfully updated']));
+
+        } catch (NotAuthorizedException $exception) {
+            return $this->response
+                        ->setContentType('application/json')
+                        ->setStatusCode(403)
+                        ->setBody(json_encode(['message' => $exception->getMessage()]));
+
+        } catch (ObjectNotFoundException $exception) {
+            return $this->response
+                        ->setContentType('application/json')
+                        ->setStatusCode(404)
+                        ->setBody(json_encode(['message' => $exception->getMessage()]));
+
+        } catch (InvalidRegistrationException $exception) {
+            return $this->response
+                        ->setContentType('application/json')
+                        ->setStatusCode(400)
+                        ->setBody(json_encode(['message' => $exception->getMessage()]));
+
+        } catch (Exception $exception) {
+            return $this->response
+                        ->setContentType('application/json')
+                        ->setStatusCode(500)
+                        ->setBody(json_encode(['message' => $exception->getMessage()]));
+        }
     }
 }

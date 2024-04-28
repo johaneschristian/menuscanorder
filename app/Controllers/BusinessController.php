@@ -3,7 +3,6 @@
 namespace App\Controllers;
 
 use App\CustomExceptions\InvalidRegistrationException;
-use App\CustomExceptions\NotAuthorizedException;
 use App\CustomExceptions\ObjectNotFoundException;
 use App\Services\BusinessService;
 use Exception;
@@ -181,7 +180,6 @@ class BusinessController extends BaseController
             session()->setFlashdata('error', $exception->getMessage());
             return redirect()->to('/');
         }
-        
     }
 
     public function getTableQRCode($businessID, $tableNumber) {
