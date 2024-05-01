@@ -25,7 +25,7 @@
 				</button>
 			</div>
 		</form>
-		<button type="button" class="btn bg-brown text-white" style="width: fit-content;">Add User</button>
+		<a href='<?= base_url("/admin/users/create") ?>' class="btn bg-brown text-white" style="width: fit-content;">Add User</a>
 	</div>
 	<div class="card mt-4 p-3 shadow w-100 overflow-x-auto">
 		<table class="table table-hover align-middle">
@@ -57,14 +57,11 @@
 						<a href='<?= base_url("/admin/users/{$user->id}") ?>' class="btn btn-sm btn-primary me-2 mb-1">
 							<i class="bi bi-eye-fill"></i>
 						</a>
-						<button
+						<a href='<?= base_url("/admin/users/{$user->id}/edit") ?>'
 							class="btn btn-sm btn-danger mb-1"
-							data-bs-toggle="modal"
-							data-bs-target="#update-status-modal"
-							onclick=""
 						>
 							<i class="bi bi-pencil"></i>
-						</button>
+						</a>
 					</td>
 				</tr>
 				<?php endforeach; ?>

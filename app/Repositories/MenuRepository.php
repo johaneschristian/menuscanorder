@@ -96,7 +96,7 @@ class MenuRepository
 
     public static function getMenuItemsOfBusinessGroupByCategory($businessID, $mustBeAvailable = FALSE) {
         $category = new CategoryModel();
-        $allCategories = $category->findAll();
+        $allCategories = $category->where('owning_business_id', $businessID)->findAll();
 
         $allCategoriesWithMenus = [];
         foreach($allCategories as $category) {

@@ -40,9 +40,10 @@ function printQRImage(table_number) {
 }
 
 function downloadQRImage(table_number) {
+  // TODO: FIX NAME Download 
   const temporaryLink = document.createElement('a');  
   temporaryLink.href = getTableQRImage(table_number);
-  temporaryLink.setAttribute('download', 'test');
+  temporaryLink.setAttribute('download', 'test.png');
   temporaryLink.setAttribute('target', '_blank');
   temporaryLink.click();
 }

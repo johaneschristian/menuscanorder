@@ -28,7 +28,6 @@ class OrderController extends Controller {
             $user = auth()->user();
             $orderData = $this->request->getJSON(true);
             OrderService::handleCreateOrder($user, $orderData);
-            throw new InvalidRegistrationException("HELLO WORLD");
             session()->setFlashdata('success', 'Order is created successfully');
             return $this->response->setContentType('application/json')
                                   ->setStatusCode(200)

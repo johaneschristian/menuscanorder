@@ -27,8 +27,14 @@ class CustomerController extends BaseController
                     session()->setFlashData('error', $exception->getMessage()); 
                 }
             }
+
+            if (CustomerService::userHasBusiness($user)) {
+                return redirect()->to('business/orders/');
+                
+            } else {
+                return view('customer/customer-business-registration');
+            }
                     
-            return view('customer/customer-business-registration');
 
         } catch (Exception $exception) {
             session()->setFlashData('error', $exception->getMessage()); 

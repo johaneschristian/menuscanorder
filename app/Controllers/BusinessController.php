@@ -140,14 +140,14 @@ class BusinessController extends BaseController
 
     public function menuGetImage($menuId) {
         try {
-            $menuImageFile = BusinessService::handleMenuGetImage($menuId);
+            $menuImageData = BusinessService::handleMenuGetImage($menuId);
             return $this->response
-                    ->setHeader('Content-Type', $menuImageFile->getMimeType())
-                    ->setHeader('Content-disposition', 'inline; filename="' . $menuImageFile->getBasename() . '"')
+                    ->setHeader('Content-Type', $menuImageData['mime_type'])
+                    ->setHeader('Content-disposition', 'inline; filename="' . $menuImageData['base_name'] . '"')
                     ->setStatusCode(200)
-                    ->setBody(readfile($menuImageFile->getRealPath()));
+                    ->setBody($menuImageData['content']);
 
-        } catch (\Exception) {
+        } catch (Exception) {
             return "";
         }
     }

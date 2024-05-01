@@ -12,7 +12,7 @@ class AdminFilter implements FilterInterface
         $session = Services::session();
 
         // Check if the user is not an admin
-        if (!$session->get('isAdmin')) {
+        if (!$session->get('is_admin')) {
             $session->setFlashData("error", "User is not an admin.");
             return redirect()->to('/');
         }

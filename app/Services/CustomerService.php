@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Services;
 
@@ -7,9 +7,10 @@ use App\CustomExceptions\InvalidRegistrationException;
 use App\Repositories\MenuRepository;
 use App\Utils\Validator;
 
-class CustomerService 
+class CustomerService
 {
-    public static function validateBusinessData($businessData) {
+    public static function validateBusinessData($businessData)
+    {
         $rules = [
             'business_name' => 'required|string|min_length[3]|max_length[255]',
             'num_of_tables' => 'required|is_natural',
@@ -31,20 +32,25 @@ class CustomerService
         ];
 
         $validationResult = Validator::validate($rules, $errors, $businessData);
-        
-        if($validationResult !== TRUE) {
-            throw new InvalidRegistrationException($validationResult);
 
+        if ($validationResult !== TRUE) {
+            throw new InvalidRegistrationException($validationResult);
         }
     }
 
-    private static function validateUserBusinessEligibility($creatingUser) {
-        if (!is_null(BusinessRepository::getBusinessByUserId($creatingUser->id))) {
+    public static function userHasBusiness($creatingUser) {
+        return !is_null(BusinessRepository::getBusinessByUserId($creatingUser->id));
+    }
+
+    private static function validateUserBusinessEligibility($creatingUser)
+    {
+        if (self::userHasBusiness($creatingUser)) {
             throw new InvalidRegistrationException("A user can only have one business.");
         }
     }
 
-    private static function transformBusinessData($businessData) {
+    private static function transformBusinessData($businessData)
+    {
         return [
             ...$businessData,
             'business_name' => trim($businessData['business_name']),
@@ -52,11 +58,11 @@ class CustomerService
         ];
     }
 
-    public static function handleBusinessRegistration($user, $businessData) {
+    public static function handleBusinessRegistration($user, $businessData)
+    {
         self::validateBusinessData($businessData);
         self::validateUserBusinessEligibility($user);
         $transformedBusinessData = self::transformBusinessData($businessData);
         BusinessRepository::createBusiness($user->id, $transformedBusinessData);
     }
 }
-

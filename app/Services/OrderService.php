@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Services;
 
@@ -10,9 +10,10 @@ use App\Repositories\OrderItemRepository;
 use App\Repositories\OrderRepository;
 use App\Utils\Utils;
 
-class OrderService 
+class OrderService
 {
-    public static function handleGetBusinessMenus($businessID) {
+    public static function handleGetBusinessMenus($businessID)
+    {
         $business = BusinessRepository::getBusinessByIdOrThrowException($businessID);
         $categories_and_menu = MenuRepository::getMenuItemsOfBusinessGroupByCategory($businessID, TRUE);
 
@@ -22,19 +23,20 @@ class OrderService
         ];
     }
 
-    private static function validateOrderCreation($business, $orderData) {
+    private static function validateOrderCreation($business, $orderData)
+    {
         if (!$business->is_open) {
             throw new InvalidRegistrationException("Business with ID {$business->business_id} is currently closed");
-
+            
         } else if (!array_key_exists('table_number', $orderData) || !is_numeric($orderData['table_number'])) {
             throw new InvalidRegistrationException("Order must include table number");
-
+            
         } else if (!array_key_exists('selected_menus', $orderData)) {
             throw new InvalidRegistrationException("Order must include selected menus");
-
+            
         } else if (!is_array($orderData['selected_menus'])) {
             throw new InvalidRegistrationException("Selected menus must be an array");
-
+            
         } else if ($orderData['table_number'] > $business->num_of_tables) {
             throw new InvalidRegistrationException(sprintf("Business does not have table %", $orderData['table_number']));
         }
@@ -42,14 +44,14 @@ class OrderService
         foreach ($orderData['selected_menus'] as $selectedMenu) {
             if (!array_key_exists('quantity', $selectedMenu) || $selectedMenu['quantity'] <= 0) {
                 throw new InvalidRegistrationException("Each selected menu must have a numeric quantity greater than 0");
-
             } else if (array_key_exists('notes', $selectedMenu) && !is_string($selectedMenu['notes'])) {
                 throw new InvalidRegistrationException("Notes must be a string");
             }
         }
     }
 
-    private static function convertSelectedMenu($selectedMenus) {
+    private static function convertSelectedMenu($selectedMenus)
+    {
         $convertedSelectedMenus = [];
 
         foreach ($selectedMenus as $selectedMenu) {
@@ -63,15 +65,17 @@ class OrderService
         return $convertedSelectedMenus;
     }
 
-    private static function validateAllSelectedMenuAreAvailable($selectedMenus) {
+    private static function validateAllSelectedMenuAreAvailable($selectedMenus)
+    {
         foreach ($selectedMenus as $selectedMenu) {
-            if(!$selectedMenu['menu_item']->is_available) {
+            if (!$selectedMenu['menu_item']->is_available) {
                 throw new InvalidRegistrationException("Menu with ID {$selectedMenu->menu_item_id} is currently not available");
             }
         }
     }
 
-    private static function getOrCreateOrder($submittingUser, $receivingBusiness, $tableNumber) {
+    private static function getOrCreateOrder($submittingUser, $receivingBusiness, $tableNumber)
+    {
         $userLatestUncompleteOrderInBusiness = OrderRepository::getLatestUncompleteOrderOfCustomerInBusiness(
             $submittingUser->id,
             $receivingBusiness->business_id,
@@ -80,22 +84,23 @@ class OrderService
 
         if ($userLatestUncompleteOrderInBusiness !== NULL) {
             return $userLatestUncompleteOrderInBusiness->order_id;
-
         } else {
             return OrderRepository::createOrder($submittingUser->id, $receivingBusiness->business_id, $tableNumber);
         }
     }
 
-    private static function recomputeOrderTotalPrice($orderID, $addedSubtotal) {
+    private static function recomputeOrderTotalPrice($orderID, $addedSubtotal)
+    {
         $order = OrderRepository::getOrderByID($orderID);
         $orderNewTotal = $order->total_price + $addedSubtotal;
         OrderRepository::setOrderTotalPrice($orderID, $orderNewTotal);
     }
 
-    private static function computeOrderStatus($orderID) {
+    private static function computeOrderStatus($orderID)
+    {
         $itemsOfOrder = OrderItemRepository::getOrderItemsOfOrder($orderID);
         $receivedOrderItemStatus = OrderItemRepository::getOrderItemStatusByName('received');
-        
+
         $allAreReceived = TRUE;
         foreach ($itemsOfOrder as $itemOfOrder) {
             if ($itemOfOrder->order_item_status_id !== $receivedOrderItemStatus->id) {
@@ -106,21 +111,21 @@ class OrderService
 
         if ($allAreReceived) {
             return OrderRepository::getOrderStatusByName('New Order');
-
         } else {
             return OrderRepository::getOrderStatusByName('In-Progress');
-
         }
     }
 
-    private static function setOrderStatus($orderID) {
+    private static function setOrderStatus($orderID)
+    {
         $orderStatus = self::computeOrderStatus($orderID);
         OrderRepository::setOrderStatus($orderID, $orderStatus->id);
     }
 
-    private static function registerOrderItem($orderID, $selectedMenus) {
+    private static function registerOrderItem($orderID, $selectedMenus)
+    {
         $totalPrice = 0;
-        foreach($selectedMenus as $selectedMenu) {
+        foreach ($selectedMenus as $selectedMenu) {
             OrderItemRepository::createOrderItemModel([
                 'num_of_items' => $selectedMenu['quantity'],
                 'price_when_bought' => $selectedMenu['menu_item']->price,
@@ -134,19 +139,21 @@ class OrderService
         }
 
         self::recomputeOrderTotalPrice($orderID, $totalPrice);
-        self::setOrderStatus($orderID);       
+        self::setOrderStatus($orderID);
     }
 
-    public static function handleCreateOrder($user, $orderData) {
+    public static function handleCreateOrder($user, $orderData)
+    {
         $receivingBusiness = BusinessRepository::getBusinessByIdOrThrowException($orderData['business_id'] ?? NULL);
         self::validateOrderCreation($receivingBusiness, $orderData);
         $convertedSelectedMenus = self::convertSelectedMenu($orderData['selected_menus']);
         self::validateAllSelectedMenuAreAvailable($convertedSelectedMenus);
-        $modifiedOrderID = self::getOrCreateOrder($user, $receivingBusiness, $orderData['table_number']);  
-        self::registerOrderItem($modifiedOrderID, $convertedSelectedMenus);      
+        $modifiedOrderID = self::getOrCreateOrder($user, $receivingBusiness, $orderData['table_number']);
+        self::registerOrderItem($modifiedOrderID, $convertedSelectedMenus);
     }
 
-    private static function transformCustomerOrderListRequestData($requestData) {
+    private static function transformCustomerOrderListRequestData($requestData)
+    {
         $transformedRequestData = [
             'business_ids' => NULL,
             'status_id' => NULL,
@@ -155,7 +162,9 @@ class OrderService
 
         if (array_key_exists('business_name', $requestData) && !empty(trim($requestData['business_name']))) {
             $businessesMatchingName = BusinessRepository::getBusinessesMatchingName(trim($requestData['business_name']));
-            $businessesIDMatchingName = array_map(function ($business) { return $business->business_id; }, $businessesMatchingName);
+            $businessesIDMatchingName = array_map(function ($business) {
+                return $business->business_id;
+            }, $businessesMatchingName);
             $transformedRequestData['business_ids'] = $businessesIDMatchingName;
         }
 
@@ -166,7 +175,8 @@ class OrderService
         return $transformedRequestData;
     }
 
-    private static function appendRelevantInformationOfOrder($order) {
+    private static function appendRelevantInformationOfOrder($order)
+    {
         $order->business_name = BusinessRepository::getBusinessById($order->receiving_business_id)->business_name;
         $order->status_name = OrderRepository::getOrderStatusByID($order->order_status_id)->status;
         $order->duration = Utils::calculateDuration($order->order_creation_time, $order->order_completion_time ?? date("c"));
@@ -175,7 +185,8 @@ class OrderService
         return $order;
     }
 
-    private static function appendRelatedInformationOfOrders($orders) {
+    private static function appendRelatedInformationOfOrders($orders)
+    {
         for ($orderIndex = 0; $orderIndex < sizeof($orders); $orderIndex++) {
             $orders[$orderIndex] = self::appendRelevantInformationOfOrder($orders[$orderIndex]);
         }
@@ -183,16 +194,17 @@ class OrderService
         return $orders;
     }
 
-    public static function handleCustomerOrderList($user, $requestData) {
+    public static function handleCustomerOrderList($user, $requestData)
+    {
         $transformedRequestData = self::transformCustomerOrderListRequestData($requestData);
         $userOrdersPaginated = OrderRepository::getPaginatedOrdersOfUser(
-            $user->id, 
-            $transformedRequestData['business_ids'], 
+            $user->id,
+            $transformedRequestData['business_ids'],
             $transformedRequestData['status_id'],
             10,
             $transformedRequestData['page'],
         );
-        
+
         $userCompleteOrderData = self::appendRelatedInformationOfOrders($userOrdersPaginated['result']);
         $allStatus = OrderRepository::getAllOrderStatus();
 
@@ -205,14 +217,16 @@ class OrderService
         ];
     }
 
-    private static function validateCustomerOrderOwnership($user, $order) {
+    private static function validateCustomerOrderOwnership($user, $order)
+    {
         // No-type safe is used as submitting_user_id is unexpectedly converted to string by PHP
         if ($order->submitting_user_id != $user->id) {
             throw new NotAuthorizedException("User is not the owner of order with ID {$order->order_id}");
         }
     }
 
-    private static function createOrderMenuItemIDAndPriceSummary($order, $menuItemID, $menuItemName, $price) {
+    private static function createOrderMenuItemIDAndPriceSummary($order, $menuItemID, $menuItemName, $price)
+    {
         $orderItemSummary = [
             'menu_item_id' => $menuItemID,
             'menu_item_name' => $menuItemName,
@@ -226,22 +240,23 @@ class OrderService
         foreach ($orderItems as $orderItem) {
             $orderItemSummary['num_of_items'] += $orderItem->num_of_items;
             $orderItemSummary['subtotal'] += $orderItem->num_of_items * $price;
-            
+
             if ($orderItem->notes !== NULL) {
                 $orderItemSummary['notes'][] = $orderItem->notes;
             }
         }
 
-        return $orderItemSummary;        
+        return $orderItemSummary;
     }
 
-    private static function getOrderItemsSummary($order) {
+    private static function getOrderItemsSummary($order)
+    {
         $uniqueCombinationOfMenuItemAndPrice = OrderItemRepository::getDistinctCombinationOfMenuItemIDAndPriceOfOrder($order->order_id);
-        
+
         $orderSummary = [];
-        foreach($uniqueCombinationOfMenuItemAndPrice as $menuItemAndPrice) {
+        foreach ($uniqueCombinationOfMenuItemAndPrice as $menuItemAndPrice) {
             $orderSummary[] = self::createOrderMenuItemIDAndPriceSummary(
-                $order, 
+                $order,
                 $menuItemAndPrice->menu_item_id,
                 $menuItemAndPrice->menu_item_name,
                 $menuItemAndPrice->price_when_bought
@@ -251,10 +266,11 @@ class OrderService
         return $orderSummary;
     }
 
-    private static function getFormattedOrderItemsOfOrder($order) {
+    private static function getFormattedOrderItemsOfOrder($order)
+    {
         $orderItems = OrderItemRepository::getOrderItemsOfOrder($order->order_id, TRUE, TRUE);
 
-        foreach($orderItems as $orderItem) {
+        foreach ($orderItems as $orderItem) {
             $orderItem->formatted_item_order_date = Utils::getDateFromDateTime($orderItem->item_order_time);
             $orderItem->formatted_item_order_time = Utils::getTimeFromDateTime($orderItem->item_order_time);
         }
@@ -262,14 +278,16 @@ class OrderService
         return $orderItems;
     }
 
-    private static function getOrderCompleteDetails($order) {
+    private static function getOrderCompleteDetails($order)
+    {
         $orderWithBaseInformation = self::appendRelevantInformationOfOrder($order);
         $orderWithBaseInformation->order_summary = self::getOrderItemsSummary($order);
         $orderWithBaseInformation->order_items = self::getFormattedOrderItemsOfOrder($order);
         return $orderWithBaseInformation;
     }
 
-    public static function handleCustomerOrderDetail($user, $orderID) {
+    public static function handleCustomerOrderDetail($user, $orderID)
+    {
         $order = OrderRepository::getOrderByIDOrThrowException($orderID);
         self::validateCustomerOrderOwnership($user, $order);
         $orderWithCompleteDetails = self::getOrderCompleteDetails($order);
@@ -279,11 +297,12 @@ class OrderService
         ];
     }
 
-    private static function transformBusinessOrderListRequestData($requestData) {
+    private static function transformBusinessOrderListRequestData($requestData)
+    {
         $transformedRequestData = [
             'table_number' => NULL,
             'status_id' => NULL,
-            'page' => (int) ($requestData['page'] ?? 1), 
+            'page' => (int) ($requestData['page'] ?? 1),
         ];
 
         if (array_key_exists('table_number', $requestData) && is_numeric($requestData['table_number'])) {
@@ -297,7 +316,8 @@ class OrderService
         return $transformedRequestData;
     }
 
-    public static function handleBusinessOrderList($user, $requestData) {
+    public static function handleBusinessOrderList($user, $requestData)
+    {
         $transformedRequestData = self::transformBusinessOrderListRequestData($requestData);
         $userBusiness = BusinessService::getBusinessByUserOrNonAuthorized($user);
         $businessOrdersPaginated = OrderRepository::getPaginatedOrdersOfBusiness(
@@ -320,13 +340,15 @@ class OrderService
         ];
     }
 
-    private static function validateBusinessOrderOwnership($business, $order) {
+    private static function validateBusinessOrderOwnership($business, $order)
+    {
         if ($order->receiving_business_id !== $business->business_id) {
             throw new NotAuthorizedException("Business is not the owner of order with ID {$order->order_id}");
         }
     }
 
-    public static function handleBusinessOrderDetails($user, $orderID) {
+    public static function handleBusinessOrderDetails($user, $orderID)
+    {
         $userBusiness = BusinessService::getBusinessByUserOrNonAuthorized($user);
         $order = OrderRepository::getOrderByIDOrThrowException($orderID);
         self::validateBusinessOrderOwnership($userBusiness, $order);
@@ -337,27 +359,31 @@ class OrderService
         ];
     }
 
-    private static function validateOrderCompletion($order, $completedOrderStatus) {
+    private static function validateOrderCompletion($order, $completedOrderStatus)
+    {
         if ($order->order_status_id === $completedOrderStatus->id) {
             throw new InvalidRegistrationException("Order with ID {$order->order_id} is already completed");
         }
     }
 
-    private static function completeOrder($order) {
+    private static function completeOrder($order)
+    {
         $completedOrderStatus = OrderRepository::getOrderStatusByName('Completed');
         self::validateOrderCompletion($order, $completedOrderStatus);
         OrderRepository::setOrderStatus($order->order_id, $completedOrderStatus->id);
         OrderRepository::setOrderCompletionTime($order->order_id, date("c"));
     }
 
-    public static function handleBusinessCompleteOrder($user, $requestData) {
+    public static function handleBusinessCompleteOrder($user, $requestData)
+    {
         $userBusiness = BusinessService::getBusinessByUserOrNonAuthorized($user);
         $order = OrderRepository::getOrderByIDOrThrowException($requestData['order_id'] ?? '');
         self::validateBusinessOrderOwnership($userBusiness, $order);
         self::completeOrder($order);
     }
 
-    public static function handleBusinessGetOrderKitchenData($user) {
+    public static function handleBusinessGetOrderKitchenData($user)
+    {
         $userBusiness = BusinessService::getBusinessByUserOrNonAuthorized($user);
         $businessOrderItemSumamry = OrderItemRepository::getOrderItemsSummaryOfBusiness($userBusiness->business_id);
         $businessOrderItems = OrderItemRepository::getOrderItemsOfBusiness($userBusiness->business_id);
@@ -370,22 +396,22 @@ class OrderService
         ];
     }
 
-    private static function validateOrderItemStatusUpdate($orderItem, $newOrderItemStatusID) {
+    private static function validateOrderItemStatusUpdate($orderItem, $newOrderItemStatusID)
+    {
         $currentOrderItemStatus = OrderItemRepository::getOrderItemStatusByIDOrThrowException($orderItem->order_item_id);
         $newOrderItemStatus = OrderItemRepository::getOrderItemStatusByIDOrThrowException($newOrderItemStatusID);
 
         if ($currentOrderItemStatus->status === "received" && $newOrderItemStatus !== "being prepared") {
             throw new InvalidRegistrationException("Order item with status 'received' can only be updated to 'being prepared'");
-
         } else if ($currentOrderItemStatus->status === "being prepared" && $newOrderItemStatus !== "served") {
             throw new InvalidRegistrationException("Order item with status 'being prepared' can only be updated to 'served'");
-
         } else if ($currentOrderItemStatus->status === "served") {
             throw new InvalidRegistrationException("Order item with status 'served' can no longer be modified");
         }
     }
 
-    public static function handleBusinessUpdateOrderItemStatus($user, $updateData) {
+    public static function handleBusinessUpdateOrderItemStatus($user, $updateData)
+    {
         $userBusiness = BusinessService::getBusinessByUserOrNonAuthorized($user);
         $orderItem = OrderItemRepository::getOrderItemByIDOrThrowException($updateData['order_item_id'] ?? '');
         $orderOfItem = OrderRepository::getOrderByID($orderItem->order_id);
@@ -395,4 +421,3 @@ class OrderService
         self::setOrderStatus($orderOfItem->order_id);
     }
 }
-

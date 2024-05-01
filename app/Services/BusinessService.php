@@ -14,47 +14,53 @@ use CodeIgniter\Files\File;
 use chillerlan\QRCode\{QRCode, QROptions};
 
 
-class BusinessService 
+class BusinessService
 {
-    public static function getBusinessByUserOrNonAuthorized($user) {
-        try {       
+    public static function getBusinessByUserOrNonAuthorized($user)
+    {
+        try {
             return BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
-
         } catch (ObjectNotFoundException $exception) {
             throw new NotAuthorizedException($exception->getMessage());
         }
     }
 
-    private static function validateCategoryData($categoryData) {
+    private static function validateCategoryData($categoryData)
+    {
         $rules = [
             'category_name' => 'required|min_length[3]|max_length[255]',
         ];
 
         $validationResult = Validator::validate($rules, [], $categoryData);
 
-        if($validationResult !== TRUE) {
+        if ($validationResult !== TRUE) {
             throw new InvalidRegistrationException($validationResult);
         }
     }
 
-    private static function validateCategoryOwnership($business, $category) {
+    private static function validateCategoryOwnership($business, $category)
+    {
         if ($category->owning_business_id !== $business->business_id) {
             throw new NotAuthorizedException(
-                sprintf("Category with ID %s does not belong to Business with ID %s"), 
-                $category->owning_business_id, 
+                sprintf("Category with ID %s does not belong to Business with ID %s"),
+                $category->owning_business_id,
                 $business->business_id
             );
         }
     }
 
-    public static function handleCategoryCreation($user, $categoryData) {
+    public static function handleCategoryCreation($user, $categoryData)
+    {
         self::validateCategoryData($categoryData);
         $userBusiness = self::getBusinessByUserOrNonAuthorized($user);
+
+        // TODO: Might be moved as a middleware
         $transformedCategoryData = Utils::trimAllString($categoryData);
         CategoryRepository::createCategory($userBusiness->business_id, $transformedCategoryData);
     }
 
-    public static function handleGetCategoryList($user, $search) {
+    public static function handleGetCategoryList($user, $search)
+    {
         $userBusiness = self::getBusinessByUserOrNonAuthorized($user);
         $businessCategories = CategoryRepository::getCategoriesOfBusiness($userBusiness->business_id, $search ?? '');
         return [
@@ -63,63 +69,69 @@ class BusinessService
         ];
     }
 
-    public static function handleUpdateCategory($user, $categoryData) {
+    public static function handleUpdateCategory($user, $categoryData)
+    {
         self::validateCategoryData($categoryData);
-        $userBusiness = self::getBusinessByUserOrNonAuthorized($user);        
+        $userBusiness = self::getBusinessByUserOrNonAuthorized($user);
         $updatedCategory = CategoryRepository::getCategoryByIDOrThrowException($categoryData['category_id']);
         self::validateCategoryOwnership($userBusiness, $updatedCategory);
         $transformedCategoryData = Utils::trimAllString($categoryData);
         CategoryRepository::updateCategory($updatedCategory, $transformedCategoryData);
     }
 
-    private static function validateMenuData($menuData, $menuImage) {
+    private static function validateMenuData($menuData, $menuImage)
+    {
         $rules = [
             'name' => 'required|string|min_length[3]|max_length[255]',
             'price' => 'required|decimal|greater_than[0]',
-            'description' => 'string' 
+            'description' => 'string'
         ];
 
         $validationResult = Validator::validate($rules, [], $menuData);
 
-        if($validationResult !== TRUE) {
+        if ($validationResult !== TRUE) {
             throw new InvalidRegistrationException($validationResult);
         }
 
         // TODO: Validate image is of image type
     }
 
-    private static function transformMenuData($menuData) {
+    private static function transformMenuData($menuData)
+    {
         $dataToBeUpdated = [
             'name' => trim($menuData['name']),
             'price' => $menuData['price'],
             'is_available' => array_key_exists('is_available', $menuData),
         ];
 
-        if(array_key_exists('description', $menuData) && !empty(trim($menuData['description']))) {
+        if (array_key_exists('description', $menuData) && !empty(trim($menuData['description']))) {
             $dataToBeUpdated['description'] = trim($menuData['description']);
         }
 
-        if(array_key_exists('category_id', $menuData) || !$menuData['category_id'] === 'others') {
+        if (array_key_exists('category_id', $menuData) && $menuData['category_id'] !== 'others') {
             $dataToBeUpdated['category_id'] = $menuData['category_id'];
         }
 
         return $dataToBeUpdated;
     }
 
-    private static function saveImageFile($businessID, $menuID, $menuImage) {
+    private static function saveImageFile($businessID, $menuID, $menuImage)
+    {
         $extension = pathinfo($menuImage->getName(), PATHINFO_EXTENSION);
         $fileName = "$businessID-$menuID.$extension";
         $menuImage->move(WRITEPATH . 'menu_images', $fileName);
         MenuRepository::updateMenuImage($menuID, $fileName);
     }
 
-    private static function removeImageFileOfMenu($menu) {
+    private static function removeImageFileOfMenu($menu)
+    {
         if ($menu->image_url !== NULL) {
             unlink(WRITEPATH . 'menu_images/' . $menu->image_url);
         }
     }
 
-    public static function handleMenuCreation($user, $menuData, $menuImage) {
+    public static function handleMenuCreation($user, $menuData, $menuImage)
+    {
         self::validateMenuData($menuData, $menuImage);
         $userBusiness = self::getBusinessByUserOrNonAuthorized($user);
         $transformedMenuData = self::transformMenuData($menuData);
@@ -129,7 +141,8 @@ class BusinessService
         }
     }
 
-    private static function transformMenuListRequestData($requestData) {
+    private static function transformMenuListRequestData($requestData)
+    {
         $menuName = $requestData['menu_name'] ?? "";
         $categoryID = $requestData['category_id'] ?? "all";
         $page = (int) ($requestData['page'] ?? 1);
@@ -145,33 +158,36 @@ class BusinessService
         ];
     }
 
-    public static function handleBusinessMenuList($user, $requestData) {
+    public static function handleBusinessMenuList($user, $requestData)
+    {
         $transformedRequestData = self::transformMenuListRequestData($requestData);
         $userBusiness = self::getBusinessByUserOrNonAuthorized($user);
         $businessCategories = CategoryRepository::getCategoriesOfBusiness($userBusiness->business_id, "");
         $businessMenusPaginated = MenuRepository::getPaginatedMenuItemsOfBusinessMatchingNameAndCategory(
-            $userBusiness->business_id, 
-            $transformedRequestData['name'], 
+            $userBusiness->business_id,
+            $transformedRequestData['name'],
             $transformedRequestData['category_id'],
             FALSE,
             12,
             $transformedRequestData['page'],
         );
-        
-        return[
+
+        return [
             'menus' => $businessMenusPaginated['result'],
             'pager' => $businessMenusPaginated['pager'],
             'categories' => $businessCategories
-        ];        
+        ];
     }
 
-    private static function validateMenuOwnership($business, $menu) {
+    private static function validateMenuOwnership($business, $menu)
+    {
         if ($menu->owning_business_id !== $business->business_id) {
             throw new NotAuthorizedException("Menu with ID {$menu->menu_id} do not belong to business with ID {$business->business_id}");
         }
     }
 
-    public static function handleBusinessGetMenuData($user, $menuID) {
+    public static function handleBusinessGetMenuData($user, $menuID)
+    {
         $userBusiness = self::getBusinessByUserOrNonAuthorized($user);
         $menu = MenuRepository::getMenuByIDOrThrowException($menuID);
         self::validateMenuOwnership($userBusiness, $menu);
@@ -183,21 +199,27 @@ class BusinessService
         ];
     }
 
-    public static function handleMenuGetImage($menuID) {
+    public static function handleMenuGetImage($menuID)
+    {
         $menu = MenuRepository::getMenuByIDOrThrowException($menuID);
         $menuImageFileName = $menu->image_url;
 
         if ($menuImageFileName !== NULL) {
             $menuImageFullPath = WRITEPATH . 'menu_images/' . $menuImageFileName;
             $menuImageFile = new File($menuImageFullPath, TRUE);
-            return $menuImageFile;
 
+            return [
+                'base_name' => $menuImageFileName,
+                'mime_type' => $menuImageFile->getMimeType(),
+                'content' => readfile($menuImageFullPath),
+            ];
         } else {
             throw new ObjectNotFoundException("Menu with ID $menuID does not have an image");
         }
     }
 
-    public static function handleMenuEdit($user, $menuID, $menuData, $menuImage) {
+    public static function handleMenuEdit($user, $menuID, $menuData, $menuImage)
+    {
         self::validateMenuData($menuData, $menuImage);
         $userBusiness = self::getBusinessByUserOrNonAuthorized($user);
         $menu = MenuRepository::getMenuByIDOrThrowException($menuID);
@@ -211,9 +233,10 @@ class BusinessService
         }
     }
 
-    public static function handleGetBusinessTableData($user, $requestData) {
+    public static function handleGetBusinessTableData($user, $requestData)
+    {
         $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
-        
+
         return [
             'business' => $userBusiness,
             'current_page' => (int) ($requestData['page'] ?? 1),
@@ -222,7 +245,8 @@ class BusinessService
         ];
     }
 
-    public static function handleGetTableQR($businessID, $tableNumber) {        
+    public static function handleGetTableQR($businessID, $tableNumber)
+    {
         $tableQRURL = base_url("customer/order/menu/$businessID/$tableNumber");
         $options = new QROptions([
             'outputType' => QRCode::OUTPUT_IMAGE_PNG,
@@ -234,23 +258,25 @@ class BusinessService
         return $qrcode->render($tableQRURL);
     }
 
-    private static function validateCapacityData($capacityData) {
+    private static function validateCapacityData($capacityData)
+    {
         $rules = [
             'new_table_quantity' => 'required|is_natural_no_zero'
         ];
 
         $validationResult = Validator::validate($rules, [], $capacityData);
 
-        if($validationResult !== TRUE) {
+        if ($validationResult !== TRUE) {
             throw new InvalidRegistrationException($validationResult);
         }
     }
 
-    public static function handleUpdateBusinessTableCapacity($user, $capacityData) {
+    public static function handleUpdateBusinessTableCapacity($user, $capacityData)
+    {
         self::validateCapacityData($capacityData);
         $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
         BusinessRepository::updateBusiness(
-            $userBusiness->business_id, 
+            $userBusiness->business_id,
             [
                 'num_of_tables' => $capacityData['new_table_quantity']
             ]

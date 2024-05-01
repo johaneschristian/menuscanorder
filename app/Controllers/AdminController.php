@@ -35,6 +35,8 @@ class AdminController extends BaseController
                 if ($this->request->getMethod() === "post") {
                     $userData = $this->request->getPost();
                     AdminService::handleAdminCreateUser($userData);
+                    session()->setFlashdata('success', 'User is created successfully');
+                    return redirect()->to('/admin/users/');
                 }
             } catch (InvalidRegistrationException $exception) {
                 session()->setFlashdata('error', $exception->getMessage());
@@ -54,6 +56,8 @@ class AdminController extends BaseController
                 if ($this->request->getMethod() === "post") {
                     $updatedUserData = $this->request->getPost();
                     AdminService::handleAdminEditUser($userId, $updatedUserData);
+                    session()->setFlashdata('success', 'User is updated successfully');
+                    // return redirect()->to('/admin/users/');
                 }
                 
             } catch (InvalidRegistrationException $exception) {

@@ -46,14 +46,14 @@
 								<a class="nav-link" href="<?= base_url('/logout') ?>">Logout</a>
 							</li>
 						<?php endif; ?>
-						<ul class="navbar-nav ms-auto">
+						<!-- <ul class="navbar-nav ms-auto">
 							<li class="nav-item">
 								<a class="nav-link" href="#">User Management</a>
 							</li>
 							<li class="nav-item">
 								<a class="nav-link" href="#">Logout</a>
 							</li>
-						</ul>
+						</ul> -->
 					</ul>
 				</div>
 			</div>

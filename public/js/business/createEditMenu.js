@@ -1,4 +1,5 @@
 function displayUploadedImage() {
+  // Adapted from https://stackoverflow.com/questions/40809635/js-function-to-change-image-on-page-with-file-upload
   const imageInput = document.querySelector('#menu-item-image');
   const imageInputPreview = document.querySelector('#menu-item-image-preview');
 
@@ -6,7 +7,6 @@ function displayUploadedImage() {
     const fileReader = new FileReader();
     
     fileReader.onload = () => {
-      console.log(fileReader.result);
       imageInputPreview.src = fileReader.result
     };
 

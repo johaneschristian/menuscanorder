@@ -97,4 +97,9 @@ class Home extends BaseController
 
         return view('register-page');
     }
+
+    public function logout() {
+        auth()->logout();
+        return redirect()->to('/');
+    }
 }

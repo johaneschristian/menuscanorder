@@ -67,6 +67,8 @@ class UserRepository {
 
     public static function editUser($userID, $userData) {
         $users = auth()->getProvider();
-        $users->update($userID, $userData);
+        $matchingUser = $users->findById($userID);
+        $matchingUser->fill($userData);
+        $users->save($matchingUser);
     }
 }

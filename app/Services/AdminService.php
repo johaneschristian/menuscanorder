@@ -136,8 +136,6 @@ class AdminService {
         $db = \Config\Database::connect();
         $db->transBegin();
 
-        print_r($requestData);
-
         try {
             self::validateBaseRequestData($requestData, FALSE);
             $transformedUserRequestData = self::transformUserCreateRequest($requestData, FALSE);
@@ -155,6 +153,8 @@ class AdminService {
                     BusinessRepository::createBusiness($updatedUserID, $transformedBusinessRequestData);
                 }
             }
+
+            $db->transCommit();
 
         } catch (Exception $exception) {
             $db->transRollback();

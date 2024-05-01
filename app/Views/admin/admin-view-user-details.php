@@ -55,7 +55,7 @@
 
 	<div class="row card shadow p-3 mt-3 w-50">
 		<div class="w-100 d-flex flex-row justify-content-end">
-			<button type="button" class="btn btn-warning">Edit User Information</button>
+			<a href='<?= base_url("/admin/users/{$user->id}/edit") ?>' type="button" class="btn btn-warning">Edit User Information</a>
 		</div>
 	</div>
 </div>
