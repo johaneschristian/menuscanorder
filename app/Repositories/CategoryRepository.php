@@ -23,7 +23,12 @@ class CategoryRepository
         $category->update($updatedCategoryID, $updatedCategoryData);
     }
 
-    public static function getQueryOfCategoriesOfBusiness($owningBusinessID, $categoryNameSearch, $withMenuCount = FALSE) {
+    public static function deleteCategory($deletedCategoryID) {
+        $category = new CategoryModel();
+        $category->delete($deletedCategoryID);
+    }
+
+    public static function getQueryOfCategoriesOfBusiness($owningBusinessID, $categoryNameSearch, $withMenuCount) {
         $query = new CategoryModel();
 
         if ($withMenuCount) {

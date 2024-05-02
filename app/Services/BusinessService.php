@@ -91,6 +91,7 @@ class BusinessService
     private static function validateCategoryData($categoryData)
     {
         $rules = [
+            'category_id' => 'required',
             'name' => 'required|min_length[3]|max_length[255]',
         ];
 
@@ -143,6 +144,12 @@ class BusinessService
         $updatedCategory = CategoryRepository::getCategoryByIDOrThrowException($requestData['category_id']);
         self::validateCategoryOwnership($user->business_id, $updatedCategory);
         CategoryRepository::updateCategory($updatedCategory->category_id, $requestData);
+    }
+
+    public static function handleDeleteCategory($user, $requestData) {
+        $deletedCategory = CategoryRepository::getCategoryByIDOrThrowException($requestData['category_id'] ?? '');
+        self::validateCategoryOwnership($user->business_id, $deletedCategory);
+        CategoryRepository::deleteCategory($deletedCategory->category_id);
     }
 
     private static function validateMenuData($menuData, $menuImage)

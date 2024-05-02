@@ -55,7 +55,7 @@ class MenuRepository
         return $menu->where('owning_business_id', $businessID)->findAll();
     }
 
-    private static function getQueryOfMenuItemsOfBusinessMatchingNameAndCategory($businessID, $name, $categoryID, $mustBeAvailable = FALSE) {
+    private static function getQueryOfMenuItemsOfBusinessMatchingNameAndCategory($businessID, $name, $categoryID, $mustBeAvailable) {
         $menu = new MenuItemModel();
         $query = $menu->where('owning_business_id', $businessID)->like('name', $name, 'both', TRUE);
 

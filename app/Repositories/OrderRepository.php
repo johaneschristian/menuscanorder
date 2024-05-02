@@ -90,7 +90,7 @@ class OrderRepository
               ->update();
     }
 
-    private static function getOrdersQuery($submittingUserID = NULL, $businessesID = NULL, $statusID = NULL, $tableNumber = NULL) {
+    private static function getQueryOfOrders($submittingUserID = NULL, $businessesID = NULL, $statusID = NULL, $tableNumber = NULL) {
         $query = new OrderModel();
 
         if (!is_null($submittingUserID)) {
@@ -113,7 +113,7 @@ class OrderRepository
     }
 
     public static function getOrdersOfUser($submittingUserID, $businessesID, $statusID) {
-        return self::getOrdersQuery(
+        return self::getQueryOfOrders(
             $submittingUserID, 
             $businessesID, 
             $statusID
@@ -121,7 +121,7 @@ class OrderRepository
     }
 
     public static function getPaginatedOrdersOfUser($submittingUserID, $businessesID, $statusID, $perPage = 10, $currentPage = 1) {
-        $query = self::getOrdersQuery(
+        $query = self::getQueryOfOrders(
             $submittingUserID, 
             $businessesID, 
             $statusID
@@ -131,7 +131,7 @@ class OrderRepository
     }
 
     public static function getPaginatedOrdersOfBusiness($businessID, $statusID, $tableNumber, $perPage = 10, $currentPage = 1) {
-        $query = self::getOrdersQuery(
+        $query = self::getQueryOfOrders(
             NULL,
             [$businessID],
             $statusID,

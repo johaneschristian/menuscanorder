@@ -25,6 +25,7 @@ $routes->group('business', ['filter' => 'business'], function ($routes) {
     $routes->get('categories', 'BusinessController::getCategoryList');
     $routes->post('categories', 'BusinessController::createCategory');
     $routes->post('categories/update', 'BusinessController::updateCategory');
+    $routes->post('categories/delete', 'BusinessController::deleteCategory');
 
     $routes->group('menu', function ($routes) {
         $routes->get('/', 'BusinessController::getMenuList');

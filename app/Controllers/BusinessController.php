@@ -90,6 +90,21 @@ class BusinessController extends BaseController
         return redirect()->to('/business/categories');
     }
 
+    public function deleteCategory() {
+        try {
+            $user = auth()->user();
+            $user->business_id = session()->get('business_id');
+            $requestData = $this->request->getPost();
+
+            BusinessService::handleDeleteCategory($user, $requestData);
+            session()->setFlashdata('success', 'Category is deleted successfully');
+        } catch (Exception $exception) {
+            session()->setFlashdata('error', $exception->getMessage());
+        }
+
+        return redirect()->to('/business/categories');
+    }
+
     public function getMenuList()
     {
         try {
