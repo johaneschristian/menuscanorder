@@ -42,8 +42,9 @@ class BusinessRepository
 
     public static function createBusiness($creatingUserID, $businessData) {
         $businesses = new BusinessModel();
+        $businessID = Utils::generateUUID();
         $businesses->insert([
-            'business_id' => Utils::generateUUID(),
+            'business_id' => $businessID,
             'owning_user_id' => $creatingUserID,
             'business_name' => $businessData['business_name'],
             'num_of_tables' => $businessData['num_of_tables'],
@@ -51,6 +52,8 @@ class BusinessRepository
             'is_open' => FALSE,
             'business_is_archived' => $businessData['business_is_archived'] ?? FALSE,
         ]);
+
+        return $businessID;
     } 
 
     public static function updateBusiness($businessID, $businessData) {

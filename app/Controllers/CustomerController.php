@@ -18,9 +18,9 @@ class CustomerController extends BaseController
 
             if ($this->request->getMethod() === 'post') {
                 try {
-                    $request_data = $this->request->getPost();
-                    CustomerService::handleBusinessRegistration($user, $request_data);
-                    session()->setFlashData('success', "Business is created successfully");
+                    $requestData = $this->request->getPost();
+                    CustomerService::handleBusinessRegistration($user, $requestData);
+                    session()->setFlashData('success', 'Business is created successfully');
                     return redirect()->to('/business/orders/');
 
                 } catch (InvalidRegistrationException $exception) {
@@ -35,7 +35,6 @@ class CustomerController extends BaseController
                 return view('customer/customer-business-registration');
             }
                     
-
         } catch (Exception $exception) {
             session()->setFlashData('error', $exception->getMessage()); 
             return redirect()->to('/');

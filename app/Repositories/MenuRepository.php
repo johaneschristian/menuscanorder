@@ -42,8 +42,7 @@ class MenuRepository
     public static function getMenuByIDOrThrowException($menuItemID) {
         $foundMenu = self::getMenuByID($menuItemID);
 
-        if ($foundMenu === NULL) {
-            // TODO: Change to is_null
+        if (is_null($foundMenu)) {
             throw new ObjectNotFoundException("Menu with ID $menuItemID does not exist.");
         
         } else {
@@ -88,10 +87,7 @@ class MenuRepository
             $mustBeAvailable
         );
 
-        return [
-            'result' => $query->paginate($perPage, 'default', $currentPage),
-            'pager' => $query->pager,
-        ];
+        return Utils::paginate($query, $perPage, $currentPage);
     }
 
     public static function getMenuItemsOfBusinessGroupByCategory($businessID, $mustBeAvailable = FALSE) {

@@ -101,7 +101,7 @@
 					<div class="card mb-3 shadow" style="width: 25rem">
 						<div class="row g-0">
 							<div class="col-6">
-								<img src='<?= $menu->image_url !== NULL ? base_url("/business/menu/{$menu->menu_item_id}/image") : "" ?>' id="menu-<?= esc($menu->menu_item_id) ?>-image" class="w-100 object-fit-cover rounded-start" style="object-fit: cover; height: 16rem" alt="Nasi Goreng" onerror="this.src='https://theme-assets.getbento.com/sensei/7c1964e.sensei/assets/images/catering-item-placeholder-704x520.png'" />
+								<img src='<?= !is_null($menu->image_url) ? base_url("/business/menu/{$menu->menu_item_id}/image") : "" ?>' id="menu-<?= esc($menu->menu_item_id) ?>-image" class="w-100 object-fit-cover rounded-start" style="object-fit: cover; height: 16rem" alt="Nasi Goreng" onerror="this.src='https://theme-assets.getbento.com/sensei/7c1964e.sensei/assets/images/catering-item-placeholder-704x520.png'" />
 							</div>
 							<div class="col-6">
 								<div class="card-body d-flex flex-column justify-content-between h-100">
@@ -111,7 +111,7 @@
 										<p id="menu-<?= esc($menu->menu_item_id) ?>-description" class="card-text trunc-3 mb-1">
 											<small><?= esc($menu->description) ?></small>
 										</p>
-										<?php if (!empty($menu->description) && $menu->description !== NULL) : ?>
+										<?php if (!empty($menu->description) && !is_null($menu->description)) : ?>
 											<button class="badge rounded-pill bg-dark mb-3 border-0" data-bs-toggle="modal" data-bs-target="#menu-item-modal" onclick="toggleReadMore('<?= esc($menu->menu_item_id) ?>')">
 												Read More
 											</button>

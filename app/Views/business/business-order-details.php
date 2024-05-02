@@ -5,7 +5,7 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('business_name') ?>
-Warteg Bahari Restaurant
+<?= esc($business_name) ?>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
@@ -138,7 +138,7 @@ Warteg Bahari Restaurant
             <div class="row d-flex flex-md-column flex-column-reverse">
               <div>
                 <span class="fw-bold d-md-none d-block"><?= esc($order_item->menu_item_name) ?></span>
-                <?php if ($order_item->notes !== NULL) : ?>
+                <?php if (!is_null($order_item->notes)) : ?>
                   <span class="small text-secondary">- <?= esc($order_item->notes) ?></span>
                 <?php endif; ?>
               </div>

@@ -25,7 +25,7 @@
 				</button>
 				<div class="collapse navbar-collapse" id="navbarNav">
 					<ul class="navbar-nav ms-auto">
-						<?php if (auth()->user() === NULL) : ?>
+						<?php if (is_null(auth()->user())) : ?>
 							<li class="nav-item">
 								<a class="nav-link <?= str_contains(service('request')->getUri()->getPath(), "login") ? "active" : "" ?>" href="<?= base_url('/login') ?>">Login</a>
 							</li>

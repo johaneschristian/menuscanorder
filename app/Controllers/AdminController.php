@@ -3,8 +3,6 @@
 namespace App\Controllers;
 
 use App\CustomExceptions\InvalidRegistrationException;
-use App\Models\OrderItemModel;
-use App\Models\OrderStatusModel;
 use App\Services\AdminService;
 use Exception;
 
@@ -31,15 +29,15 @@ class AdminController extends BaseController
     public function userCreate()
     {
         try {
-            try {
-                if ($this->request->getMethod() === "post") {
+            if ($this->request->getMethod() === "post") {
+                try {
                     $userData = $this->request->getPost();
                     AdminService::handleAdminCreateUser($userData);
                     session()->setFlashdata('success', 'User is created successfully');
                     return redirect()->to('/admin/users/');
+                } catch (InvalidRegistrationException $exception) {
+                    session()->setFlashdata('error', $exception->getMessage());
                 }
-            } catch (InvalidRegistrationException $exception) {
-                session()->setFlashdata('error', $exception->getMessage());
             }
 
             return view('admin/admin-create-user');
@@ -52,17 +50,16 @@ class AdminController extends BaseController
     public function userEdit($userId)
     {
         try {
-            try {
-                if ($this->request->getMethod() === "post") {
+            if ($this->request->getMethod() === "post") {
+                try {
                     $updatedUserData = $this->request->getPost();
                     AdminService::handleAdminEditUser($userId, $updatedUserData);
                     session()->setFlashdata('success', 'User is updated successfully');
-                    // return redirect()->to('/admin/users/');
+                    return redirect()->to('/admin/users/');
+                    
+                } catch (InvalidRegistrationException $exception) {
+                    session()->setFlashdata('error', $exception->getMessage());
                 }
-                
-            } catch (InvalidRegistrationException $exception) {
-                session()->setFlashdata('error', $exception->getMessage());
-                print_r($exception->getMessage());
             }
 
             $userData = AdminService::handleGetUserDetails($userId);

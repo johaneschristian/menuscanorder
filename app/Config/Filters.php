@@ -3,6 +3,9 @@
 namespace Config;
 
 use App\Filters\AdminFilter;
+use App\Filters\BusinessFilter;
+use App\Filters\LoginRedirectFilter;
+use App\Filters\UserCheckArchivedFilter;
 use CodeIgniter\Config\BaseConfig;
 use CodeIgniter\Filters\CSRF;
 use CodeIgniter\Filters\DebugToolbar;
@@ -26,6 +29,9 @@ class Filters extends BaseConfig
         'invalidchars'  => InvalidChars::class,
         'secureheaders' => SecureHeaders::class,
         'admin' => AdminFilter::class,
+        'loginredirect' => LoginRedirectFilter::class,
+        'usercheckarchived' => UserCheckArchivedFilter::class,
+        'business' => BusinessFilter::class,
     ];
 
     /**
@@ -39,7 +45,9 @@ class Filters extends BaseConfig
             // 'honeypot',
             // 'csrf',
             // 'invalidchars',
-            'session' => ['except' => ['', 'login*', 'register', 'auth/a/*', 'logout', 'business/seat-management/generate-qr/*']],
+            'loginredirect',
+            'session' => ['except' => ['', 'login*', 'register', 'logout', 'business/seat-management/generate-qr/*']],
+            'usercheckarchived' => ['except' => ['', 'login*', 'register', 'logout', 'business/seat-management/generate-qr/*']],
         ],
         'after' => [
             'toolbar',

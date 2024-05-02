@@ -22,7 +22,7 @@ class OrderItemRepository
     public static function getOrderItemStatusByIDOrThrowException($orderItemStatusID) {
         $foundOrderItemStatus = self::getOrderItemStatusByID($orderItemStatusID);
 
-        if ($foundOrderItemStatus === NULL) {
+        if (is_null($foundOrderItemStatus)) {
             throw new ObjectNotFoundException("Order item status with ID $orderItemStatusID does not exist");
 
         } else {
@@ -58,7 +58,7 @@ class OrderItemRepository
     public static function getOrderItemByIDOrThrowException($orderItemID) {
         $foundOrderItem = self::getOrderItemsByID($orderItemID);
 
-        if ($foundOrderItem === NULL) {
+        if (is_null($foundOrderItem)) {
             throw new ObjectNotFoundException("Order Item with ID $orderItemID does not exist");
 
         } else {
@@ -100,7 +100,6 @@ class OrderItemRepository
     }
 
     public static function getOrderItemsOfOrderMatchingMenuItemIDAndPrice($orderID, $menuItemID, $price) {
-        // TODO: Maybe to specific
         $orderItem = new OrderItemModel();
         return $orderItem
                     ->where('order_id', $orderID)

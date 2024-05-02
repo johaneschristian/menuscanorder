@@ -9,7 +9,7 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('business_name') ?>
-Warteg Bahari Restaurant
+<?= esc($business_name) ?>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
@@ -21,7 +21,7 @@ Warteg Bahari Restaurant
           <p class="fw-bold fs-5">Create Category</p>
           <label for="edited-category-name" class="form-label">Category Name</label>
           <div class="input-group mb-3">
-            <input name="category_name" type="text" class="form-control" id="created-category-name" name="category_name" aria-describedby="basic-addon3" required>
+            <input name="name" type="text" class="form-control" id="created-category-name" name="name" aria-describedby="basic-addon3" required>
           </div>
         </div>
         <div class="modal-footer">
@@ -44,7 +44,7 @@ Warteg Bahari Restaurant
           </div>
           <label for="edited-category-name" class="form-label">Category Name</label>
           <div class="input-group mb-3">
-            <input type="text" class="form-control" id="edited-category-name" name="category_name" aria-describedby="basic-addon3" required>
+            <input type="text" class="form-control" id="edited-category-name" name="name" aria-describedby="basic-addon3" required>
           </div>
         </div>
         <div class="modal-footer">
@@ -111,21 +111,7 @@ Warteg Bahari Restaurant
         <?php endforeach; ?>
       </tbody>
     </table>
-    <nav>
-      <ul class="pagination justify-content-center">
-        <li class="page-item disabled">
-          <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-        </li>
-        <li class="page-item"><a class="page-link" href="#">1</a></li>
-        <li class="page-item active" aria-current="page">
-          <a class="page-link" href="#">2</a>
-        </li>
-        <li class="page-item"><a class="page-link" href="#">3</a></li>
-        <li class="page-item">
-          <a class="page-link" href="#">Next</a>
-        </li>
-      </ul>
-    </nav>
+    <?= $pager->links() ?>
   </div>
 </div>
 <?= $this->endSection() ?>

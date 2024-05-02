@@ -9,35 +9,41 @@ use App\Utils\Utils;
 
 class CategoryRepository
 {
-    // TODO: Clean, simplify
     public static function createCategory($owningBusinessID, $categoryData) {
         $category = new CategoryModel();
-        return $category->insert([
+        $category->insert([
             'category_id' => Utils::generateUUID(),
             'owning_business_id' => $owningBusinessID,
-            'name' => $categoryData['category_name'],
-        ], TRUE);
+            'name' => $categoryData['name'],
+        ]);
     }
 
-    public static function updateCategory($updatedCategory, $categoryData) {
-        // TODO: Change format
+    public static function updateCategory($updatedCategoryID, $updatedCategoryData) {
         $category = new CategoryModel();
-        $updatedCategory->name = $categoryData['category_name'];
-        $category->save($updatedCategory);
+        $category->update($updatedCategoryID, $updatedCategoryData);
     }
 
-    public static function getCategoriesOfBusiness($owningBusinessID, $categoryNameSearch) {
-        $category = new CategoryModel();
-        $businessCategories = $category
-                                ->where('owning_business_id', $owningBusinessID)
-                                ->like('name', $categoryNameSearch, 'both')
-                                ->findAll();
-        
-        foreach($businessCategories as $category) {
-            $category->menu_count = 0;
+    public static function getQueryOfCategoriesOfBusiness($owningBusinessID, $categoryNameSearch, $withMenuCount = FALSE) {
+        $query = new CategoryModel();
+
+        if ($withMenuCount) {
+            $query = $query
+                        ->select('menu_item_categories.category_id, menu_item_categories.name, COUNT(menu_item_id) AS menu_count')
+                        ->join('menu_items', 'menu_items.category_id=menu_item_categories.category_id')
+                        ->groupBy('menu_item_categories.category_id, menu_item_categories.name');
         }
 
-        return $businessCategories;
+        $query = $query->where('menu_item_categories.owning_business_id', $owningBusinessID)->like('menu_item_categories.name', $categoryNameSearch, 'both');        
+        return $query;
+    }
+
+    public static function getCategoriesOfBusiness($owningBusinessID, $categoryNameSearch, $withMenuCount = FALSE) {     
+        return self::getQueryOfCategoriesOfBusiness($owningBusinessID, $categoryNameSearch, $withMenuCount)->findAll();
+    }
+    
+    public static function getPaginatedCategoriesOfBusiness($owningBusinessID, $categoryNameSearch, $perPage = 10, $currentPage = 1, $withMenuCount = FALSE) {
+        $query = self::getQueryOfCategoriesOfBusiness($owningBusinessID, $categoryNameSearch, $withMenuCount);
+        return Utils::paginate($query, $perPage, $currentPage);
     }
 
     public static function getCategoryByID($categoryID) {

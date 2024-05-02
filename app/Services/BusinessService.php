@@ -28,7 +28,7 @@ class BusinessService
     private static function validateCategoryData($categoryData)
     {
         $rules = [
-            'category_name' => 'required|min_length[3]|max_length[255]',
+            'name' => 'required|min_length[3]|max_length[255]',
         ];
 
         $validationResult = Validator::validate($rules, [], $categoryData);
@@ -38,13 +38,13 @@ class BusinessService
         }
     }
 
-    private static function validateCategoryOwnership($business, $category)
+    private static function validateCategoryOwnership($businessID, $category)
     {
-        if ($category->owning_business_id !== $business->business_id) {
+        if ($category->owning_business_id !== $businessID) {
             throw new NotAuthorizedException(
                 sprintf("Category with ID %s does not belong to Business with ID %s"),
                 $category->owning_business_id,
-                $business->business_id
+                $businessID
             );
         }
     }
@@ -52,31 +52,34 @@ class BusinessService
     public static function handleCategoryCreation($user, $categoryData)
     {
         self::validateCategoryData($categoryData);
-        $userBusiness = self::getBusinessByUserOrNonAuthorized($user);
-
-        // TODO: Might be moved as a middleware
         $transformedCategoryData = Utils::trimAllString($categoryData);
-        CategoryRepository::createCategory($userBusiness->business_id, $transformedCategoryData);
+        CategoryRepository::createCategory($user->business_id, $transformedCategoryData);
     }
 
-    public static function handleGetCategoryList($user, $search)
+    public static function handleGetCategoryList($user, $requestData)
     {
-        $userBusiness = self::getBusinessByUserOrNonAuthorized($user);
-        $businessCategories = CategoryRepository::getCategoriesOfBusiness($userBusiness->business_id, $search ?? '');
+        $businessCategoriesPaginated = CategoryRepository::getPaginatedCategoriesOfBusiness(
+            $user->business_id, 
+            $requestData['search'] ?? '', 
+            10, 
+            (int) ($requestData['page'] ?? 1),
+            TRUE
+        );
+
         return [
-            'business' => $userBusiness,
-            'categories' => $businessCategories,
+            'categories' => $businessCategoriesPaginated['result'],
+            'search' => $requestData['search'] ?? '',
+            'pager' => $businessCategoriesPaginated['pager'],
         ];
     }
 
     public static function handleUpdateCategory($user, $categoryData)
     {
         self::validateCategoryData($categoryData);
-        $userBusiness = self::getBusinessByUserOrNonAuthorized($user);
         $updatedCategory = CategoryRepository::getCategoryByIDOrThrowException($categoryData['category_id']);
-        self::validateCategoryOwnership($userBusiness, $updatedCategory);
+        self::validateCategoryOwnership($user->business_id, $updatedCategory);
         $transformedCategoryData = Utils::trimAllString($categoryData);
-        CategoryRepository::updateCategory($updatedCategory, $transformedCategoryData);
+        CategoryRepository::updateCategory($updatedCategory->category_id, $transformedCategoryData);
     }
 
     private static function validateMenuData($menuData, $menuImage)
@@ -125,7 +128,7 @@ class BusinessService
 
     private static function removeImageFileOfMenu($menu)
     {
-        if ($menu->image_url !== NULL) {
+        if (!is_null($menu->image_url)) {
             unlink(WRITEPATH . 'menu_images/' . $menu->image_url);
         }
     }
@@ -133,11 +136,10 @@ class BusinessService
     public static function handleMenuCreation($user, $menuData, $menuImage)
     {
         self::validateMenuData($menuData, $menuImage);
-        $userBusiness = self::getBusinessByUserOrNonAuthorized($user);
         $transformedMenuData = self::transformMenuData($menuData);
-        $createdMenuID = MenuRepository::createMenu($userBusiness->business_id, $transformedMenuData);
+        $createdMenuID = MenuRepository::createMenu($user->business_id, $transformedMenuData);
         if ($menuImage->isValid()) {
-            self::saveImageFile($userBusiness->business_id, $createdMenuID, $menuImage);
+            self::saveImageFile($user->business_id, $createdMenuID, $menuImage);
         }
     }
 
@@ -161,10 +163,9 @@ class BusinessService
     public static function handleBusinessMenuList($user, $requestData)
     {
         $transformedRequestData = self::transformMenuListRequestData($requestData);
-        $userBusiness = self::getBusinessByUserOrNonAuthorized($user);
-        $businessCategories = CategoryRepository::getCategoriesOfBusiness($userBusiness->business_id, "");
+        $businessCategories = CategoryRepository::getCategoriesOfBusiness($user->business_id, "");
         $businessMenusPaginated = MenuRepository::getPaginatedMenuItemsOfBusinessMatchingNameAndCategory(
-            $userBusiness->business_id,
+            $user->business_id,
             $transformedRequestData['name'],
             $transformedRequestData['category_id'],
             FALSE,
@@ -175,24 +176,25 @@ class BusinessService
         return [
             'menus' => $businessMenusPaginated['result'],
             'pager' => $businessMenusPaginated['pager'],
-            'categories' => $businessCategories
+            'categories' => $businessCategories,
+            'search' => $requestData['menu_name'] ?? '',
+            'category_id' => $requestData['category_id'] ?? '',
         ];
     }
 
-    private static function validateMenuOwnership($business, $menu)
+    private static function validateMenuOwnership($businessID, $menu)
     {
-        if ($menu->owning_business_id !== $business->business_id) {
-            throw new NotAuthorizedException("Menu with ID {$menu->menu_id} do not belong to business with ID {$business->business_id}");
+        if ($menu->owning_business_id !== $businessID) {
+            throw new NotAuthorizedException("Menu with ID {$menu->menu_id} do not belong to business with ID $businessID");
         }
     }
 
     public static function handleBusinessGetMenuData($user, $menuID)
     {
-        $userBusiness = self::getBusinessByUserOrNonAuthorized($user);
         $menu = MenuRepository::getMenuByIDOrThrowException($menuID);
-        self::validateMenuOwnership($userBusiness, $menu);
+        self::validateMenuOwnership($user->business_id, $menu);
 
-        $businessCategories = CategoryRepository::getCategoriesOfBusiness($userBusiness->business_id, '');
+        $businessCategories = CategoryRepository::getCategoriesOfBusiness($user->business_id, '');
         return [
             'menu' => $menu,
             'categories' => $businessCategories,
@@ -204,7 +206,7 @@ class BusinessService
         $menu = MenuRepository::getMenuByIDOrThrowException($menuID);
         $menuImageFileName = $menu->image_url;
 
-        if ($menuImageFileName !== NULL) {
+        if (!is_null($menuImageFileName)) {
             $menuImageFullPath = WRITEPATH . 'menu_images/' . $menuImageFileName;
             $menuImageFile = new File($menuImageFullPath, TRUE);
 
@@ -221,21 +223,20 @@ class BusinessService
     public static function handleMenuEdit($user, $menuID, $menuData, $menuImage)
     {
         self::validateMenuData($menuData, $menuImage);
-        $userBusiness = self::getBusinessByUserOrNonAuthorized($user);
         $menu = MenuRepository::getMenuByIDOrThrowException($menuID);
-        self::validateMenuOwnership($userBusiness, $menu);
+        self::validateMenuOwnership($user->business_id, $menu);
         $transformedMenuData = self::transformMenuData($menuData);
         Menurepository::updateMenu($menuID, $transformedMenuData);
 
         if ($menuImage->isValid()) {
             self::removeImageFileOfMenu($menu);
-            self::saveImageFile($userBusiness->business_id, $menuID, $menuImage);
+            self::saveImageFile($user->business_id, $menuID, $menuImage);
         }
     }
 
     public static function handleGetBusinessTableData($user, $requestData)
     {
-        $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
+        $userBusiness = BusinessRepository::getBusinessById($user->business_id);
 
         return [
             'business' => $userBusiness,

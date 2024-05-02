@@ -9,6 +9,7 @@ use App\Repositories\MenuRepository;
 use App\Repositories\OrderItemRepository;
 use App\Repositories\OrderRepository;
 use App\Utils\Utils;
+use Config\Services;
 
 class OrderService
 {
@@ -82,7 +83,7 @@ class OrderService
             $tableNumber
         );
 
-        if ($userLatestUncompleteOrderInBusiness !== NULL) {
+        if (!is_null($userLatestUncompleteOrderInBusiness)) {
             return $userLatestUncompleteOrderInBusiness->order_id;
         } else {
             return OrderRepository::createOrder($submittingUser->id, $receivingBusiness->business_id, $tableNumber);
@@ -144,12 +145,17 @@ class OrderService
 
     public static function handleCreateOrder($user, $orderData)
     {
+        $db = \Config\Database::connect();
+        $db->transStart();
+
         $receivingBusiness = BusinessRepository::getBusinessByIdOrThrowException($orderData['business_id'] ?? NULL);
         self::validateOrderCreation($receivingBusiness, $orderData);
         $convertedSelectedMenus = self::convertSelectedMenu($orderData['selected_menus']);
         self::validateAllSelectedMenuAreAvailable($convertedSelectedMenus);
         $modifiedOrderID = self::getOrCreateOrder($user, $receivingBusiness, $orderData['table_number']);
         self::registerOrderItem($modifiedOrderID, $convertedSelectedMenus);
+
+        $db->transComplete();
     }
 
     private static function transformCustomerOrderListRequestData($requestData)
@@ -241,7 +247,7 @@ class OrderService
             $orderItemSummary['num_of_items'] += $orderItem->num_of_items;
             $orderItemSummary['subtotal'] += $orderItem->num_of_items * $price;
 
-            if ($orderItem->notes !== NULL) {
+            if (!is_null($orderItem->notes)) {
                 $orderItemSummary['notes'][] = $orderItem->notes;
             }
         }
@@ -319,9 +325,8 @@ class OrderService
     public static function handleBusinessOrderList($user, $requestData)
     {
         $transformedRequestData = self::transformBusinessOrderListRequestData($requestData);
-        $userBusiness = BusinessService::getBusinessByUserOrNonAuthorized($user);
         $businessOrdersPaginated = OrderRepository::getPaginatedOrdersOfBusiness(
-            $userBusiness->business_id,
+            $user->business_id,
             $transformedRequestData['status_id'],
             $transformedRequestData['table_number'],
             10,
@@ -340,18 +345,17 @@ class OrderService
         ];
     }
 
-    private static function validateBusinessOrderOwnership($business, $order)
+    private static function validateBusinessOrderOwnership($businessID, $order)
     {
-        if ($order->receiving_business_id !== $business->business_id) {
+        if ($order->receiving_business_id !== $businessID) {
             throw new NotAuthorizedException("Business is not the owner of order with ID {$order->order_id}");
         }
     }
 
     public static function handleBusinessOrderDetails($user, $orderID)
     {
-        $userBusiness = BusinessService::getBusinessByUserOrNonAuthorized($user);
         $order = OrderRepository::getOrderByIDOrThrowException($orderID);
-        self::validateBusinessOrderOwnership($userBusiness, $order);
+        self::validateBusinessOrderOwnership($user->business_id, $order);
         $orderWithCompleteDetails = self::getOrderCompleteDetails($order);
 
         return [
@@ -376,17 +380,15 @@ class OrderService
 
     public static function handleBusinessCompleteOrder($user, $requestData)
     {
-        $userBusiness = BusinessService::getBusinessByUserOrNonAuthorized($user);
         $order = OrderRepository::getOrderByIDOrThrowException($requestData['order_id'] ?? '');
-        self::validateBusinessOrderOwnership($userBusiness, $order);
+        self::validateBusinessOrderOwnership($user->business_id, $order);
         self::completeOrder($order);
     }
 
     public static function handleBusinessGetOrderKitchenData($user)
     {
-        $userBusiness = BusinessService::getBusinessByUserOrNonAuthorized($user);
-        $businessOrderItemSumamry = OrderItemRepository::getOrderItemsSummaryOfBusiness($userBusiness->business_id);
-        $businessOrderItems = OrderItemRepository::getOrderItemsOfBusiness($userBusiness->business_id);
+        $businessOrderItemSumamry = OrderItemRepository::getOrderItemsSummaryOfBusiness($user->business_id);
+        $businessOrderItems = OrderItemRepository::getOrderItemsOfBusiness($user->business_id);
         $allStatus = OrderItemRepository::getAllOrderItemStatus();
 
         return [
@@ -412,12 +414,16 @@ class OrderService
 
     public static function handleBusinessUpdateOrderItemStatus($user, $updateData)
     {
-        $userBusiness = BusinessService::getBusinessByUserOrNonAuthorized($user);
+        $db = \Config\Database::connect();
+        $db->transStart();
+
         $orderItem = OrderItemRepository::getOrderItemByIDOrThrowException($updateData['order_item_id'] ?? '');
         $orderOfItem = OrderRepository::getOrderByID($orderItem->order_id);
-        self::validateBusinessOrderOwnership($userBusiness, $orderOfItem);
+        self::validateBusinessOrderOwnership($user->business_id, $orderOfItem);
         self::validateOrderItemStatusUpdate($orderItem, $updateData['new_status_id'] ?? '');
         OrderItemRepository::updateOrderItem($orderItem->order_item_id, ['order_item_status_id' =>  $updateData['new_status_id']]);
         self::setOrderStatus($orderOfItem->order_id);
+
+        $db->transComplete();
     }
 }

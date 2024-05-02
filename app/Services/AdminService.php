@@ -36,9 +36,9 @@ class AdminService {
 
     private static function appendAffiliatedBusinessDataToUser($user) {
         $affiliatedBusiness = BusinessRepository::getBusinessByUserId($user->id);
-        $user->has_business = $affiliatedBusiness !== NULL;
+        $user->has_business = !is_null($affiliatedBusiness);
         
-        if ($affiliatedBusiness !== NULL) {
+        if (!is_null($affiliatedBusiness)) {
             $user->business = $affiliatedBusiness;
         }
 
@@ -62,19 +62,6 @@ class AdminService {
         if ($forCreate) {
             $rules['email'] = 'required|valid_email|max_length[255]';
         }
-
-        $validationResult = Validator::validate($rules, [], $requestData);
-
-        if ($validationResult !== TRUE) {
-            throw new InvalidRegistrationException($validationResult);
-        }
-    }
-
-    public static function validatePassword($requestData) {
-        $rules = [
-            'password' => 'required|max_length[255]|min_length[6]',
-            'password_confirmation' => 'required|matches[password]',
-        ];
 
         $validationResult = Validator::validate($rules, [], $requestData);
 
@@ -110,55 +97,43 @@ class AdminService {
 
     public static function handleAdminCreateUser($requestData) {
         $db = \Config\Database::connect();
-        $db->transBegin();
+        $db->transStart();
 
-        try {
-            self::validateBaseRequestData($requestData, TRUE);
-            self::validatePassword($requestData);
-            $transformedUserRequestData = self::transformUserCreateRequest($requestData, TRUE);
-            $createdUserID = UserRepository::createUser($transformedUserRequestData);
+        self::validateBaseRequestData($requestData, TRUE);
+        AuthService::validatePassword($requestData);
+        $transformedUserRequestData = self::transformUserCreateRequest($requestData, TRUE);
+        $createdUserID = UserRepository::createUser($transformedUserRequestData);
 
-            if (!is_null($requestData['business_name'] ?? NULL) && !empty($requestData['business_name'])) {
-                CustomerService::validateBusinessData($requestData);
-                $transformedBusinessRequestData = self::transformBusinessCreateRequest($requestData);
-                BusinessRepository::createBusiness($createdUserID, $transformedBusinessRequestData);
-            }
-
-            $db->transCommit();
-
-        } catch (Exception $exception) {
-            $db->transRollback();
-            throw $exception;
+        if (!is_null($requestData['business_name'] ?? NULL) && !empty($requestData['business_name'])) {
+            CustomerService::validateBusinessData($requestData);
+            $transformedBusinessRequestData = self::transformBusinessCreateRequest($requestData);
+            BusinessRepository::createBusiness($createdUserID, $transformedBusinessRequestData);
         }
+
+        $db->transComplete();
     }
 
     public static function handleAdminEditUser($updatedUserID, $requestData) {
         $db = \Config\Database::connect();
-        $db->transBegin();
+        $db->transStart();
 
-        try {
-            self::validateBaseRequestData($requestData, FALSE);
-            $transformedUserRequestData = self::transformUserCreateRequest($requestData, FALSE);
-            UserRepository::editUser($updatedUserID, $transformedUserRequestData);
+        self::validateBaseRequestData($requestData, FALSE);
+        $transformedUserRequestData = self::transformUserCreateRequest($requestData, FALSE);
+        UserRepository::editUser($updatedUserID, $transformedUserRequestData);
 
-            if (!is_null($requestData['business_name'] ?? NULL) && !empty($requestData['business_name'])) {
-                CustomerService::validateBusinessData($requestData);
-                $transformedBusinessRequestData = self::transformBusinessCreateRequest($requestData);
+        if (!is_null($requestData['business_name'] ?? NULL) && !empty($requestData['business_name'])) {
+            CustomerService::validateBusinessData($requestData);
+            $transformedBusinessRequestData = self::transformBusinessCreateRequest($requestData);
 
-                $userBusiness = BusinessRepository::getBusinessByUserId($updatedUserID);
-                if (!is_null($userBusiness)) {
-                    BusinessRepository::updateBusiness($userBusiness->business_id, $transformedBusinessRequestData);
+            $userBusiness = BusinessRepository::getBusinessByUserId($updatedUserID);
+            if (!is_null($userBusiness)) {
+                BusinessRepository::updateBusiness($userBusiness->business_id, $transformedBusinessRequestData);
 
-                } else {
-                    BusinessRepository::createBusiness($updatedUserID, $transformedBusinessRequestData);
-                }
+            } else {
+                BusinessRepository::createBusiness($updatedUserID, $transformedBusinessRequestData);
             }
-
-            $db->transCommit();
-
-        } catch (Exception $exception) {
-            $db->transRollback();
-            throw $exception;
         }
+
+        $db->transComplete();        
     }
 }

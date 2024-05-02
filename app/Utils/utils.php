@@ -62,4 +62,11 @@ class Utils
             return $element;
         }
     }
+
+    public static function paginate($query, $perPage, $currentPage) {
+        return [
+            'result' => $query->paginate($perPage, 'default', $currentPage),
+            'pager' => $query->pager,
+        ];
+    }
 }

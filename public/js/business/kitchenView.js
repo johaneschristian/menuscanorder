@@ -90,98 +90,101 @@ function reloadKitchenViewOrderItemSummary() {
 	servedSummarySpan.innerHTML = getStatusQuantity("served");
 }
 
+function getItemCard(orderItem) {
+	const orderItemNextStatus = getNextStatus(orderItem.status_name);
+	return `
+	<div class="col-auto">
+		<div
+			class="card shadow-sm"
+			style="min-height: 300px; min-width: 18rem"
+		>
+			<div
+				class="card-body d-flex flex-column justify-content-between align-items-center"
+			>
+				<h5 class="card-title m-0">Table ${orderItem.table_number}</h5>
+				<span class="badge rounded-pill bg-dark mt-2"
+					>Ordered on ${orderItem.item_order_time}</span
+				>
+				<span id="order-item-${
+					orderItem.order_item_id
+				}-status" class="badge rounded-pill bg-${getStatusColor(orderItem.status_name)} mt-2">${orderItem.status_name}</span>
+				<table class="table">
+					<thead class="thead-dark">
+						<tr>
+							<th>Item</th>
+							<th>Quantity</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>${orderItem.menu_item_name}</td>
+							<td id="order-item-${orderItem.order_item_id}-quantity">${orderItem.num_of_items}</td>
+						</tr>
+					</tbody>
+				</table>
+
+				${
+					orderItem.notes === null
+						? ""
+						: `<div class='collapse' id='note-${orderItem.order_item_id}'>${orderItem.notes}</div>`
+				}
+			 
+				<div>
+					${
+						orderItem.status !== "served"
+							? `<button id="order-item-${
+									orderItem.order_item_id
+								}-action-button" onclick="updateItemStatus('${
+									orderItem.order_item_id
+								}')" class="btn btn-${getStatusColor(
+									orderItemNextStatus
+								)} mt-3">Mark as ${
+									orderItem.status_name === "received"
+										? "Being Prepared"
+										: "Served"
+								}</button>`
+							: ""
+					}            
+					${
+						orderItem.notes === null
+							? ""
+							: `<button
+							type="button"
+							class="btn btn-outline-primary mt-3"
+							data-bs-toggle="collapse"
+							data-bs-target="#note-${orderItem.order_item_id}"
+						>
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								width="16"
+								height="16"
+								fill="currentColor"
+								class="bi bi-pencil-square"
+								viewBox="0 0 16 16"
+							>
+								<path
+									d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"
+								/>
+								<path
+									fill-rule="evenodd"
+									d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"
+								/>
+							</svg>
+						</button>`
+					}
+				</div>
+			</div>
+		</div>
+	</div>`
+}
+
 function setupOrderItemsList(orderItems) {
 	const orderItemsHolder = document.querySelector("#order-items-holder");
 	orderItemsHolder.innerHTML = "";
 
 	for (let i = 0; i < orderItems.length; i++) {
 		const orderItem = orderItems[i];
-		const orderItemNextStatus = getNextStatus(orderItem.status_name);
-
-		orderItemsHolder.innerHTML += `
-      <div class="col-auto">
-        <div
-          class="card shadow-sm"
-          style="min-height: 300px; min-width: 18rem"
-        >
-          <div
-            class="card-body d-flex flex-column justify-content-between align-items-center"
-          >
-            <h5 class="card-title m-0">Table ${orderItem.table_number}</h5>
-            <span class="badge rounded-pill bg-dark mt-2"
-              >Ordered on ${orderItem.item_order_time}</span
-            >
-            <span id="order-item-${
-							orderItem.order_item_id
-						}-status" class="badge rounded-pill bg-${getStatusColor(orderItem.status_name)} mt-2">${orderItem.status_name}</span>
-            <table class="table">
-              <thead class="thead-dark">
-                <tr>
-                  <th>Item</th>
-                  <th>Quantity</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>${orderItem.menu_item_name}</td>
-                  <td id="order-item-${orderItem.order_item_id}-quantity">${orderItem.num_of_items}</td>
-                </tr>
-              </tbody>
-            </table>
-
-            ${
-							orderItem.notes === null
-								? ""
-								: `<div class='collapse' id='note-${orderItem.order_item_id}'>${orderItem.notes}</div>`
-						}
-           
-            <div>
-              ${
-								orderItem.status !== "served"
-									? `<button id="order-item-${
-											orderItem.order_item_id
-									  }-action-button" onclick="updateItemStatus('${
-											orderItem.order_item_id
-									  }')" class="btn btn-${getStatusColor(
-											orderItemNextStatus
-									  )} mt-3">Mark as ${
-											orderItem.status_name === "received"
-												? "Being Prepared"
-												: "Served"
-									  }</button>`
-									: ""
-							}            
-              ${
-								orderItem.notes === null
-									? ""
-									: `<button
-                  type="button"
-                  class="btn btn-outline-primary mt-3"
-                  data-bs-toggle="collapse"
-                  data-bs-target="#note-${orderItem.order_item_id}"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    fill="currentColor"
-                    class="bi bi-pencil-square"
-                    viewBox="0 0 16 16"
-                  >
-                    <path
-                      d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"
-                    />
-                    <path
-                      fill-rule="evenodd"
-                      d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"
-                    />
-                  </svg>
-                </button>`
-							}
-            </div>
-          </div>
-        </div>
-      </div>`;
+		orderItemsHolder.innerHTML += getItemCard(orderItem);
 	}
 }
 

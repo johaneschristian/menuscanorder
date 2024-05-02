@@ -9,7 +9,7 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('business_name') ?>
-Warteg Bahari Restaurant
+<?= esc($business_name) ?>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>

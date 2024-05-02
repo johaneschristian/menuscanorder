@@ -23,7 +23,6 @@ class OrderController extends Controller {
     }
 
     public function orderCreate() {
-        // TODO: Implement transaction
         try {
             $user = auth()->user();
             $orderData = $this->request->getJSON(true);
@@ -82,9 +81,16 @@ class OrderController extends Controller {
     public function businessOrderList() {
         try {
             $user = auth()->user();
+            $user->business_id = session()->get('business_id');
             $requestData = $this->request->getGet();
+
             $businessOrders = OrderService::handleBusinessOrderList($user, $requestData);
-            return view('business/business-order-list', $businessOrders);
+            $data = [
+                ...$businessOrders,
+                'business_name' => session()->get('business_name'),
+            ];
+
+            return view('business/business-order-list', $data);
 
         } catch (Exception $exception) {
             session()->setFlashdata('error', $exception->getMessage());
@@ -95,8 +101,15 @@ class OrderController extends Controller {
     public function businessOrderDetails($orderId) {
         try {
             $user = auth()->user();
+            $user->business_id = session()->get('business_id');
+            
             $orderData = OrderService::handleBusinessOrderDetails($user, $orderId);
-            return view('business/business-order-details', $orderData);
+            $data = [
+                ...$orderData,
+                'business_name' => session()->get('business_name'),
+            ];
+            
+            return view('business/business-order-details', $data);
 
         } catch (ObjectNotFoundException | NotAuthorizedException $exception) {
             session()->setFlashdata('error', $exception->getMessage());
@@ -111,8 +124,11 @@ class OrderController extends Controller {
     public function businessCompleteOrder() {
         try {
             $user = auth()->user();
+            $user->business_id = session()->get('business_id');
             $requestData = $this->request->getPost();
+            
             OrderService::handleBusinessCompleteOrder($user, $requestData);
+
             session()->setFlashdata('success', 'Order status is updated successfully');
             return redirect()->to('/business/orders/');
 
@@ -128,9 +144,11 @@ class OrderController extends Controller {
 
     public function businessOrderKitchenView() {
         try {
-            $user = auth()->user();
-            $userBusiness = BusinessService::getBusinessByUserOrNonAuthorized($user);
-            return view('business/kitchen-view');
+            $data = [
+                'business_name' => session()->get('business_name'),
+            ];
+
+            return view('business/kitchen-view', $data);
 
         } catch (Exception $exception) {
             session()->setFlashdata('error', $exception->getMessage());
@@ -141,6 +159,7 @@ class OrderController extends Controller {
     public function businessGetOrderKitchenViewData() {
         try {
             $user = auth()->user();
+            $user->business_id = session()->get('business_id');
             $responseData = OrderService::handleBusinessGetOrderKitchenData($user);
             return $this->response
                         ->setContentType('application/json')
@@ -162,10 +181,11 @@ class OrderController extends Controller {
     }
 
     public function businessUpdateOrderItemStatus() {
-        // TODO: Implement transaction
         try {
             $user = auth()->user();
+            $user->business_id = session()->get('business_id');
             $updateData = $this->request->getJSON(true);
+
             OrderService::handleBusinessUpdateOrderItemStatus($user, $updateData);
             return $this->response
                     ->setContentType('application/json')

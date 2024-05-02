@@ -5,10 +5,10 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
-$routes->get('/', 'Home::index');
-$routes->match(['get', 'post'], '/login', 'Home::login');
-$routes->match(['get', 'post'], '/register', 'Home::register');
-$routes->get('/logout', 'Home::logout');
+$routes->get('/', 'AuthController::index');
+$routes->match(['get', 'post'], '/login', 'AuthController::login');
+$routes->match(['get', 'post'], '/register', 'AuthController::register');
+$routes->get('/logout', 'AuthController::logout');
 
 $routes->group('admin', ['filter' => 'admin'], function ($routes) {
     $routes->group('users', function ($routes) {
@@ -19,7 +19,7 @@ $routes->group('admin', ['filter' => 'admin'], function ($routes) {
     });
 });
 
-$routes->group('business', function ($routes) {
+$routes->group('business', ['filter' => 'business'], function ($routes) {
     $routes->get('categories', 'BusinessController::categoryList');
     $routes->post('categories', 'BusinessController::categoryCreate');
     $routes->post('categories/update', 'BusinessController::categoryUpdate');

@@ -9,7 +9,7 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('business_name') ?>
-Warteg Bahari Restaurant
+<?= esc($business_name) ?>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
@@ -58,7 +58,7 @@ Warteg Bahari Restaurant
       <div class="col-md-6">
         <form action="" method="get">
           <div class="input-group mb-md-0 mb-3 me-3 p-0">
-            <input type="text" class="form-control bg-soft-gray" name="search" placeholder="Search Table Number" value='<?= $searched_table_number === NULL ? "" : $searched_table_number ?>'>
+            <input type="text" class="form-control bg-soft-gray" name="search" placeholder="Search Table Number" value='<?= is_null($searched_table_number) ? "" : $searched_table_number ?>'>
             <button class="btn bg-brown text-white" type="submit" id="search-button">Search</button>
           </div>
         </form>
@@ -77,7 +77,7 @@ Warteg Bahari Restaurant
           </tr>
         </thead>
         <tbody>
-          <?php if ($searched_table_number === NULL) : ?>
+          <?php if (is_null($searched_table_number)) : ?>
             <?php for ($tableNum = ($current_page - 1) * 10; $tableNum < ($current_page - 1) * 10 + 10 && $tableNum < $business->num_of_tables; $tableNum++) : ?>
               <tr>
                 <td id="table-num-<?= esc($tableNum + 1) ?>"><?= esc($tableNum + 1) ?></td>
@@ -91,48 +91,48 @@ Warteg Bahari Restaurant
                 </td>
               </tr>
             <?php endfor; ?>
-          <?php else : ?>
-            <?php if ($searched_table_number <= $business->num_of_tables) : ?>
-              <tr>
-                <td id="table-num-$searched_table_number"><?= esc($searched_table_number) ?></td>
-                <td>
-                  <img id="table-num-$searched_table_number-qr" src="<?= base_url('images/business/dummy-qr-code.png') ?>" style="width: 50px;" alt="" srcset="">
-                </td>
-                <td>
-                  <button class="btn btn-sm btn-primary mb-1" data-bs-toggle="modal" data-bs-target="#qr-code-view-modal" onclick="toggleQRView(1)"><i class="bi bi-eye-fill"></i></button>
-                  <button class="btn btn-sm btn-danger mb-1" onclick="downloadQRImage(1)"><i class="bi bi-download"></i></button>
-                  <button class="btn btn-sm btn-warning mb-1" onclick="printQRImage(1)"><i class="bi bi-printer"></i></button>
-                </td>
-              </tr>
-            <?php endif; ?>
+          <?php elseif ($searched_table_number <= $business->num_of_tables) : ?>
+            <tr>
+              <td id="table-num-$searched_table_number"><?= esc($searched_table_number) ?></td>
+              <td>
+                <img id="table-num-$searched_table_number-qr" src="<?= base_url('images/business/dummy-qr-code.png') ?>" style="width: 50px;" alt="" srcset="">
+              </td>
+              <td>
+                <button class="btn btn-sm btn-primary mb-1" data-bs-toggle="modal" data-bs-target="#qr-code-view-modal" onclick="toggleQRView(1)"><i class="bi bi-eye-fill"></i></button>
+                <button class="btn btn-sm btn-danger mb-1" onclick="downloadQRImage(1)"><i class="bi bi-download"></i></button>
+                <button class="btn btn-sm btn-warning mb-1" onclick="printQRImage(1)"><i class="bi bi-printer"></i></button>
+              </td>
+            </tr>
           <?php endif; ?>
         </tbody>
       </table>
-      <nav>
-        <ul class="pagination justify-content-center">
-          <li class='page-item <?= $current_page === 1 ? "disabled" : "" ?>'>
-            <a class="page-link" href='<?= base_url("/business/seat-management/?page=1") ?>' tabindex="-1" aria-disabled="true">First</a>
-          </li>
+      <?php if (is_null($searched_table_number)) : ?>
+        <nav>
+          <ul class="pagination justify-content-center">
+            <li class='page-item <?= $current_page === 1 ? "disabled" : "" ?>'>
+              <a class="page-link" href='<?= base_url("/business/seat-management/?page=1") ?>' tabindex="-1" aria-disabled="true">First</a>
+            </li>
 
-          <?php for ($page = $current_page > $total_pages - 3 ? $total_pages - 6 : $current_page - 3; $page < $current_page; $page++) : ?>
-            <?php if ($page > 0) : ?>
-              <li class="page-item"><a class="page-link" href='<?= base_url("/business/seat-management/?page=$page") ?>'><?= esc($page) ?></a></li>
-            <?php endif; ?>
-          <?php endfor; ?>
+            <?php for ($page = $current_page - 3; $page < $current_page; $page++) : ?>
+              <?php if ($page > 0) : ?>
+                <li class="page-item"><a class="page-link" href='<?= base_url("/business/seat-management/?page=$page") ?>'><?= esc($page) ?></a></li>
+              <?php endif; ?>
+            <?php endfor; ?>
 
-          <li class="page-item"><a class="page-link active" href="#"><?= esc($current_page) ?></a></li>
+            <li class="page-item"><a class="page-link active" href="#"><?= esc($current_page) ?></a></li>
 
-          <?php for ($page = $current_page + 1; $current_page > 3 ? ($page < $current_page + 4) : ($page < 8); $page++) : ?>
-            <?php if ($page <= $total_pages) : ?>
-              <li class="page-item"><a class="page-link" href='<?= base_url("/business/seat-management/?page=$page") ?>'><?= esc($page) ?></a></li>
-            <?php endif; ?>
-          <?php endfor; ?>
+            <?php for ($page = $current_page + 1; $page < $current_page + 4; $page++) : ?>
+              <?php if ($page <= $total_pages) : ?>
+                <li class="page-item"><a class="page-link" href='<?= base_url("/business/seat-management/?page=$page") ?>'><?= esc($page) ?></a></li>
+              <?php endif; ?>
+            <?php endfor; ?>
 
-          <li class='page-item <?= $current_page === $total_pages ? "disabled" : "" ?>'>
-            <a class="page-link" href="<?= base_url("/business/seat-management/?page=$total_pages") ?>">Last</a>
-          </li>
-        </ul>
-      </nav>
+            <li class='page-item <?= $current_page === $total_pages ? "disabled" : "" ?>'>
+              <a class="page-link" href="<?= base_url("/business/seat-management/?page=$total_pages") ?>">Last</a>
+            </li>
+          </ul>
+        </nav>
+      <?php endif; ?>
     </div>
   </div>
 </div>

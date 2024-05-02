@@ -9,7 +9,7 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('business_name') ?>
-Warteg Bahari Restaurant
+<?= esc($business_name) ?>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
@@ -37,7 +37,7 @@ Warteg Bahari Restaurant
     <form id="menu-item-form" action="<?= !$is_create ? base_url("/business/menu/{$menu->menu_item_id}/edit") : base_url("/business/menu/create") ?>" method="post" enctype="multipart/form-data" class="w-100 d-flex flex-md-row flex-column justify-content-center gap-3">
       <div class="w-mdc-25 w-100">
         <div class="card shadow">
-          <img src='<?= !$is_create && $menu->image_url !== NULL ? base_url("/business/menu/{$menu->menu_item_id}/image") : "https://theme-assets.getbento.com/sensei/7c1964e.sensei/assets/images/catering-item-placeholder-704x520.png" ?>' alt="" srcset="" id="menu-item-image-preview" class="rounded" style="min-height: 300px; max-height: 400px;">
+          <img src='<?= !$is_create && !is_null($menu->image_url) ? base_url("/business/menu/{$menu->menu_item_id}/image") : "https://theme-assets.getbento.com/sensei/7c1964e.sensei/assets/images/catering-item-placeholder-704x520.png" ?>' alt="" srcset="" id="menu-item-image-preview" class="rounded" style="min-height: 300px; max-height: 400px;">
         </div>
         <input type="file" name="product_image" id="menu-item-image" style="display: none;" accept=".jpg,.png,.jpeg" onchange="displayUploadedImage()">
         <button type="button" class="btn btn-dark w-100 mt-3" onclick="document.querySelector(`#menu-item-image`).click()">Upload an Image</button>
@@ -58,12 +58,12 @@ Warteg Bahari Restaurant
             <?php foreach ($categories as $category): ?>
               <option value="<?= esc($category->category_id) ?>" <?= !$is_create ? ($menu->category_id === $category->category_id ? "selected" : "") : "" ?>><?= esc($category->name) ?></option>
             <?php endforeach; ?>
-            <option value="others" <?= !$is_create ? ($menu->category_id === NULL ? "selected" : "") : "" ?>>Others</option>
+            <option value="others" <?= !$is_create ? (is_null($menu->category_id) ? "selected" : "") : "" ?>>Others</option>
           </select>
         </div>
         <div class="mb-3">
           <label for="" class="form-label fw-bold">Description</label>
-          <textarea class="form-control bg-soft-gray" id="description" name="description" rows="3" placeholder="Enter description here"><?= !$is_create ? ($menu->description === NULL ? "" : esc($menu->description)) : "" ?></textarea>
+          <textarea class="form-control bg-soft-gray" id="description" name="description" rows="3" placeholder="Enter description here"><?= !$is_create ? (is_null($menu->description) ? "" : esc($menu->description)) : "" ?></textarea>
         </div>
         <div class="form-check form-switch">
           <input type="checkbox" class="form-check-input" name="is_available" id="is_available" <?= !$is_create ? ($menu->is_available ? "checked" : "") : "checked" ?>>

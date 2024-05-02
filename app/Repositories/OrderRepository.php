@@ -50,7 +50,7 @@ class OrderRepository
     public static function getOrderByIDOrThrowException($orderID) {
         $foundOrder = self::getOrderByID($orderID);
 
-        if ($foundOrder === NULL) {
+        if (is_null($foundOrder)) {
             throw new ObjectNotFoundException("Order with ID $orderID does not exist");
 
         } else {
@@ -93,19 +93,19 @@ class OrderRepository
     private static function getOrdersQuery($submittingUserID = NULL, $businessesID = NULL, $statusID = NULL, $tableNumber = NULL) {
         $query = new OrderModel();
 
-        if ($submittingUserID !== NULL) {
+        if (!is_null($submittingUserID)) {
             $query = $query->where('submitting_user_id', $submittingUserID);
         }
 
-        if ($businessesID !== NULL) {
+        if (!is_null($businessesID)) {
             $query = $query->whereIn('receiving_business_id', $businessesID);
         }
 
-        if ($statusID !== NULL) {
+        if (!is_null($statusID)) {
             $query = $query->where('order_status_id', $statusID);
         }
 
-        if ($tableNumber !== NULL) {
+        if (!is_null($tableNumber)) {
             $query = $query->where('table_number', $tableNumber);
         }
         
@@ -127,10 +127,7 @@ class OrderRepository
             $statusID
         );
 
-        return [
-            'result' => $query->paginate($perPage, 'default', $currentPage),
-            'pager' => $query->pager,
-        ];
+        return Utils::paginate($query, $perPage, $currentPage);
     }
 
     public static function getPaginatedOrdersOfBusiness($businessID, $statusID, $tableNumber, $perPage = 10, $currentPage = 1) {
@@ -141,9 +138,6 @@ class OrderRepository
             $tableNumber,
         );
 
-        return [
-            'result' => $query->paginate($perPage, 'default', $currentPage),
-            'pager' => $query->pager,
-        ];
+        return Utils::paginate($query, $perPage, $currentPage);
     }
 }

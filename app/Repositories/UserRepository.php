@@ -3,15 +3,16 @@
 namespace App\Repositories;
 
 use App\CustomExceptions\ObjectNotFoundException;
-use App\Models\UserModel;
+use App\Models\AppUser;
+use App\Utils\Utils;
 use CodeIgniter\Shield\Entities\User;
 
 class UserRepository {
     private static function generateSearchConditions($search) {
-        $model = new UserModel();
+        $model = new AppUser();
         $conditions = [];
 
-        // Loop through each allowed field in the UserModel
+        // Loop through each allowed field in the AppUser
         foreach ($model->allowedFields as $field) {
             // Generate a search condition for each field using LIKE operator
             $conditions[] = "{$model->table}.$field LIKE '%$search%'";
@@ -21,26 +22,23 @@ class UserRepository {
     }
 
     public static function getPaginatedUsers($search = NULL, $perPage = 10, $currentPage = 1) {
-        $model = new UserModel();
+        $model = new AppUser();
 
         $query = $model->select('users.id, auth_identities.secret AS email, users.name, users.is_admin, users.is_archived, COUNT(businesses.business_id) > 0 AS has_business')
                        ->join('auth_identities', 'auth_identities.user_id=users.id')
                        ->join('businesses', 'businesses.owning_user_id=users.id', 'left')
                        ->groupBy('users.id, auth_identities.secret, users.is_admin, users.is_archived');
         
-        if ($search !== NULL) {
+        if (!is_null($search)) {
             $searchCondition = self::generateSearchConditions($search);
             $query = $query->where($searchCondition);
         }
 
-        return [
-            'result' => $query->paginate($perPage, 'default', $currentPage),
-            'pager' => $query->pager,
-        ];
+        return Utils::paginate($query, $perPage, $currentPage);
     }
 
     public static function getUserByID($userID) {
-        $model = new UserModel();
+        $model = new AppUser();
         $query = $model->select('users.id, auth_identities.secret AS email, users.name, users.is_admin, users.is_archived')
                        ->join('auth_identities', 'auth_identities.user_id=users.id')
                        ->where('users.id', $userID);
@@ -48,10 +46,15 @@ class UserRepository {
         return $query->first();
     }
 
+    public static function getUserByEmail($userEmail) {
+        $users = auth()->getProvider();
+        return $users->findByCredentials(['email' => $userEmail]);
+    }
+
     public static function getUserByIDOrThrowException($userID) {
         $foundUser = self::getUserByID($userID);
 
-        if ($foundUser === NULL) {
+        if (is_null($foundUser)) {
             throw new ObjectNotFoundException("User with ID $userID does not exist");
 
         } else {
