@@ -29,7 +29,6 @@ class AuthService {
     public static function handleLogin($userData) {
         self::loginUser($userData['email'] ?? '', $userData['password']);
         $user = UserRepository::getUserByEmail($userData['email']);
-        $userBusiness = BusinessRepository::getBusinessByUserId($user->id);
         self::validateUserCanLogin($user);
 
         session()->set([

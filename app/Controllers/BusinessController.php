@@ -9,6 +9,35 @@ use Exception;
 
 class BusinessController extends BaseController
 {
+    public function businessRegistration() {
+        try {
+            $user = auth()->user();
+
+            if ($this->request->getMethod() === 'post') {
+                try {
+                    $requestData = $this->request->getPost();
+                    BusinessService::handleBusinessRegistration($user, $requestData);
+                    session()->setFlashData('success', 'Business is created successfully');
+                    return redirect()->to('/business/orders/');
+
+                } catch (InvalidRegistrationException $exception) {
+                    session()->setFlashData('error', $exception->getMessage()); 
+                }
+            }
+
+            if (BusinessService::userHasBusiness($user)) {
+                return redirect()->to('business/orders/');
+                
+            } else {
+                return view('customer/customer-business-registration');
+            }
+                    
+        } catch (Exception $exception) {
+            session()->setFlashData('error', $exception->getMessage()); 
+            return redirect()->to('/');
+        }
+    }
+
     public function categoryList()
     {
         try {
@@ -163,7 +192,21 @@ class BusinessController extends BaseController
 
     public function profileEdit()
     {
-        return view('business/business-profile-edit');
+        $user = auth()->user();
+        $user->business_id = session()->get('business_id');
+
+        if ($this->request->getMethod() === "post") {
+            try {
+                $businessData = $this->request->getPost();
+                BusinessService::handleBusinessProfileEdit($user, $businessData);
+                session()->setFlashdata('success', 'Business is updated successfully');
+            } catch (Exception $exception) {
+                session()->setFlashdata('error', $exception->getMessage());
+            }
+        }
+
+        $businessData = BusinessService::handleGetBusinessProfile($user);
+        return view('business/business-profile-edit', $businessData);
     }
 
     public function seatManagement()

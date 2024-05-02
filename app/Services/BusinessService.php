@@ -25,6 +25,75 @@ class BusinessService
         }
     }
 
+    public static function handleGetBusinessProfile($user) {
+        $userBusiness = BusinessRepository::getBusinessById($user->business_id);
+        return [
+            'business' => $userBusiness
+        ];
+    }
+
+    public static function validateBusinessData($businessData)
+    {
+        $rules = [
+            'business_name' => 'required|string|min_length[3]|max_length[255]',
+            'num_of_tables' => 'required|is_natural',
+            'address' => 'required|string'
+        ];
+        $errors = [
+            'business_name' => [
+                'required' => 'Business name is required.',
+                'min_length' => 'Business name length must be between 3 and 255',
+                'max_length' => 'Business name length must be between 3 and 255',
+            ],
+            'num_of_tables' => [
+                'required' => 'Number of table is required.',
+                'is_natural' => 'Number of table must be greater than 0',
+            ],
+            'address' => [
+                'required' => 'Business address is required.'
+            ]
+        ];
+
+        $validationResult = Validator::validate($rules, $errors, $businessData);
+
+        if ($validationResult !== TRUE) {
+            throw new InvalidRegistrationException($validationResult);
+        }
+    }
+
+    public static function userHasBusiness($creatingUser) {
+        return !is_null(BusinessRepository::getBusinessByUserId($creatingUser->id));
+    }
+
+    private static function validateUserBusinessEligibility($creatingUser)
+    {
+        if (self::userHasBusiness($creatingUser)) {
+            throw new InvalidRegistrationException("A user can only have one business.");
+        }
+    }
+
+    public static function handleBusinessRegistration($user, $businessData)
+    {
+        self::validateBusinessData($businessData);
+        self::validateUserBusinessEligibility($user);
+        $transformedBusinessData = Utils::trimAllString($businessData);
+        BusinessRepository::createBusiness($user->id, $transformedBusinessData);
+    }
+
+    private static function transformBusinessData($businessData) {
+        return [
+            ...$businessData,
+            'is_open' => array_key_exists('is_open', $businessData)
+        ];
+    }
+
+    public static function handleBusinessProfileEdit($user, $businessData) {
+        $businessData = Utils::trimAllString($businessData);
+        self::validateBusinessData($businessData);
+        $businessData = self::transformBusinessData($businessData);
+        BusinessRepository::updateBusiness($user->business_id, $businessData);
+    }
+
     private static function validateCategoryData($categoryData)
     {
         $rules = [
@@ -59,9 +128,9 @@ class BusinessService
     public static function handleGetCategoryList($user, $requestData)
     {
         $businessCategoriesPaginated = CategoryRepository::getPaginatedCategoriesOfBusiness(
-            $user->business_id, 
-            $requestData['search'] ?? '', 
-            10, 
+            $user->business_id,
+            $requestData['search'] ?? '',
+            10,
             (int) ($requestData['page'] ?? 1),
             TRUE
         );

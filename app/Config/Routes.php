@@ -38,7 +38,7 @@ $routes->group('business', ['filter' => 'business'], function ($routes) {
         $routes->get('kitchen-view/data/', 'OrderController::businessGetOrderKitchenViewData');
         $routes->get('detail/(:segment)', 'OrderController::businessOrderDetails/$1');
     });
-    $routes->get('profile', 'BusinessController::profileEdit');
+    $routes->match(['get', 'post'], 'profile', 'BusinessController::profileEdit');
 
     $routes->group('seat-management', function ($routes) {
         $routes->match(['get', 'post'], '/', 'BusinessController::seatManagement');
@@ -55,5 +55,5 @@ $routes->group('customer', function ($routes) {
         $routes->post('submit/', 'OrderController::orderCreate');
     });
     $routes->get('profile', 'CustomerController::profileEdit');
-    $routes->match(['get', 'post'], 'business', 'CustomerController::businessRegistration');
+    $routes->match(['get', 'post'], 'business', 'BusinessController::businessRegistration');
 });

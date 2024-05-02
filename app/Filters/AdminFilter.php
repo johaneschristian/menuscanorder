@@ -10,7 +10,7 @@ class AdminFilter implements FilterInterface
     public function before(RequestInterface $request, $arguments = null)
     {
         // Check if the user is not an admin
-        if (session()->get('is_admin')) {
+        if (!session()->get('is_admin')) {
             session()->setFlashData("error", "User is not an admin.");
             return redirect()->to('/');
         }
