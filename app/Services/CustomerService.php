@@ -34,10 +34,10 @@ class CustomerService
         ];
     }
 
-    public static function handleUpdateProfile($user, $userData) {
-        $userData = Utils::trimAllString($userData);
-        self::validateUserData($userData);
-        $transformedUserData = self::transformUserData($userData);
+    public static function handleUpdateProfile($user, $requestData) {
+        $requestData = Utils::trimAllString($requestData);
+        self::validateUserData($requestData);
+        $transformedUserData = self::transformUserData($requestData);
         UserRepository::updateUser($user->id, $transformedUserData);
     }
 }

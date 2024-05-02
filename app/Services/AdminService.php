@@ -5,6 +5,7 @@ namespace App\Services;
 use App\CustomExceptions\InvalidRegistrationException;
 use App\Repositories\BusinessRepository;
 use App\Repositories\UserRepository;
+use App\Utils\Utils;
 use App\Utils\Validator;
 use Exception;
 
@@ -70,7 +71,7 @@ class AdminService {
         }
     }
 
-    private static function transformUserCreateRequest($requestData, $forCreate = TRUE) {
+    private static function transformUserData($requestData, $forCreate = TRUE) {
         $transformedRequest = [
             'name' => $requestData['name'],
             'is_admin' => $requestData['account_type'] === "admin",
@@ -99,9 +100,10 @@ class AdminService {
         $db = \Config\Database::connect();
         $db->transStart();
 
+        $requestData = Utils::trimAllString($requestData);
         self::validateBaseRequestData($requestData, TRUE);
         AuthService::validatePassword($requestData);
-        $transformedUserRequestData = self::transformUserCreateRequest($requestData, TRUE);
+        $transformedUserRequestData = self::transformUserData($requestData, TRUE);
         $createdUserID = UserRepository::createUser($transformedUserRequestData);
 
         if (!is_null($requestData['business_name'] ?? NULL) && !empty($requestData['business_name'])) {
@@ -117,8 +119,9 @@ class AdminService {
         $db = \Config\Database::connect();
         $db->transStart();
 
+        $requestData = Utils::trimAllString($requestData);
         self::validateBaseRequestData($requestData, FALSE);
-        $transformedUserRequestData = self::transformUserCreateRequest($requestData, FALSE);
+        $transformedUserRequestData = self::transformUserData($requestData, FALSE);
         UserRepository::updateUser($updatedUserID, $transformedUserRequestData);
 
         if (!is_null($requestData['business_name'] ?? NULL) && !empty($requestData['business_name'])) {

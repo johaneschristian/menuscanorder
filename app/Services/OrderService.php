@@ -26,6 +26,7 @@ class OrderService
 
     private static function validateOrderCreation($business, $orderData)
     {
+        // TODO: Change to Codeigniter validator
         if (!$business->is_open) {
             throw new InvalidRegistrationException("Business with ID {$business->business_id} is currently closed");
             
@@ -58,7 +59,7 @@ class OrderService
         foreach ($selectedMenus as $selectedMenu) {
             $convertedSelectedMenus[] = [
                 ...$selectedMenu,
-                'notes' => (!is_string($selectedMenu['notes']) || empty(trim($selectedMenu['notes']))) ? NULL : trim($selectedMenu['notes']),
+                'notes' => (!is_string($selectedMenu['notes']) || empty($selectedMenu['notes'])) ? NULL : $selectedMenu['notes'],
                 'menu_item' => MenuRepository::getMenuByIDOrThrowException($selectedMenu['menu_item_id']),
             ];
         }
@@ -143,16 +144,17 @@ class OrderService
         self::setOrderStatus($orderID);
     }
 
-    public static function handleCreateOrder($user, $orderData)
+    public static function handleCreateOrder($user, $requestData)
     {
         $db = \Config\Database::connect();
         $db->transStart();
 
-        $receivingBusiness = BusinessRepository::getBusinessByIdOrThrowException($orderData['business_id'] ?? NULL);
-        self::validateOrderCreation($receivingBusiness, $orderData);
-        $convertedSelectedMenus = self::convertSelectedMenu($orderData['selected_menus']);
+        $requestData = Utils::trimAllString($requestData);
+        $receivingBusiness = BusinessRepository::getBusinessByIdOrThrowException($requestData['business_id'] ?? NULL);
+        self::validateOrderCreation($receivingBusiness, $requestData);
+        $convertedSelectedMenus = self::convertSelectedMenu($requestData['selected_menus']);
         self::validateAllSelectedMenuAreAvailable($convertedSelectedMenus);
-        $modifiedOrderID = self::getOrCreateOrder($user, $receivingBusiness, $orderData['table_number']);
+        $modifiedOrderID = self::getOrCreateOrder($user, $receivingBusiness, $requestData['table_number']);
         self::registerOrderItem($modifiedOrderID, $convertedSelectedMenus);
 
         $db->transComplete();

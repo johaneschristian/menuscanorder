@@ -16,15 +16,6 @@ use chillerlan\QRCode\{QRCode, QROptions};
 
 class BusinessService
 {
-    public static function getBusinessByUserOrNonAuthorized($user)
-    {
-        try {
-            return BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
-        } catch (ObjectNotFoundException $exception) {
-            throw new NotAuthorizedException($exception->getMessage());
-        }
-    }
-
     public static function handleGetBusinessProfile($user) {
         $userBusiness = BusinessRepository::getBusinessById($user->business_id);
         return [
@@ -81,19 +72,19 @@ class BusinessService
         ];
     }
 
-    public static function handleRegisterBusiness($user, $businessData)
+    public static function handleRegisterBusiness($user, $requestData)
     {
-        $businessData = Utils::trimAllString($businessData);
-        self::validateBusinessData($businessData);
+        $requestData = Utils::trimAllString($requestData);
+        self::validateBusinessData($requestData);
         self::validateUserBusinessEligibility($user);
-        $transformedBusinessData = self::transformBusinessData($businessData);
+        $transformedBusinessData = self::transformBusinessData($requestData);
         BusinessRepository::createBusiness($user->id, $transformedBusinessData);
     }
 
-    public static function handleBusinessEditProfile($user, $businessData) {
-        $businessData = Utils::trimAllString($businessData);
-        self::validateBusinessData($businessData);
-        $businessData = self::transformBusinessData($businessData);
+    public static function handleBusinessEditProfile($user, $requestData) {
+        $requestData = Utils::trimAllString($requestData);
+        self::validateBusinessData($requestData);
+        $businessData = self::transformBusinessData($requestData);
         BusinessRepository::updateBusiness($user->business_id, $businessData);
     }
 
@@ -121,11 +112,11 @@ class BusinessService
         }
     }
 
-    public static function handleCreateCategory($user, $categoryData)
+    public static function handleCreateCategory($user, $requestData)
     {
-        self::validateCategoryData($categoryData);
-        $transformedCategoryData = Utils::trimAllString($categoryData);
-        CategoryRepository::createCategory($user->business_id, $transformedCategoryData);
+        $requestData = Utils::trimAllString($requestData);
+        self::validateCategoryData($requestData);
+        CategoryRepository::createCategory($user->business_id, $requestData);
     }
 
     public static function handleGetCategoryList($user, $requestData)
@@ -145,13 +136,13 @@ class BusinessService
         ];
     }
 
-    public static function handleUpdateCategory($user, $categoryData)
+    public static function handleUpdateCategory($user, $requestData)
     {
-        self::validateCategoryData($categoryData);
-        $updatedCategory = CategoryRepository::getCategoryByIDOrThrowException($categoryData['category_id']);
+        $requestData = Utils::trimAllString($requestData);
+        self::validateCategoryData($requestData);
+        $updatedCategory = CategoryRepository::getCategoryByIDOrThrowException($requestData['category_id']);
         self::validateCategoryOwnership($user->business_id, $updatedCategory);
-        $transformedCategoryData = Utils::trimAllString($categoryData);
-        CategoryRepository::updateCategory($updatedCategory->category_id, $transformedCategoryData);
+        CategoryRepository::updateCategory($updatedCategory->category_id, $requestData);
     }
 
     private static function validateMenuData($menuData, $menuImage)
@@ -174,13 +165,13 @@ class BusinessService
     private static function transformMenuData($menuData)
     {
         $dataToBeUpdated = [
-            'name' => trim($menuData['name']),
+            'name' => $menuData['name'],
             'price' => $menuData['price'],
             'is_available' => array_key_exists('is_available', $menuData),
         ];
 
-        if (array_key_exists('description', $menuData) && !empty(trim($menuData['description']))) {
-            $dataToBeUpdated['description'] = trim($menuData['description']);
+        if (array_key_exists('description', $menuData) && !empty($menuData['description'])) {
+            $dataToBeUpdated['description'] = $menuData['description'];
         }
 
         if (array_key_exists('category_id', $menuData) && $menuData['category_id'] !== 'others') {
@@ -205,10 +196,11 @@ class BusinessService
         }
     }
 
-    public static function handleCreateMenu($user, $menuData, $menuImage)
+    public static function handleCreateMenu($user, $requestData, $menuImage)
     {
-        self::validateMenuData($menuData, $menuImage);
-        $transformedMenuData = self::transformMenuData($menuData);
+        $requestData = Utils::trimAllString($requestData);
+        self::validateMenuData($requestData, $menuImage);
+        $transformedMenuData = self::transformMenuData($requestData);
         $createdMenuID = MenuRepository::createMenu($user->business_id, $transformedMenuData);
         if ($menuImage->isValid()) {
             self::saveImageFile($user->business_id, $createdMenuID, $menuImage);
@@ -292,12 +284,13 @@ class BusinessService
         }
     }
 
-    public static function handleEditMenu($user, $menuID, $menuData, $menuImage)
+    public static function handleEditMenu($user, $menuID, $requestData, $menuImage)
     {
-        self::validateMenuData($menuData, $menuImage);
+        $requestData = Utils::trimAllString($requestData);
+        self::validateMenuData($requestData, $menuImage);
         $menu = MenuRepository::getMenuByIDOrThrowException($menuID);
         self::validateMenuOwnership($user->business_id, $menu);
-        $transformedMenuData = self::transformMenuData($menuData);
+        $transformedMenuData = self::transformMenuData($requestData);
         Menurepository::updateMenu($menuID, $transformedMenuData);
 
         if ($menuImage->isValid()) {
@@ -344,14 +337,14 @@ class BusinessService
         }
     }
 
-    public static function handleUpdateBusinessTableCapacity($user, $capacityData)
+    public static function handleUpdateBusinessTableCapacity($user, $requestData)
     {
-        self::validateCapacityData($capacityData);
+        self::validateCapacityData($requestData);
         $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
         BusinessRepository::updateBusiness(
             $userBusiness->business_id,
             [
-                'num_of_tables' => $capacityData['new_table_quantity']
+                'num_of_tables' => $requestData['new_table_quantity']
             ]
         );
     }

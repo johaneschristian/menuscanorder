@@ -31,8 +31,8 @@ class AdminController extends BaseController
         try {
             if ($this->request->getMethod() === "post") {
                 try {
-                    $userData = $this->request->getPost();
-                    AdminService::handleAdminCreateUser($userData);
+                    $requestData = $this->request->getPost();
+                    AdminService::handleAdminCreateUser($requestData);
                     session()->setFlashdata('success', 'User is created successfully');
                     return redirect()->to('/admin/users/');
                 } catch (InvalidRegistrationException $exception) {
@@ -52,8 +52,8 @@ class AdminController extends BaseController
         try {
             if ($this->request->getMethod() === "post") {
                 try {
-                    $updatedUserData = $this->request->getPost();
-                    AdminService::handleEditUser($userId, $updatedUserData);
+                    $requestData = $this->request->getPost();
+                    AdminService::handleEditUser($userId, $requestData);
                     session()->setFlashdata('success', 'User is updated successfully');
                     return redirect()->to('/admin/users/');
                     

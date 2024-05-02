@@ -24,8 +24,8 @@ class OrderController extends Controller {
     public function createOrder() {
         try {
             $user = auth()->user();
-            $orderData = $this->request->getJSON(true);
-            OrderService::handleCreateOrder($user, $orderData);
+            $requestData = $this->request->getJSON(true);
+            OrderService::handleCreateOrder($user, $requestData);
             session()->setFlashdata('success', 'Order is created successfully');
             return $this->response->setContentType('application/json')
                                   ->setStatusCode(200)
@@ -183,9 +183,9 @@ class OrderController extends Controller {
         try {
             $user = auth()->user();
             $user->business_id = session()->get('business_id');
-            $updateData = $this->request->getJSON(true);
+            $requestData = $this->request->getJSON(true);
 
-            OrderService::handleBusinessUpdateOrderItemStatus($user, $updateData);
+            OrderService::handleBusinessUpdateOrderItemStatus($user, $requestData);
             return $this->response
                     ->setContentType('application/json')
                     ->setStatusCode(200)

@@ -4,8 +4,8 @@ namespace App\Services;
 
 use App\CustomExceptions\InvalidRegistrationException;
 use App\CustomExceptions\NotAuthorizedException;
-use App\Repositories\BusinessRepository;
 use App\Repositories\UserRepository;
+use App\Utils\Utils;
 use App\Utils\Validator;
 
 class AuthService {
@@ -69,10 +69,11 @@ class AuthService {
         return $transformedRequest;
     }
  
-    public static function handleRegister($userData) {
-        self::validateUserRegisterData($userData);
-        self::validatePassword($userData);
-        $transformedRequestData = self::transformUserData($userData, TRUE);
+    public static function handleRegister($requestData) {
+        $requestData = Utils::trimAllString($requestData);
+        self::validateUserRegisterData($requestData);
+        self::validatePassword($requestData);
+        $transformedRequestData = self::transformUserData($requestData, TRUE);
         UserRepository::createUser($transformedRequestData);
     }
 

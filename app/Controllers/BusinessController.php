@@ -63,9 +63,9 @@ class BusinessController extends BaseController
         try {
             $user = auth()->user();
             $user->business_id = session()->get('business_id');
-            $categoryData = $this->request->getPost();
+            $requestData = $this->request->getPost();
 
-            BusinessService::handleCreateCategory($user, $categoryData);
+            BusinessService::handleCreateCategory($user, $requestData);
             session()->setFlashdata('success', 'Category is created successfully');
         } catch (Exception $exception) {
             session()->setFlashdata('error', $exception->getMessage());
@@ -79,9 +79,9 @@ class BusinessController extends BaseController
         try {
             $user = auth()->user();
             $user->business_id = session()->get('business_id');
-            $categoryData = $this->request->getPost();
+            $requestData = $this->request->getPost();
 
-            BusinessService::handleUpdateCategory($user, $categoryData);
+            BusinessService::handleUpdateCategory($user, $requestData);
             session()->setFlashdata('success', 'Category is updated successfully');
         } catch (Exception $exception) {
             session()->setFlashdata('error', $exception->getMessage());
@@ -119,8 +119,8 @@ class BusinessController extends BaseController
             if ($this->request->getMethod() === "post") {
                 try {
                     $imageFile = $this->request->getFile("product_image");
-                    $menuData = $this->request->getPost();
-                    BusinessService::handleCreateMenu($user, $menuData, $imageFile);
+                    $requestData = $this->request->getPost();
+                    BusinessService::handleCreateMenu($user, $requestData, $imageFile);
                     return redirect()->to('business/menu/');
                 } catch (InvalidRegistrationException $exception) {
                     session()->setFlashdata('error', $exception->getMessage());
@@ -150,8 +150,8 @@ class BusinessController extends BaseController
             if ($this->request->getMethod() === "post") {
                 try {
                     $imageFile = $this->request->getFile("product_image");
-                    $menuData = $this->request->getPost();
-                    BusinessService::handleEditMenu($user, $menuID, $menuData, $imageFile);
+                    $requestData = $this->request->getPost();
+                    BusinessService::handleEditMenu($user, $menuID, $requestData, $imageFile);
                     session()->setFlashdata('success', 'Menu is updated successfully');
                     return redirect()->to('business/menu/');
                 } catch (InvalidRegistrationException $exception) {
@@ -197,8 +197,8 @@ class BusinessController extends BaseController
 
         if ($this->request->getMethod() === "post") {
             try {
-                $businessData = $this->request->getPost();
-                BusinessService::handleBusinessEditProfile($user, $businessData);
+                $requestData = $this->request->getPost();
+                BusinessService::handleBusinessEditProfile($user, $requestData);
                 session()->setFlashdata('success', 'Business is updated successfully');
             } catch (Exception $exception) {
                 session()->setFlashdata('error', $exception->getMessage());
@@ -217,8 +217,8 @@ class BusinessController extends BaseController
 
             if ($this->request->getMethod() === "post") {
                 try {
-                    $capacityData = $this->request->getPost();
-                    BusinessService::handleUpdateBusinessTableCapacity($user, $capacityData);
+                    $requestData = $this->request->getPost();
+                    BusinessService::handleUpdateBusinessTableCapacity($user, $requestData);
                     session()->setFlashdata('success', 'Business capacity is updated successfully');
                     return redirect()->to('business/seat-management');
                 } catch (InvalidRegistrationException $exception) {
