@@ -8,14 +8,14 @@ use Exception;
 
 class AdminController extends BaseController
 {
-    public function userList()
+    public function getUserList()
     {
         $requestData = $this->request->getGet();
-        $usersData = AdminService::handleUserList($requestData);
+        $usersData = AdminService::handleGetUserList($requestData);
         return view('admin/admin-view-user-list', $usersData);
     }
 
-    public function userDetails($userId)
+    public function getUserDetails($userId)
     {
         try {
             $userData = AdminService::handleGetUserDetails($userId);
@@ -26,7 +26,7 @@ class AdminController extends BaseController
         }
     }
 
-    public function userCreate()
+    public function createUser()
     {
         try {
             if ($this->request->getMethod() === "post") {
@@ -47,13 +47,13 @@ class AdminController extends BaseController
         }
     }
 
-    public function userEdit($userId)
+    public function editUser($userId)
     {
         try {
             if ($this->request->getMethod() === "post") {
                 try {
                     $updatedUserData = $this->request->getPost();
-                    AdminService::handleAdminEditUser($userId, $updatedUserData);
+                    AdminService::handleEditUser($userId, $updatedUserData);
                     session()->setFlashdata('success', 'User is updated successfully');
                     return redirect()->to('/admin/users/');
                     
@@ -68,6 +68,19 @@ class AdminController extends BaseController
         } catch (Exception $exception) {
             session()->setFlashdata('error', $exception->getMessage());
             return redirect()->to('/admin/users/');
+        }
+    }
+
+    public function changeUserPassword($userID) {
+        try {
+            $requestData = $this->request->getPost();
+            AdminService::handleChangeUserPassword($userID, $requestData);
+            session()->setFlashdata('success', 'User password is changed successfully');
+            return redirect()->back();
+
+        } catch (Exception $exception) {
+            session()->setFlashdata('error', $exception->getMessage());
+            return redirect()->back();
         }
     }
 }

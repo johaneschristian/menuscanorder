@@ -42,18 +42,15 @@
 							<li class="nav-item">
 								<a class="nav-link <?= str_contains(service('request')->getUri()->getPath(), "profile") ? "active" : "" ?>" href="<?= base_url('/customer/profile') ?>">Profile</a>
 							</li>
+							<?php if (auth()->user()->is_admin) : ?>
+								<li class="nav-item">
+									<a class="nav-link <?= str_contains(service('request')->getUri()->getPath(), "users") ? "active" : "" ?>" href="<?= base_url('/admin/users') ?>">User Management</a>
+								</li>
+							<?php endif; ?>
 							<li class="nav-item">
 								<a class="nav-link" href="<?= base_url('/logout') ?>">Logout</a>
 							</li>
 						<?php endif; ?>
-						<!-- <ul class="navbar-nav ms-auto">
-							<li class="nav-item">
-								<a class="nav-link" href="#">User Management</a>
-							</li>
-							<li class="nav-item">
-								<a class="nav-link" href="#">Logout</a>
-							</li>
-						</ul> -->
 					</ul>
 				</div>
 			</div>

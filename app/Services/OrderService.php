@@ -200,7 +200,7 @@ class OrderService
         return $orders;
     }
 
-    public static function handleCustomerOrderList($user, $requestData)
+    public static function handleCustomerGetOrderList($user, $requestData)
     {
         $transformedRequestData = self::transformCustomerOrderListRequestData($requestData);
         $userOrdersPaginated = OrderRepository::getPaginatedOrdersOfUser(
@@ -292,7 +292,7 @@ class OrderService
         return $orderWithBaseInformation;
     }
 
-    public static function handleCustomerOrderDetail($user, $orderID)
+    public static function handleCustomerGetOrderDetail($user, $orderID)
     {
         $order = OrderRepository::getOrderByIDOrThrowException($orderID);
         self::validateCustomerOrderOwnership($user, $order);
@@ -322,7 +322,7 @@ class OrderService
         return $transformedRequestData;
     }
 
-    public static function handleBusinessOrderList($user, $requestData)
+    public static function handleBusinessGetOrderList($user, $requestData)
     {
         $transformedRequestData = self::transformBusinessOrderListRequestData($requestData);
         $businessOrdersPaginated = OrderRepository::getPaginatedOrdersOfBusiness(
@@ -352,7 +352,7 @@ class OrderService
         }
     }
 
-    public static function handleBusinessOrderDetails($user, $orderID)
+    public static function handleBusinessGetOrderDetails($user, $orderID)
     {
         $order = OrderRepository::getOrderByIDOrThrowException($orderID);
         self::validateBusinessOrderOwnership($user->business_id, $order);

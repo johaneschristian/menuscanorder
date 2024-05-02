@@ -72,22 +72,25 @@ class BusinessService
         }
     }
 
-    public static function handleBusinessRegistration($user, $businessData)
-    {
-        self::validateBusinessData($businessData);
-        self::validateUserBusinessEligibility($user);
-        $transformedBusinessData = Utils::trimAllString($businessData);
-        BusinessRepository::createBusiness($user->id, $transformedBusinessData);
-    }
-
     private static function transformBusinessData($businessData) {
         return [
-            ...$businessData,
+            'business_name' => $businessData['business_name'],
+            'address' => $businessData['address'],
+            'num_of_tables' => $businessData['num_of_tables'],
             'is_open' => array_key_exists('is_open', $businessData)
         ];
     }
 
-    public static function handleBusinessProfileEdit($user, $businessData) {
+    public static function handleRegisterBusiness($user, $businessData)
+    {
+        $businessData = Utils::trimAllString($businessData);
+        self::validateBusinessData($businessData);
+        self::validateUserBusinessEligibility($user);
+        $transformedBusinessData = self::transformBusinessData($businessData);
+        BusinessRepository::createBusiness($user->id, $transformedBusinessData);
+    }
+
+    public static function handleBusinessEditProfile($user, $businessData) {
         $businessData = Utils::trimAllString($businessData);
         self::validateBusinessData($businessData);
         $businessData = self::transformBusinessData($businessData);
@@ -118,7 +121,7 @@ class BusinessService
         }
     }
 
-    public static function handleCategoryCreation($user, $categoryData)
+    public static function handleCreateCategory($user, $categoryData)
     {
         self::validateCategoryData($categoryData);
         $transformedCategoryData = Utils::trimAllString($categoryData);
@@ -202,7 +205,7 @@ class BusinessService
         }
     }
 
-    public static function handleMenuCreation($user, $menuData, $menuImage)
+    public static function handleCreateMenu($user, $menuData, $menuImage)
     {
         self::validateMenuData($menuData, $menuImage);
         $transformedMenuData = self::transformMenuData($menuData);
@@ -229,7 +232,7 @@ class BusinessService
         ];
     }
 
-    public static function handleBusinessMenuList($user, $requestData)
+    public static function handleGetMenuList($user, $requestData)
     {
         $transformedRequestData = self::transformMenuListRequestData($requestData);
         $businessCategories = CategoryRepository::getCategoriesOfBusiness($user->business_id, "");
@@ -258,7 +261,7 @@ class BusinessService
         }
     }
 
-    public static function handleBusinessGetMenuData($user, $menuID)
+    public static function handleGetMenuData($user, $menuID)
     {
         $menu = MenuRepository::getMenuByIDOrThrowException($menuID);
         self::validateMenuOwnership($user->business_id, $menu);
@@ -289,7 +292,7 @@ class BusinessService
         }
     }
 
-    public static function handleMenuEdit($user, $menuID, $menuData, $menuImage)
+    public static function handleEditMenu($user, $menuID, $menuData, $menuImage)
     {
         self::validateMenuData($menuData, $menuImage);
         $menu = MenuRepository::getMenuByIDOrThrowException($menuID);

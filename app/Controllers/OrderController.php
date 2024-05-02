@@ -5,13 +5,12 @@ namespace App\Controllers;
 use App\CustomExceptions\InvalidRegistrationException;
 use App\CustomExceptions\NotAuthorizedException;
 use App\CustomExceptions\ObjectNotFoundException;
-use App\Services\BusinessService;
 use App\Services\OrderService;
 use CodeIgniter\Controller;
 use Exception;
 
 class OrderController extends Controller {
-    public function orderMenu($businessId, $tableNumber) {
+    public function getOrderMenu($businessId, $tableNumber) {
         try {
             $menuData = OrderService::handleGetBusinessMenus($businessId);
             return view('customer/order-page', $menuData);
@@ -22,7 +21,7 @@ class OrderController extends Controller {
         }
     }
 
-    public function orderCreate() {
+    public function createOrder() {
         try {
             $user = auth()->user();
             $orderData = $this->request->getJSON(true);
@@ -49,11 +48,11 @@ class OrderController extends Controller {
         }
     }
 
-    public function customerOrderList() {
+    public function customerGetOrderList() {
         try {
             $user = auth()->user();
             $requestData = $this->request->getGet();
-            $customerOrders = OrderService::handleCustomerOrderList($user, $requestData);
+            $customerOrders = OrderService::handleCustomerGetOrderList($user, $requestData);
             return view('customer/customer-order-list', $customerOrders);   
             
         } catch (Exception $exception) {
@@ -62,10 +61,10 @@ class OrderController extends Controller {
         }
     }
 
-    public function customerOrderDetail($orderId) {
+    public function customerGetOrderDetail($orderId) {
         try {
             $user = auth()->user();
-            $orderData = OrderService::handleCustomerOrderDetail($user, $orderId);
+            $orderData = OrderService::handleCustomerGetOrderDetail($user, $orderId);
             return view('customer/customer-order-details', $orderData);
 
         } catch (ObjectNotFoundException | NotAuthorizedException $exception) {
@@ -78,13 +77,13 @@ class OrderController extends Controller {
         }
     }
 
-    public function businessOrderList() {
+    public function businessGetOrderList() {
         try {
             $user = auth()->user();
             $user->business_id = session()->get('business_id');
             $requestData = $this->request->getGet();
 
-            $businessOrders = OrderService::handleBusinessOrderList($user, $requestData);
+            $businessOrders = OrderService::handleBusinessGetOrderList($user, $requestData);
             $data = [
                 ...$businessOrders,
                 'business_name' => session()->get('business_name'),
@@ -103,7 +102,7 @@ class OrderController extends Controller {
             $user = auth()->user();
             $user->business_id = session()->get('business_id');
             
-            $orderData = OrderService::handleBusinessOrderDetails($user, $orderId);
+            $orderData = OrderService::handleBusinessGetOrderDetails($user, $orderId);
             $data = [
                 ...$orderData,
                 'business_name' => session()->get('business_name'),
@@ -142,7 +141,7 @@ class OrderController extends Controller {
         }
     }
 
-    public function businessOrderKitchenView() {
+    public function businessOrderGetKitchenView() {
         try {
             $data = [
                 'business_name' => session()->get('business_name'),

@@ -9,14 +9,14 @@ use Exception;
 
 class BusinessController extends BaseController
 {
-    public function businessRegistration() {
+    public function registerBusiness() {
         try {
             $user = auth()->user();
 
             if ($this->request->getMethod() === 'post') {
                 try {
                     $requestData = $this->request->getPost();
-                    BusinessService::handleBusinessRegistration($user, $requestData);
+                    BusinessService::handleRegisterBusiness($user, $requestData);
                     session()->setFlashData('success', 'Business is created successfully');
                     return redirect()->to('/business/orders/');
 
@@ -38,7 +38,7 @@ class BusinessController extends BaseController
         }
     }
 
-    public function categoryList()
+    public function getCategoryList()
     {
         try {
             $user = auth()->user();
@@ -58,14 +58,14 @@ class BusinessController extends BaseController
         }
     }
 
-    public function categoryCreate()
+    public function createCategory()
     {
         try {
             $user = auth()->user();
             $user->business_id = session()->get('business_id');
             $categoryData = $this->request->getPost();
 
-            BusinessService::handleCategoryCreation($user, $categoryData);
+            BusinessService::handleCreateCategory($user, $categoryData);
             session()->setFlashdata('success', 'Category is created successfully');
         } catch (Exception $exception) {
             session()->setFlashdata('error', $exception->getMessage());
@@ -74,7 +74,7 @@ class BusinessController extends BaseController
         return redirect()->to('/business/categories');
     }
 
-    public function categoryUpdate()
+    public function updateCategory()
     {
         try {
             $user = auth()->user();
@@ -90,14 +90,14 @@ class BusinessController extends BaseController
         return redirect()->to('/business/categories');
     }
 
-    public function menuList()
+    public function getMenuList()
     {
         try {
             $user = auth()->user();
             $user->business_id = session()->get('business_id');
             $requestData = $this->request->getGet();
 
-            $menus = BusinessService::handleBusinessMenuList($user, $requestData);
+            $menus = BusinessService::handleGetMenuList($user, $requestData);
             $data = [
                 ...$menus,
                 'business_name' => session()->get('business_name'),
@@ -110,7 +110,7 @@ class BusinessController extends BaseController
         }
     }
 
-    public function menuCreate()
+    public function createMenu()
     {
         try {
             $user = auth()->user();
@@ -120,7 +120,7 @@ class BusinessController extends BaseController
                 try {
                     $imageFile = $this->request->getFile("product_image");
                     $menuData = $this->request->getPost();
-                    BusinessService::handleMenuCreation($user, $menuData, $imageFile);
+                    BusinessService::handleCreateMenu($user, $menuData, $imageFile);
                     return redirect()->to('business/menu/');
                 } catch (InvalidRegistrationException $exception) {
                     session()->setFlashdata('error', $exception->getMessage());
@@ -141,7 +141,7 @@ class BusinessController extends BaseController
         }
     }
 
-    public function menuEdit($menuID)
+    public function editMenu($menuID)
     {
         try {
             $user = auth()->user();
@@ -151,7 +151,7 @@ class BusinessController extends BaseController
                 try {
                     $imageFile = $this->request->getFile("product_image");
                     $menuData = $this->request->getPost();
-                    BusinessService::handleMenuEdit($user, $menuID, $menuData, $imageFile);
+                    BusinessService::handleEditMenu($user, $menuID, $menuData, $imageFile);
                     session()->setFlashdata('success', 'Menu is updated successfully');
                     return redirect()->to('business/menu/');
                 } catch (InvalidRegistrationException $exception) {
@@ -159,7 +159,7 @@ class BusinessController extends BaseController
                 }
             }
 
-            $menuData = BusinessService::handleBusinessGetMenuData($user, $menuID);
+            $menuData = BusinessService::handleGetMenuData($user, $menuID);
             $data = [
                 ...$menuData,
                 'is_create' => FALSE,
@@ -190,7 +190,7 @@ class BusinessController extends BaseController
         }
     }
 
-    public function profileEdit()
+    public function editProfile()
     {
         $user = auth()->user();
         $user->business_id = session()->get('business_id');
@@ -198,7 +198,7 @@ class BusinessController extends BaseController
         if ($this->request->getMethod() === "post") {
             try {
                 $businessData = $this->request->getPost();
-                BusinessService::handleBusinessProfileEdit($user, $businessData);
+                BusinessService::handleBusinessEditProfile($user, $businessData);
                 session()->setFlashdata('success', 'Business is updated successfully');
             } catch (Exception $exception) {
                 session()->setFlashdata('error', $exception->getMessage());

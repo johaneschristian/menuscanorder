@@ -42,20 +42,20 @@ class AuthService {
         // TODO: Implement
     }
 
-    public static function validatePassword($userData) {
+    public static function validatePassword($passwordData) {
         $rules = [
             'password' => 'required|max_length[255]|min_length[6]',
             'password_confirmation' => 'required|matches[password]',
         ];
 
-        $validationResult = Validator::validate($rules, [], $userData);
+        $validationResult = Validator::validate($rules, [], $passwordData);
 
         if ($validationResult !== TRUE) {
             throw new InvalidRegistrationException($validationResult);
         }
     }
 
-    private static function transformUserCreateRequest($userData, $forCreate = TRUE) {
+    private static function transformUserData($userData, $forCreate = TRUE) {
         $transformedRequest = [
             'name' => $userData['name'],
         ];
@@ -72,7 +72,32 @@ class AuthService {
     public static function handleRegister($userData) {
         self::validateUserRegisterData($userData);
         self::validatePassword($userData);
-        $transformedRequestData = self::transformUserCreateRequest($userData, TRUE);
+        $transformedRequestData = self::transformUserData($userData, TRUE);
         UserRepository::createUser($transformedRequestData);
+    }
+
+    private static function validateUserCurrentPassword($email, $password) {
+        $authCheck = auth()->check([
+            'email' => $email,
+            'password' => $password
+        ]);
+
+        if (!$authCheck->isOK()) {
+            throw new InvalidRegistrationException("Password is incorrect");
+        }
+    }
+
+    public static function transformPasswordData($passwordData) {
+        return [
+            'password' => $passwordData['password'],
+        ];
+    }
+
+    public static function handleChangePassword($user, $passwordData) {
+        $userData = UserRepository::getUserByID($user->id);
+        self::validatePassword($passwordData);
+        self::validateUserCurrentPassword($userData->email, $passwordData['old_password'] ?? '');
+        $transformedPasswordData = self::transformPasswordData($passwordData);
+        UserRepository::updateUser($user->id, $transformedPasswordData);
     }
 }

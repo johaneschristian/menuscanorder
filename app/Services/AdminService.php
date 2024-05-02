@@ -19,7 +19,7 @@ class AdminService {
         ];
     }
 
-    public static function handleUserList($requestData) {
+    public static function handleGetUserList($requestData) {
         $transformedRequestData = self::transformMenuListRequestData($requestData);
         $paginatedUsers = UserRepository::getPaginatedUsers(
             $transformedRequestData['search'], 
@@ -105,7 +105,7 @@ class AdminService {
         $createdUserID = UserRepository::createUser($transformedUserRequestData);
 
         if (!is_null($requestData['business_name'] ?? NULL) && !empty($requestData['business_name'])) {
-            CustomerService::validateBusinessData($requestData);
+            BusinessService::validateBusinessData($requestData);
             $transformedBusinessRequestData = self::transformBusinessCreateRequest($requestData);
             BusinessRepository::createBusiness($createdUserID, $transformedBusinessRequestData);
         }
@@ -113,16 +113,16 @@ class AdminService {
         $db->transComplete();
     }
 
-    public static function handleAdminEditUser($updatedUserID, $requestData) {
+    public static function handleEditUser($updatedUserID, $requestData) {
         $db = \Config\Database::connect();
         $db->transStart();
 
         self::validateBaseRequestData($requestData, FALSE);
         $transformedUserRequestData = self::transformUserCreateRequest($requestData, FALSE);
-        UserRepository::editUser($updatedUserID, $transformedUserRequestData);
+        UserRepository::updateUser($updatedUserID, $transformedUserRequestData);
 
         if (!is_null($requestData['business_name'] ?? NULL) && !empty($requestData['business_name'])) {
-            CustomerService::validateBusinessData($requestData);
+            BusinessService::validateBusinessData($requestData);
             $transformedBusinessRequestData = self::transformBusinessCreateRequest($requestData);
 
             $userBusiness = BusinessRepository::getBusinessByUserId($updatedUserID);
@@ -135,5 +135,12 @@ class AdminService {
         }
 
         $db->transComplete();        
+    }
+
+    public static function handleChangeUserPassword($userID, $requestData) {
+        AuthService::validatePassword($requestData);
+        UserRepository::getUserByIDOrThrowException($userID);
+        $transformedPasswordData = AuthService::transformPasswordData($requestData);
+        UserRepository::updateUser($userID, $transformedPasswordData);
     }
 }
