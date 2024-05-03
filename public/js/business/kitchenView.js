@@ -286,7 +286,7 @@ function updateItemStatusDisplay(orderItemID, previousStatus, newStatus) {
 }
 
 async function submitItemStatusUpdate(orderItemID, newStatusID) {
-	const response = await fetch("/business/orders/item/update-status", {
+	const response = await fetch(BASE_URL + "/business/orders/item/update-status", {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
