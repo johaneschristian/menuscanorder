@@ -6,8 +6,6 @@ use CodeIgniter\Filters\FilterInterface;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 
-use function PHPUnit\Framework\containsEqual;
-
 class LoginRedirectFilter implements FilterInterface
 {
     /**

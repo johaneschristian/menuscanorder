@@ -34,7 +34,7 @@ class CategoryRepository
         if ($withMenuCount) {
             $query = $query
                         ->select('menu_item_categories.category_id, menu_item_categories.name, COUNT(menu_item_id) AS menu_count')
-                        ->join('menu_items', 'menu_items.category_id=menu_item_categories.category_id')
+                        ->join('menu_items', 'menu_items.category_id=menu_item_categories.category_id', 'left')
                         ->groupBy('menu_item_categories.category_id, menu_item_categories.name');
         }
 
@@ -46,7 +46,7 @@ class CategoryRepository
         return self::getQueryOfCategoriesOfBusiness($owningBusinessID, $categoryNameSearch, $withMenuCount)->findAll();
     }
     
-    public static function getPaginatedCategoriesOfBusiness($owningBusinessID, $categoryNameSearch, $perPage = 10, $currentPage = 1, $withMenuCount = FALSE) {
+    public static function getPaginatedCategoriesOfBusiness($owningBusinessID, $categoryNameSearch, $withMenuCount = FALSE, $perPage = 10, $currentPage = 1) {
         $query = self::getQueryOfCategoriesOfBusiness($owningBusinessID, $categoryNameSearch, $withMenuCount);
         return Utils::paginate($query, $perPage, $currentPage);
     }

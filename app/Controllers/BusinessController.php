@@ -71,7 +71,7 @@ class BusinessController extends BaseController
             session()->setFlashdata('error', $exception->getMessage());
         }
 
-        return redirect()->back();
+        return redirect()->to('/business/categories/');
     }
 
     public function updateCategory()
@@ -87,7 +87,7 @@ class BusinessController extends BaseController
             session()->setFlashdata('error', $exception->getMessage());
         }
 
-        return redirect()->back();
+        return redirect()->to('/business/categories/');
     }
 
     public function deleteCategory() {
@@ -102,7 +102,7 @@ class BusinessController extends BaseController
             session()->setFlashdata('error', $exception->getMessage());
         }
 
-        return redirect()->back();
+        return redirect()->to('/business/categories/');
     }
 
     public function getMenuList()

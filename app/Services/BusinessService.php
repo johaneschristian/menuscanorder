@@ -13,7 +13,6 @@ use App\Utils\Validator;
 use CodeIgniter\Files\File;
 use chillerlan\QRCode\{QRCode, QROptions};
 
-
 class BusinessService
 {
     public static function handleGetBusinessProfile($user) {
@@ -88,12 +87,15 @@ class BusinessService
         BusinessRepository::updateBusiness($user->business_id, $businessData);
     }
 
-    private static function validateCategoryData($categoryData)
+    private static function validateCategoryData($categoryData, $forCreate = TRUE)
     {
         $rules = [
-            'category_id' => 'required',
             'name' => 'required|min_length[3]|max_length[255]',
         ];
+
+        if (!$forCreate) {
+            $rules['category_id'] = 'required';
+        }
 
         $validationResult = Validator::validate($rules, [], $categoryData);
 
@@ -125,9 +127,9 @@ class BusinessService
         $businessCategoriesPaginated = CategoryRepository::getPaginatedCategoriesOfBusiness(
             $user->business_id,
             $requestData['search'] ?? '',
+            TRUE,
             10,
             (int) ($requestData['page'] ?? 1),
-            TRUE
         );
 
         return [
@@ -140,7 +142,7 @@ class BusinessService
     public static function handleUpdateCategory($user, $requestData)
     {
         $requestData = Utils::trimAllString($requestData);
-        self::validateCategoryData($requestData);
+        self::validateCategoryData($requestData, FALSE);
         $updatedCategory = CategoryRepository::getCategoryByIDOrThrowException($requestData['category_id']);
         self::validateCategoryOwnership($user->business_id, $updatedCategory);
         CategoryRepository::updateCategory($updatedCategory->category_id, $requestData);
@@ -152,7 +154,7 @@ class BusinessService
         CategoryRepository::deleteCategory($deletedCategory->category_id);
     }
 
-    private static function validateMenuData($menuData, $menuImage)
+    private static function validateMenuData($menuData, $menuImageFile)
     {
         $rules = [
             'name' => 'required|string|min_length[3]|max_length[255]',
@@ -166,7 +168,10 @@ class BusinessService
             throw new InvalidRegistrationException($validationResult);
         }
 
-        // TODO: Validate image is of image type
+        $fileExtension = $menuImageFile->guessExtension();
+        if (!in_array($fileExtension, ['jpg', 'jpeg', 'png'])) {
+            throw new InvalidRegistrationException('Image file can only be either png or jpg');
+        }
     }
 
     private static function transformMenuData($menuData)
