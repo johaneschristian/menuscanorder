@@ -15,7 +15,7 @@
 <?= $this->section('content') ?>
 <div class="modal fade" id="delete-confirmation-modal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog">
-    <form action="<?= base_url('business/menu/delete/') ?>" method="post">
+    <form action="<?= base_url('business/menu/delete') ?>" method="post">
       <div class="modal-content">
         <div class="modal-body">
           <p class="fw-bold fs-5">Are you sure you want to delete <span id="deleted-menu-item-name"></span> menu item?</p>

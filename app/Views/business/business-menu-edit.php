@@ -24,7 +24,7 @@
             <span class="mt-3">This menu item will appear as <span class="fst-italic">deleted item</span> in the order history.</span>
           </div>
           <div class="modal-footer">
-            <button type="submit" class="btn btn-danger">Yes, delete this menu item.</button>
+            <a href="<?= base_url('business/menu/delete') ?>" type="submit" class="btn btn-danger">Yes, delete this menu item.</a>
             <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cancel</button>
           </div>
         </div>

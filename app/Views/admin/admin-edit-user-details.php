@@ -102,7 +102,7 @@
     </div>
     <div class="d-flex flex-sm-row flex-column mt-sm-0 mt-1 justify-content-end gap-1">
       <button class="btn bg-brown text-light" onclick="document.querySelector('#user-details-form').submit()">Update User Information</button>
-      <a href='<?= base_url("/admin/users/") ?>' class="btn btn-outline-primary">Cancel</a>
+      <a href="<?= base_url('/admin/users') ?>" class="btn btn-outline-primary">Cancel</a>
     </div>
   </div>      
 </div>

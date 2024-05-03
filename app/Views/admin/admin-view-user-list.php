@@ -25,7 +25,7 @@
 				</button>
 			</div>
 		</form>
-		<a href='<?= base_url("/admin/users/create") ?>' class="btn bg-brown text-white" style="width: fit-content;">Add User</a>
+		<a href="<?= base_url('/admin/users/create') ?>" class="btn bg-brown text-white" style="width: fit-content;">Add User</a>
 	</div>
 	<div class="card mt-4 p-3 shadow w-100 overflow-x-auto">
 		<table class="table table-hover align-middle">

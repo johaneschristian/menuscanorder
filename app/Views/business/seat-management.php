@@ -110,7 +110,7 @@
         <nav>
           <ul class="pagination justify-content-center">
             <li class='page-item <?= $current_page === 1 ? "disabled" : "" ?>'>
-              <a class="page-link" href='<?= base_url("/business/seat-management/?page=1") ?>' tabindex="-1" aria-disabled="true">First</a>
+              <a class="page-link" href="<?= base_url('/business/seat-management/?page=1') ?>" tabindex="-1" aria-disabled="true">First</a>
             </li>
 
             <?php for ($page = $current_page - 3; $page < $current_page; $page++) : ?>
