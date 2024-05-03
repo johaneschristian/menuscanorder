@@ -16,7 +16,7 @@
 <?php if(!$is_create): ?>
   <div class="modal fade" id="delete-confirmation-modal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
-      <form action="" method="post">
+      <form action="<?= base_url('business/menu/delete') ?>" method="post">
         <div class="modal-content">
           <div class="modal-body">
             <p class="fw-bold fs-5">Are you sure you want to delete this menu item?</p>
@@ -24,7 +24,7 @@
             <span class="mt-3">This menu item will appear as <span class="fst-italic">deleted item</span> in the order history.</span>
           </div>
           <div class="modal-footer">
-            <a href="<?= base_url('business/menu/delete') ?>" type="submit" class="btn btn-danger">Yes, delete this menu item.</a>
+            <button type="submit" class="btn btn-danger">Yes, delete this menu item.</button>
             <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Cancel</button>
           </div>
         </div>
