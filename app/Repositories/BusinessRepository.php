@@ -17,7 +17,7 @@ class BusinessRepository
         $foundBusiness = self::getBusinessById($businessId);
 
         if(is_null($foundBusiness)) {
-            throw new ObjectNotFoundException(sprintf("Business with ID %d does not exist", $businessId));
+            throw new ObjectNotFoundException(sprintf("Business with ID %s does not exist", $businessId));
 
         } else {
             return $foundBusiness;

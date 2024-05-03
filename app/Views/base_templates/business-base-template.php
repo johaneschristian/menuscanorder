@@ -20,7 +20,7 @@
     <div class="col w-mdc-17 w-100">
       <div class="sidebar container-fluid text-white p-3">
         <div class="navbar d-flex flex-row justify-content-between">
-          <h4 class="logo mt-3 text-center w-100">
+          <h4 class="logo mt-3 text-center">
             <?= $this->renderSection('business_name') ?>
           </h4>
           <button class="navbar-toggler d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-collapse" aria-controls="navbarNav" aria-expanded="true" aria-label="Toggle navigation">
