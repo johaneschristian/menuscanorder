@@ -15,7 +15,8 @@ class Utils
     public static function getCurrentTime() {
         $dateTime = new DateTime();
         $dateTime->setTimezone(new DateTimeZone('Australia/Brisbane'));
-        return $dateTime->format("c");        
+        $dateTimeString = $dateTime->format("c");
+        return explode('+', $dateTimeString)[0];       
     }
 
     public static function calculateDuration($timeOneText, $timeTwoText) {

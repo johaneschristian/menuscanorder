@@ -43,7 +43,7 @@ class OrderItemRepository
         $orderItem->insert([
             ...$orderItemData,
             'order_item_id' => $orderItemID,
-            'item_order_time' => date('c'),
+            'item_order_time' => Utils::getCurrentTime(),
             'order_item_status_id' => $receivedOrderItemStatus->id,
         ]);
 
