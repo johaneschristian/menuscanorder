@@ -204,7 +204,7 @@ class BusinessController extends BaseController
             session()->setFlashdata('error', $exception->getMessage());
         }
 
-        return redirect()->back();
+        return redirect()->to('business/menu/');
     }
 
     public function menuGetImage($menuID)

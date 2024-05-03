@@ -26,8 +26,8 @@ class BusinessFilter implements FilterInterface
      */
     public function before(RequestInterface $request, $arguments = null)
     {
-        $userID = session()->get('user_id');
-        $userBusiness = BusinessRepository::getBusinessByUserId($userID);
+        $user = auth()->user();
+        $userBusiness = BusinessRepository::getBusinessByUserId($user->id);
 
         if (is_null($userBusiness) || $userBusiness->business_is_archived) {
             session()->setFlashdata('error', 'User is not a business or affiliated business has been archived');

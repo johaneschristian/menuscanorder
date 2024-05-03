@@ -26,8 +26,7 @@ class UserCheckArchivedFilter implements FilterInterface
      */
     public function before(RequestInterface $request, $arguments = null)
     {
-        $userID = session()->get('user_id');
-        $user = UserRepository::getUserByID($userID);
+        $user = auth()->user();
 
         if ($user->is_archived) {
             session()->setFlashData("error", "User is archived.");

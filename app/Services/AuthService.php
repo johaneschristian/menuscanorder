@@ -27,15 +27,9 @@ class AuthService {
     }
 
     public static function handleLogin($userData) {
-        self::loginUser($userData['email'] ?? '', $userData['password']);
         $user = UserRepository::getUserByEmail($userData['email']);
         self::validateUserCanLogin($user);
-
-        session()->set([
-            'user_id' => $user->id,
-            'email' => $user->email,
-            'is_admin' => $user->is_admin,
-        ]);
+        self::loginUser($userData['email'] ?? '', $userData['password']);
     }
 
     private static function validateUserRegisterData($userData) {

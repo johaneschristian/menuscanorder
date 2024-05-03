@@ -155,12 +155,12 @@ class BusinessService
         CategoryRepository::deleteCategory($deletedCategory->category_id);
     }
 
-    private static function validateMenuData($menuData, $menuImageFile)
+    private static function validateMenuData($menuData)
     {
         $rules = [
             'name' => 'required|string|min_length[3]|max_length[255]',
             'price' => 'required|decimal|greater_than[0]',
-            'description' => 'string'
+            'description' => 'permit_empty|string'
         ];
 
         $validationResult = Validator::validate($rules, [], $menuData);
@@ -168,8 +168,10 @@ class BusinessService
         if ($validationResult !== TRUE) {
             throw new InvalidRegistrationException($validationResult);
         }
+    }
 
-        $fileExtension = $menuImageFile->guessExtension();
+    private static function validateImageFile($imageFile) {
+        $fileExtension = $imageFile->guessExtension();
         if (!in_array($fileExtension, ['jpg', 'jpeg', 'png'])) {
             throw new InvalidRegistrationException('Image file can only be either png or jpg');
         }
@@ -215,10 +217,12 @@ class BusinessService
         $db->transStart();
 
         $requestData = Utils::trimAllString($requestData);
-        self::validateMenuData($requestData, $menuImage);
+        self::validateMenuData($requestData);
         $transformedMenuData = self::transformMenuData($requestData);
         $createdMenuID = MenuRepository::createMenu($user->business_id, $transformedMenuData);
+        
         if ($menuImage->isValid() && !$menuImage->hasMoved()) {
+            self::validateImageFile($menuImage);
             self::saveImageFile($user->business_id, $createdMenuID, $menuImage);
         }
 
@@ -308,13 +312,14 @@ class BusinessService
         $db->transStart();
 
         $requestData = Utils::trimAllString($requestData);
-        self::validateMenuData($requestData, $menuImage);
+        self::validateMenuData($requestData);
         $menu = MenuRepository::getMenuByIDOrThrowException($menuID);
         self::validateMenuOwnership($user->business_id, $menu);
         $transformedMenuData = self::transformMenuData($requestData);
         Menurepository::updateMenu($menuID, $transformedMenuData);
 
         if ($menuImage->isValid()) {
+            self::validateImageFile($menuImage);
             self::removeImageFileOfMenu($menu);
             self::saveImageFile($user->business_id, $menuID, $menuImage);
         }
