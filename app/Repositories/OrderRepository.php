@@ -74,15 +74,19 @@ class OrderRepository
         $order->update($orderID, $orderData);
     }
 
-    private static function getQueryOfOrders($submittingUserID = NULL, $businessesID = NULL, $statusID = NULL, $tableNumber = NULL) {
+    private static function getQueryOfOrders($submittingUserID = NULL, $businessesIDs = NULL, $statusID = NULL, $tableNumber = NULL) {
         $query = new OrderModel();
 
         if (!is_null($submittingUserID)) {
             $query = $query->where('submitting_user_id', $submittingUserID);
         }
 
-        if (!is_null($businessesID)) {
-            $query = $query->whereIn('receiving_business_id', $businessesID);
+        if (!is_null($businessesIDs) && !empty($businessesIDs)) {
+            $query = $query->whereIn('receiving_business_id', $businessesIDs);
+        }
+        
+        if (!is_null($businessesIDs) && empty($businessesIDs)) {
+            $query = $query->whereIn('receiving_business_id', [NULL]);
         }
 
         if (!is_null($statusID)) {

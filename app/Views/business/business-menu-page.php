@@ -51,8 +51,10 @@
     </div>
   </div>
   <div class="row d-flex justify-content-center gy-3">
-    <?php if (empty($menus)) : ?>
-      <span class="h5 text-center mt-5">You currently do not have any menu.</span>
+    <?php if (empty($menus) && (!empty($search) || !empty($category_id))) : ?>
+      <div class="h5 text-center mt-5">No menu matches your query.</div>
+    <?php elseif (empty($menus)) : ?>
+      <div class="h5 text-center mt-5">You currently do not have any menu.</div>
     <?php else: ?>
       <?php foreach ($menus as $menu) : ?>
         <div class="col-auto">
