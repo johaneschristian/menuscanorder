@@ -42,7 +42,7 @@ class AuthController extends BaseController
             try {
                 $requestData = $this->request->getPost();
                 AuthService::handleRegister($requestData);
-                session()->setFlashdata('message', 'User is created successfully');
+                session()->setFlashdata('success', 'User is created successfully');
                 return redirect()->to('/login');
             } catch (Exception $exception) {
                 session()->setFlashdata('error', $exception->getMessage());
