@@ -13,6 +13,9 @@
 	<link rel="stylesheet" href="<?= base_url('css/style.css') ?>" />
 	<?= $this->renderSection('additional_css_js') ?>
 	<?= $this->renderSection('title') ?>
+	<script>
+    var BASE_URL = "<?= base_url('') ?>";
+  </script>
 </head>
 
 <body class="d-flex flex-column min-vh-100">
