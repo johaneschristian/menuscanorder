@@ -348,7 +348,7 @@ class BusinessService
 
     public static function handleGetTableQR($businessID, $tableNumber)
     {
-        $tableQRURL = base_url("customer/order/menu/$businessID/$tableNumber");
+        $tableQRURL = base_url("customer/orders/menu/$businessID/$tableNumber");
         $options = new QROptions([
             'outputType' => QRCode::OUTPUT_IMAGE_PNG,
             'scale' => 15,
