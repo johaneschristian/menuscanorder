@@ -218,7 +218,7 @@ class BusinessService
         self::validateMenuData($requestData, $menuImage);
         $transformedMenuData = self::transformMenuData($requestData);
         $createdMenuID = MenuRepository::createMenu($user->business_id, $transformedMenuData);
-        if ($menuImage->isValid()) {
+        if ($menuImage->isValid() && !$menuImage->hasMoved()) {
             self::saveImageFile($user->business_id, $createdMenuID, $menuImage);
         }
 

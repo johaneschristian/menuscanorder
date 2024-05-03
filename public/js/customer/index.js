@@ -23,21 +23,21 @@ function getCompleteSelectedMenu() {
 	return completeSelectedMenu;
 }
 
-async function submitOrder() {
+async function submitOrder($submitURL, $redirectURL) {
 	const orderData = {
 		business_id: getCurrentBusinessID(),
 		table_number: getCustomerTableNumber(),
 		selected_menus: getCompleteSelectedMenu(),
 	};
 
-	const response = await fetch('/customer/orders/submit', {
+	const response = await fetch($submitURL, {
 		method: "POST",
 		mode: "cors",
 		body: JSON.stringify(orderData)
 	});
 
 	if (response.ok) {
-		window.location.href = '/customer/orders/';
+		window.location.href = $redirectURL;
 
 	} else {
 		const errorResponse = JSON.parse(await response.text());
