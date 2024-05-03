@@ -38,14 +38,23 @@ class AuthService {
         ]);
     }
 
-    private static function validateUserRegisterData($userData, $forCreate = TRUE) {
-        // TODO: Implement
+    private static function validateUserRegisterData($userData) {
+        $rules = [
+            'name' => 'required|string|min_length[3]|max_length[255]',
+            'email' => 'required|email',
+        ];
+
+        $validationResult = Validator::validate($rules, [], $userData);
+
+        if ($validationResult !== TRUE) {
+            throw new InvalidRegistrationException($validationResult);
+        }
     }
 
     public static function validatePassword($passwordData) {
         $rules = [
-            'password' => 'required|max_length[255]|min_length[6]',
-            'password_confirmation' => 'required|matches[password]',
+            'password' => 'required|string|min_length[6]|max_length[255]',
+            'password_confirmation' => 'required|string|matches[password]',
         ];
 
         $validationResult = Validator::validate($rules, [], $passwordData);
