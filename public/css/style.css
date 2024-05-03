@@ -176,6 +176,10 @@ body {
     align-items: center;
     min-height: fit-content;
   }
+
+  .sidebar-md-none {
+    display: none;
+  }
 }
 
 
