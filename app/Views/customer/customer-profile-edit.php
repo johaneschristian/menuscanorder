@@ -7,7 +7,7 @@
 <?= $this->section('content') ?>
 <div class="modal fade" id="reset-password-modal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
 	<div class="modal-dialog">
-		<form action="<?= base_url('/change-password') ?>" method="post">
+		<form action="<?= base_url('change-password') ?>" method="post">
 			<div class="modal-content">
 				<div class="modal-body">
 					<p class="fw-bold fs-5">Change Password</p>

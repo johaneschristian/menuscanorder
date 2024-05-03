@@ -64,7 +64,7 @@ function getNextStatus(statusName) {
 }
 
 async function getKitchenViewData() {
-	const response = await fetch("/business/orders/kitchen-view/data");
+	const response = await fetch(BASE_URL + "/business/orders/kitchen-view/data");
 	const responseData = JSON.parse(await response.text());
 
 	if (!response.ok) {
@@ -107,7 +107,9 @@ function getItemCard(orderItem) {
 				>
 				<span id="order-item-${
 					orderItem.order_item_id
-				}-status" class="badge rounded-pill bg-${getStatusColor(orderItem.status_name)} mt-2">${orderItem.status_name}</span>
+				}-status" class="badge rounded-pill bg-${getStatusColor(
+		orderItem.status_name
+	)} mt-2">${orderItem.status_name}</span>
 				<table class="table">
 					<thead class="thead-dark">
 						<tr>
@@ -118,7 +120,9 @@ function getItemCard(orderItem) {
 					<tbody>
 						<tr>
 							<td>${orderItem.menu_item_name}</td>
-							<td id="order-item-${orderItem.order_item_id}-quantity">${orderItem.num_of_items}</td>
+							<td id="order-item-${orderItem.order_item_id}-quantity">${
+		orderItem.num_of_items
+	}</td>
 						</tr>
 					</tbody>
 				</table>
@@ -134,15 +138,15 @@ function getItemCard(orderItem) {
 						orderItem.status !== "served"
 							? `<button id="order-item-${
 									orderItem.order_item_id
-								}-action-button" onclick="updateItemStatus('${
+							  }-action-button" onclick="updateItemStatus('${
 									orderItem.order_item_id
-								}')" class="btn btn-${getStatusColor(
+							  }')" class="btn btn-${getStatusColor(
 									orderItemNextStatus
-								)} mt-3">Mark as ${
+							  )} mt-3">Mark as ${
 									orderItem.status_name === "received"
 										? "Being Prepared"
 										: "Served"
-								}</button>`
+							  }</button>`
 							: ""
 					}            
 					${
@@ -175,7 +179,7 @@ function getItemCard(orderItem) {
 				</div>
 			</div>
 		</div>
-	</div>`
+	</div>`;
 }
 
 function setupOrderItemsList(orderItems) {
@@ -314,8 +318,14 @@ async function updateItemStatus(orderItemID) {
 		await submitItemStatusUpdate(orderItemID, nextStatusID);
 
 		// Update item summary
-		updateStatusQuantity(currentStatus, getStatusQuantity(currentStatus) - getOrderItemQuantity(orderItemID));
-		updateStatusQuantity(nextStatus, getStatusQuantity(nextStatus) + getOrderItemQuantity(orderItemID));
+		updateStatusQuantity(
+			currentStatus,
+			getStatusQuantity(currentStatus) - getOrderItemQuantity(orderItemID)
+		);
+		updateStatusQuantity(
+			nextStatus,
+			getStatusQuantity(nextStatus) + getOrderItemQuantity(orderItemID)
+		);
 		reloadKitchenViewOrderItemSummary();
 
 		// Update item text, color. and action button

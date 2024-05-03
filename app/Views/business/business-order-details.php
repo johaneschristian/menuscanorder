@@ -11,7 +11,7 @@
 <?= $this->section('content') ?>
 <div class="modal fade" id="confirmationModal" data-bs-keyboard="false" tabindex="-1" data-bs-backdrop="static" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog">
-    <form action="<?= base_url('/business/orders/complete') ?>" method="post" class="modal-content">
+    <form action="<?= base_url('business/orders/complete') ?>" method="post" class="modal-content">
       <div class="modal-header">
         <span class="modal-title fs-5 fw-bold mt-3">Completion Confirmation</span>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

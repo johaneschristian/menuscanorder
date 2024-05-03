@@ -27,7 +27,7 @@
 				<input name="password_confirmation" type="password" class="form-control bg-soft-gray" required>
 			</div>
 			<div class="d-flex flex-row justify-content-between align-items-center mt-3">
-				<a href="<?= base_url('/login') ?>">Already have an account?</a>
+				<a href="<?= base_url('login') ?>">Already have an account?</a>
 				<button type="submit" class="btn bg-brown text-light">Register</button>
 			</div>
 		</form>

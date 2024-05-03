@@ -75,7 +75,7 @@
 					</table>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn bg-brown text-light" onclick='submitOrder("<?= base_url("/customer/orders/submit") ?>", "<?= base_url("/customer/orders/") ?>")'>
+					<button type="button" class="btn bg-brown text-light" onclick="submitOrder()">
 						Yes, I would like to submit my order.
 					</button>
 					<button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">

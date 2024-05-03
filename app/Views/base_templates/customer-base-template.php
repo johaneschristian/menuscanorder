@@ -19,7 +19,7 @@
 	<header>
 		<nav class="navbar navbar-expand-lg navbar-dark bg-brown">
 			<div class="container">
-				<a class="navbar-brand" href="<?= base_url('/') ?>">MenuScanOrder</a>
+				<a class="navbar-brand" href="<?= base_url('') ?>">MenuScanOrder</a>
 				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
 					<span class="navbar-toggler-icon"></span>
 				</button>
@@ -27,28 +27,28 @@
 					<ul class="navbar-nav ms-auto">
 						<?php if (is_null(auth()->user())) : ?>
 							<li class="nav-item">
-								<a class="nav-link <?= str_contains(service('request')->getUri()->getPath(), "login") ? "active" : "" ?>" href="<?= base_url('/login') ?>">Login</a>
+								<a class="nav-link <?= str_contains(service('request')->getUri()->getPath(), "login") ? "active" : "" ?>" href="<?= base_url('login') ?>">Login</a>
 							</li>
 							<li class="nav-item">
-								<a class="nav-link <?= str_contains(service('request')->getUri()->getPath(), "register") ? "active" : "" ?>" href="<?= base_url('/register') ?>">Register</a>
+								<a class="nav-link <?= str_contains(service('request')->getUri()->getPath(), "register") ? "active" : "" ?>" href="<?= base_url('register') ?>">Register</a>
 							</li>
 						<?php else : ?>
 							<li class="nav-item">
-								<a class="nav-link <?= str_contains(service('request')->getUri()->getPath(), "orders") ? "active" : "" ?>" href="<?= base_url('/customer/orders') ?>">Orders</a>
+								<a class="nav-link <?= str_contains(service('request')->getUri()->getPath(), "orders") ? "active" : "" ?>" href="<?= base_url('customer/orders') ?>">Orders</a>
 							</li>
 							<li class="nav-item">
-								<a class="nav-link <?= str_contains(service('request')->getUri()->getPath(), "business") ? "active" : "" ?>" href="<?= base_url('/customer/business') ?>">Business</a>
+								<a class="nav-link <?= str_contains(service('request')->getUri()->getPath(), "business") ? "active" : "" ?>" href="<?= base_url('customer/business') ?>">Business</a>
 							</li>
 							<li class="nav-item">
-								<a class="nav-link <?= str_contains(service('request')->getUri()->getPath(), "profile") ? "active" : "" ?>" href="<?= base_url('/customer/profile') ?>">Profile</a>
+								<a class="nav-link <?= str_contains(service('request')->getUri()->getPath(), "profile") ? "active" : "" ?>" href="<?= base_url('customer/profile') ?>">Profile</a>
 							</li>
 							<?php if (auth()->user()->is_admin) : ?>
 								<li class="nav-item">
-									<a class="nav-link <?= str_contains(service('request')->getUri()->getPath(), "users") ? "active" : "" ?>" href="<?= base_url('/admin/users') ?>">User Management</a>
+									<a class="nav-link <?= str_contains(service('request')->getUri()->getPath(), "users") ? "active" : "" ?>" href="<?= base_url('admin/users') ?>">User Management</a>
 								</li>
 							<?php endif; ?>
 							<li class="nav-item">
-								<a class="nav-link" href="<?= base_url('/logout') ?>">Logout</a>
+								<a class="nav-link" href="<?= base_url('logout') ?>">Logout</a>
 							</li>
 						<?php endif; ?>
 					</ul>

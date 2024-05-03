@@ -18,7 +18,7 @@
 			<input name="password" type="password" class="form-control bg-soft-gray">
 		</div>
 		<div class="d-flex flex-row justify-content-between align-items-center mt-3">
-			<a href="<?= base_url('/register') ?>">Does not have an account?</a>
+			<a href="<?= base_url('register') ?>">Does not have an account?</a>
 			<button class="btn bg-brown text-light">Login</button>
 		</div>
 	</form>

@@ -1,8 +1,7 @@
 function toggleElement(element, shouldDisplay) {
 	if (shouldDisplay) {
-		if(element.classList.contains("d-none")) {
+		if (element.classList.contains("d-none")) {
 			element.classList.remove("d-none");
-	
 		}
 	} else {
 		if (!element.classList.contains("d-none")) {
@@ -13,11 +12,11 @@ function toggleElement(element, shouldDisplay) {
 
 /**
  * https://www.squash.io/how-to-capitalize-first-letter-in-javascript/
- * @param {*} string 
- * @returns 
+ * @param {*} string
+ * @returns
  */
 function capitalizeFirstLetter(string) {
-  return string.replace(/^\w/, (c) => c.toUpperCase());
+	return string.replace(/^\w/, (c) => c.toUpperCase());
 }
 
 function displayErrorToast(errorMessage) {
@@ -26,11 +25,11 @@ function displayErrorToast(errorMessage) {
 		duration: 5000,
 		offset: {
 			x: 50, // horizontal axis - can be a number or a string indicating unity. eg: '2em'
-			y: 10 // vertical axis - can be a number or a string indicating unity. eg: '2em'
+			y: 10, // vertical axis - can be a number or a string indicating unity. eg: '2em'
 		},
 		gravity: "bottom",
 		style: {
 			background: "red",
-		}
+		},
 	}).showToast();
 }
