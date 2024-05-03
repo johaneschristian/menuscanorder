@@ -176,7 +176,9 @@ body {
     align-items: center;
     min-height: fit-content;
   }
+}
 
+@media only screen and (min-width: 915px) {
   .sidebar-md-none {
     display: none;
   }
