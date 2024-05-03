@@ -50,7 +50,7 @@
     </form>
   </div>
 </div>
-<div class="p-5">
+<div class="p-md-5 p-3">
   <h2 class="mb-4">Seat Management</h2>
   <div class=" d-flex flex-column align-items-center">
 

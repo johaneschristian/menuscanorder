@@ -34,7 +34,7 @@
       <li class="breadcrumb-item active" aria-current="page">Order Details</li>
     </ol>
   </nav>
-  <div class="card shadow p-md-5 p-3">
+  <div class="card shadow p-md-5 p-3 overflow-x-scroll">
     <span class="h2 fw-bold">Order Details</span>
     <table class="table w-mdc-50 w-100 h6 align-middle">
       <tr>

@@ -46,7 +46,7 @@
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
-					<table class="table w-75">
+					<table class="table w-md-75 w-100">
 						<tr>
 							<td class="fw-bold">Business Name</td>
 							<td>: <?= esc($business->business_name) ?></td>
@@ -98,7 +98,7 @@
 		<div id='category-holder-<?= esc($category['category_id']) ?>' class='row p-3 d-flex justify-content-center <?= $category['category_id'] !== $categories_and_menu[0]['category_id'] ? "d-none" : "" ?>'>
 			<?php foreach ($category['menus'] as $menu) : ?>
 				<div class="col-auto">
-					<div class="card mb-3 shadow" style="width: 25rem">
+					<div class="card mb-3 shadow" style="max-width: 25rem">
 						<div class="row g-0">
 							<div class="col-6">
 								<img src='<?= !is_null($menu->image_url) ? base_url("/business/menu/{$menu->menu_item_id}/image") : "" ?>' id="menu-<?= esc($menu->menu_item_id) ?>-image" class="w-100 object-fit-cover rounded-start" style="object-fit: cover; height: 16rem" alt="Nasi Goreng" onerror="this.src='https://theme-assets.getbento.com/sensei/7c1964e.sensei/assets/images/catering-item-placeholder-704x520.png'" />

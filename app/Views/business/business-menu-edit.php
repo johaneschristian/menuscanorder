@@ -32,7 +32,7 @@
     </div>
   </div>
 <?php endif; ?>
-  <div class="p-5 d-flex flex-column align-items-center">
+  <div class="p-md-5 p-3 d-flex flex-column align-items-center">
     <h1 class="fw-bold"><?= $is_create ? "Create" : "Edit" ?> Menu</h1>
     <form id="menu-item-form" action="<?= !$is_create ? base_url("/business/menu/{$menu->menu_item_id}/edit") : base_url("/business/menu/create") ?>" method="post" enctype="multipart/form-data" class="w-100 d-flex flex-md-row flex-column justify-content-center gap-3">
       <div class="w-mdc-25 w-md-50 w-100">

@@ -94,7 +94,6 @@
       <?php endif; ?>
 
       <?= $this->renderSection('content') ?>
-      <?= $this->renderSection('content') ?>
     </div>
   </div>
 </body>

@@ -9,7 +9,7 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<div class="p-5">
+<div class="p-md-5 p-3">
   <form class="card shadow mb-3 ps-3 pe-3 pb-3 row d-flex flex-row justify-content-between align-items-center">
     <div class="input-group mt-3 me-3 w-mdc-50 w-100">
       <input name="table_number" type="text" class="form-control bg-soft-gray" placeholder="Search Table Number" value="<?= esc($search) ?>">

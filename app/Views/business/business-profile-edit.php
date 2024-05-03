@@ -9,8 +9,8 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<div class="d-flex flex-column align-items-center p-5">
-  <h1>Affiliated Business Information</h1>
+<div class="d-flex flex-column align-items-center p-md-5 p-3">
+  <h1 class="w-100 text-center">Affiliated Business Information</h1>
   <form action="" method="post" class="card shadow w-mdc-50 w-100 pt-3 pb-3 ps-5 pe-5">
     <div class="" id="affiliated-business-form">
       <div class="mb-3">

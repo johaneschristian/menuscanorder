@@ -61,11 +61,11 @@
 	</header>
 	<main>
 		<?php if (session()->getFlashData('success')) : ?>
-			<div class="alert alert-success w-50 ms-auto me-auto mt-3"><?= esc(session()->getFlashData('success')) ?></div>
+			<div class="alert alert-success w-md-50 w-75 ms-auto me-auto mt-1"><?= esc(session()->getFlashData('success')) ?></div>
 		<?php endif; ?>
 
 		<?php if (session()->getFlashData('error')) : ?>
-			<div class="alert alert-danger w-50 ms-auto me-auto mt-3"><?= esc(session()->getFlashData('error')) ?></div>
+			<div class="alert alert-danger w-md-50 w-75 ms-auto me-auto mt-1"><?= esc(session()->getFlashData('error')) ?></div>
 		<?php endif; ?>
 
 		<?= $this->renderSection('content') ?>
