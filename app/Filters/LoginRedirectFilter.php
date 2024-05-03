@@ -25,7 +25,7 @@ class LoginRedirectFilter implements FilterInterface
      */
     public function before(RequestInterface $request, $arguments = null)
     {
-        if (!str_contains(current_url(), "login")) {
+        if (!str_contains(current_url(), "login") && !str_contains(current_url(), "register")) {
             session()->set('redirect_url', current_url()); 
         }
     }

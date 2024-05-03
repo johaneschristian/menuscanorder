@@ -11,7 +11,7 @@ class AdminFilter implements FilterInterface
     {
         // Check if the user is not an admin
         if (!session()->get('is_admin')) {
-            session()->setFlashData("error", "User is not an admin.");
+            session()->setFlashData("error", "User is not an admin or has not been authenticated.");
             return redirect()->to('/');
         }
     }

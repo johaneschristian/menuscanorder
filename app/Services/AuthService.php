@@ -41,7 +41,7 @@ class AuthService {
     private static function validateUserRegisterData($userData) {
         $rules = [
             'name' => 'required|string|min_length[3]|max_length[255]',
-            'email' => 'required|email',
+            'email' => 'required|valid_email',
         ];
 
         $validationResult = Validator::validate($rules, [], $userData);
