@@ -15,7 +15,7 @@
 <?= $this->section('content') ?>
 <div class="modal fade" id="delete-confirmation-modal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog">
-    <form action="" method="post">
+    <form action="<?= base_url('business/menu/delete/') ?>" method="post">
       <div class="modal-content">
         <div class="modal-body">
           <p class="fw-bold fs-5">Are you sure you want to delete <span id="deleted-menu-item-name"></span> menu item?</p>
@@ -51,29 +51,32 @@
     </div>
   </div>
   <div class="row d-flex justify-content-center gy-3">
-    <?php foreach ($menus as $menu) : ?>
-      <div class="col-auto">
-        <div class="card shadow-sm" style="width: 18rem; height: 500px;">
-          <img src='<?= $menu->image_url ? base_url("/business/menu/{$menu->menu_item_id}/image") : "" ?>' class="card-img-top h-50" style="object-fit: cover;" alt="" onerror="this.src='https://theme-assets.getbento.com/sensei/7c1964e.sensei/assets/images/catering-item-placeholder-704x520.png'">
-          <div class="card-body d-flex flex-column justify-content-between">
-            <div class="">
-              <h5 id=<?= "menu-{$menu->menu_item_id}-name" ?> class="card-title m-0"><?= esc($menu->name) ?></h5>
-              <div>
-                <span class="badge rounded-pill bg-<?= esc($menu->is_available ? "success" : "danger") ?>"><?= esc($menu->is_available ? "Available" : "Not Available") ?></span>
-                <span class="badge rounded-pill bg-dark">AUD<?= esc(number_format($menu->price, 2, '.')) ?></span>
+    <?php if (empty($menus)) : ?>
+      <span class="h5 text-center mt-5">You currently do not have any menu.</span>
+    <?php else: ?>
+      <?php foreach ($menus as $menu) : ?>
+        <div class="col-auto">
+          <div class="card shadow-sm" style="width: 18rem; height: 500px;">
+            <img src='<?= $menu->image_url ? base_url("/business/menu/{$menu->menu_item_id}/image") : "" ?>' class="card-img-top h-50" style="object-fit: cover;" alt="" onerror="this.src='https://theme-assets.getbento.com/sensei/7c1964e.sensei/assets/images/catering-item-placeholder-704x520.png'">
+            <div class="card-body d-flex flex-column justify-content-between">
+              <div class="">
+                <h5 id=<?= "menu-{$menu->menu_item_id}-name" ?> class="card-title m-0"><?= esc($menu->name) ?></h5>
+                <div>
+                  <span class="badge rounded-pill bg-<?= esc($menu->is_available ? "success" : "danger") ?>"><?= esc($menu->is_available ? "Available" : "Not Available") ?></span>
+                  <span class="badge rounded-pill bg-dark">AUD<?= esc(number_format($menu->price, 2, '.')) ?></span>
+                </div>
+                <p class="card-text trunc-4 mt-3"><?= esc($menu->description) ?></p>
               </div>
-              <p class="card-text trunc-4 mt-3"><?= esc($menu->description) ?></p>
-            </div>
-            <div class="d-flex flex-row justify-content-end gap-1">
-              <a href="#" class="btn btn-warning" onclick='window.location.href = `<?= base_url("business/menu/{$menu->menu_item_id}/edit") ?>`'>Edit</a>
-              <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delete-confirmation-modal" onclick='setDeletionModal("<?= esc($menu->menu_item_id) ?>")'>Delete</a>
+              <div class="d-flex flex-row justify-content-end gap-1">
+                <a href="#" class="btn btn-warning" onclick='window.location.href = `<?= base_url("business/menu/{$menu->menu_item_id}/edit") ?>`'>Edit</a>
+                <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delete-confirmation-modal" onclick='setDeletionModal("<?= esc($menu->menu_item_id) ?>")'>Delete</a>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    <?php endforeach ?>
+      <?php endforeach ?>
+      <?= $pager->links() ?>
+    <?php endif; ?>
   </div>
 </div>
-
-<?= $pager->links() ?>
 <?= $this->endSection() ?>

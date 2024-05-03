@@ -69,25 +69,9 @@ class OrderRepository
                      ->first();
     }
 
-    public static function setOrderTotalPrice($orderID, $totalPrice) {
+    public static function updateOrder($orderID, $orderData) {
         $order = new OrderModel();
-        $order->where('order_id', $orderID)
-              ->set('total_price', $totalPrice)
-              ->update();
-    }
-
-    public static function setOrderStatus($orderID, $statusID) {
-        $order = new OrderModel();
-        $order->where('order_id', $orderID)
-              ->set('order_status_id', $statusID)
-              ->update();
-    }
-
-    public static function setOrderCompletionTime($orderID, $completionTime) {
-        $order = new OrderModel();
-        $order->where('order_id', $orderID)
-              ->set('order_completion_time', $completionTime)
-              ->update();
+        $order->update($orderID, $orderData);
     }
 
     private static function getQueryOfOrders($submittingUserID = NULL, $businessesID = NULL, $statusID = NULL, $tableNumber = NULL) {

@@ -17,15 +17,19 @@ class AuthController extends BaseController
         auth()->logout();
 
         if ($this->request->getMethod() === 'post') {
-            $userData = $this->request->getPost();
-            AuthService::handleLogin($userData);
+            try {
+                $userData = $this->request->getPost();
+                AuthService::handleLogin($userData);
 
-            if (!is_null(session()->get('redirect_url'))) {
-                $redirectURL = session()->get('redirect_url');
-                session()->remove('redirect_url');
-                return redirect()->to($redirectURL);
-            } else {
-                return redirect()->to('/');
+                if (!is_null(session()->get('redirect_url'))) {
+                    $redirectURL = session()->get('redirect_url');
+                    session()->remove('redirect_url');
+                    return redirect()->to($redirectURL);
+                } else {
+                    return redirect()->to('/');
+                }
+            } catch (Exception $exception) {
+                session()->setFlashdata('error', $exception->getMessage());
             }
         }
 

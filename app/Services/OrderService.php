@@ -9,7 +9,7 @@ use App\Repositories\MenuRepository;
 use App\Repositories\OrderItemRepository;
 use App\Repositories\OrderRepository;
 use App\Utils\Utils;
-use Config\Services;
+use App\Utils\Validator;
 
 class OrderService
 {
@@ -26,28 +26,32 @@ class OrderService
 
     private static function validateOrderCreation($business, $orderData)
     {
-        // TODO: Change to Codeigniter validator
         if (!$business->is_open) {
             throw new InvalidRegistrationException("Business with ID {$business->business_id} is currently closed");
             
-        } else if (!array_key_exists('table_number', $orderData) || !is_numeric($orderData['table_number'])) {
-            throw new InvalidRegistrationException("Order must include table number");
-            
-        } else if (!array_key_exists('selected_menus', $orderData)) {
-            throw new InvalidRegistrationException("Order must include selected menus");
-            
         } else if (!is_array($orderData['selected_menus'])) {
-            throw new InvalidRegistrationException("Selected menus must be an array");
-            
-        } else if ($orderData['table_number'] > $business->num_of_tables) {
-            throw new InvalidRegistrationException(sprintf("Business does not have table %", $orderData['table_number']));
+            throw new InvalidRegistrationException("Selected menus must be an array"); 
+        }
+
+        $rules = [
+            'table_number' => "required|is_natural|less_than_equal_to[{$business->num_of_tables}]",
+            'selected_menus' => 'required',            
+        ];
+
+        $validationResult = Validator::validate($rules, [], $orderData);
+        if ($validationResult !== TRUE) {
+            throw new InvalidRegistrationException($validationResult);
         }
 
         foreach ($orderData['selected_menus'] as $selectedMenu) {
-            if (!array_key_exists('quantity', $selectedMenu) || $selectedMenu['quantity'] <= 0) {
-                throw new InvalidRegistrationException("Each selected menu must have a numeric quantity greater than 0");
-            } else if (array_key_exists('notes', $selectedMenu) && !is_string($selectedMenu['notes'])) {
-                throw new InvalidRegistrationException("Notes must be a string");
+            $rules = [
+                'quantity' => 'required|is_natural_no_zero',
+                'notes' => 'permit_empty|string',
+            ];
+
+            $validationResult = Validator::validate($rules, [], $selectedMenu);
+            if ($validationResult !== TRUE) {
+                throw new InvalidRegistrationException($validationResult);
             }
         }
     }
@@ -95,7 +99,7 @@ class OrderService
     {
         $order = OrderRepository::getOrderByID($orderID);
         $orderNewTotal = $order->total_price + $addedSubtotal;
-        OrderRepository::setOrderTotalPrice($orderID, $orderNewTotal);
+        OrderRepository::updateOrder($orderID, ['total_price' => $orderNewTotal]);
     }
 
     private static function computeOrderStatus($orderID)
@@ -121,7 +125,7 @@ class OrderService
     private static function setOrderStatus($orderID)
     {
         $orderStatus = self::computeOrderStatus($orderID);
-        OrderRepository::setOrderStatus($orderID, $orderStatus->id);
+        OrderRepository::updateOrder($orderID, ['order_status_id' => $orderStatus->id]);
     }
 
     private static function registerOrderItem($orderID, $selectedMenus)
@@ -185,12 +189,13 @@ class OrderService
 
     private static function appendRelevantInformationOfOrder($order)
     {
-        $order->business_name = BusinessRepository::getBusinessById($order->receiving_business_id)->business_name;
-        $order->status_name = OrderRepository::getOrderStatusByID($order->order_status_id)->status;
-        $order->duration = Utils::calculateDuration($order->order_creation_time, $order->order_completion_time ?? date("c"));
-        $order->start_date = Utils::getDateFromDateTime($order->order_creation_time);
-        $order->formatted_creation_time = Utils::formatDateTimeForDisplay($order->order_creation_time);
-        return $order;
+        $formattedOrder = clone $order;
+        $formattedOrder->business_name = BusinessRepository::getBusinessById($order->receiving_business_id)->business_name;
+        $formattedOrder->status_name = OrderRepository::getOrderStatusByID($order->order_status_id)->status;
+        $formattedOrder->duration = Utils::calculateDuration($order->order_creation_time, $order->order_completion_time ?? date("c"));
+        $formattedOrder->start_date = Utils::getDateFromDateTime($order->order_creation_time);
+        $formattedOrder->formatted_creation_time = Utils::formatDateTimeForDisplay($order->order_creation_time);
+        return $formattedOrder;
     }
 
     private static function appendRelatedInformationOfOrders($orders)
@@ -266,7 +271,7 @@ class OrderService
             $orderSummary[] = self::createOrderMenuItemIDAndPriceSummary(
                 $order,
                 $menuItemAndPrice->menu_item_id,
-                $menuItemAndPrice->menu_item_name,
+                $menuItemAndPrice->menu_item_name ?? 'Deleted Item',
                 $menuItemAndPrice->price_when_bought
             );
         }
@@ -274,14 +279,24 @@ class OrderService
         return $orderSummary;
     }
 
+    private static function formatOrderItems($orderItems) {
+        $formattedOrderItems = [];
+
+        for ($i = 0; $i < sizeof($orderItems); $i++) {
+            $orderItem = clone $orderItems[$i];
+            $orderItem->menu_item_name = $orderItem->menu_item_name ?? 'Deleted Item';
+            $orderItem->formatted_item_order_date = Utils::getDateFromDateTime($orderItem->item_order_time);
+            $orderItem->formatted_item_order_time = Utils::getTimeFromDateTime($orderItem->item_order_time);
+            $formattedOrderItems[] = $orderItem;
+        }
+
+        return $formattedOrderItems;
+    } 
+
     private static function getFormattedOrderItemsOfOrder($order)
     {
         $orderItems = OrderItemRepository::getOrderItemsOfOrder($order->order_id, TRUE, TRUE);
-
-        foreach ($orderItems as $orderItem) {
-            $orderItem->formatted_item_order_date = Utils::getDateFromDateTime($orderItem->item_order_time);
-            $orderItem->formatted_item_order_time = Utils::getTimeFromDateTime($orderItem->item_order_time);
-        }
+        $orderItems = self::formatOrderItems($orderItems);        
 
         return $orderItems;
     }
@@ -376,8 +391,13 @@ class OrderService
     {
         $completedOrderStatus = OrderRepository::getOrderStatusByName('Completed');
         self::validateOrderCompletion($order, $completedOrderStatus);
-        OrderRepository::setOrderStatus($order->order_id, $completedOrderStatus->id);
-        OrderRepository::setOrderCompletionTime($order->order_id, date("c"));
+        OrderRepository::updateOrder(
+            $order->order_id, 
+            [
+                'order_status_id' => $completedOrderStatus->id,
+                'order_completion_time' => date("c"),
+            ]
+        );
     }
 
     public static function handleBusinessCompleteOrder($user, $requestData)
@@ -391,6 +411,7 @@ class OrderService
     {
         $businessOrderItemSumamry = OrderItemRepository::getOrderItemsSummaryOfBusiness($user->business_id);
         $businessOrderItems = OrderItemRepository::getOrderItemsOfBusiness($user->business_id);
+        $businessOrderItems = self::formatOrderItems($businessOrderItems);
         $allStatus = OrderItemRepository::getAllOrderItemStatus();
 
         return [

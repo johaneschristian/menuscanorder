@@ -27,11 +27,9 @@ class MenuRepository
         $menu->update($menuItemID, $menuData);
     }
 
-    public static function updateMenuImage($menuItemID, $imageURL) {
+    public static function deleteMenu($menuItemID) {
         $menu = new MenuItemModel();
-        $menu->update($menuItemID, [
-            'image_url' => $imageURL,
-        ]);
+        $menu->delete($menuItemID);
     }
 
     public static function getMenuByID($menuItemID) {

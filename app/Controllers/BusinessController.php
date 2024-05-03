@@ -71,7 +71,7 @@ class BusinessController extends BaseController
             session()->setFlashdata('error', $exception->getMessage());
         }
 
-        return redirect()->to('/business/categories');
+        return redirect()->back();
     }
 
     public function updateCategory()
@@ -87,7 +87,7 @@ class BusinessController extends BaseController
             session()->setFlashdata('error', $exception->getMessage());
         }
 
-        return redirect()->to('/business/categories');
+        return redirect()->back();
     }
 
     public function deleteCategory() {
@@ -102,7 +102,7 @@ class BusinessController extends BaseController
             session()->setFlashdata('error', $exception->getMessage());
         }
 
-        return redirect()->to('/business/categories');
+        return redirect()->back();
     }
 
     public function getMenuList()
@@ -189,6 +189,22 @@ class BusinessController extends BaseController
             session()->setFlashdata('error', $exception->getMessage());
             return redirect()->to('/');
         }
+    }
+
+    public function deleteMenu() {
+        try {
+            $user = auth()->user();
+            $user->business_id = session()->get('business_id');
+            $requestData = $this->request->getPost();
+
+            BusinessService::handleDeleteMenu($user, $requestData);
+            session()->setFlashdata('success', 'Menu item is deleted successfully');
+
+        } catch (Exception $exception) {
+            session()->setFlashdata('error', $exception->getMessage());
+        }
+
+        return redirect()->back();
     }
 
     public function menuGetImage($menuID)

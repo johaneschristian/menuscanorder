@@ -22,16 +22,18 @@ $routes->group('admin', ['filter' => 'admin'], function ($routes) {
 });
 
 $routes->group('business', ['filter' => 'business'], function ($routes) {
-    $routes->get('categories', 'BusinessController::getCategoryList');
-    $routes->post('categories', 'BusinessController::createCategory');
-    $routes->post('categories/update', 'BusinessController::updateCategory');
-    $routes->post('categories/delete', 'BusinessController::deleteCategory');
+    $routes->group('categories', function ($routes) {
+        $routes->get('', 'BusinessController::getCategoryList');
+        $routes->post('', 'BusinessController::createCategory');
+        $routes->post('update/', 'BusinessController::updateCategory');
+        $routes->post('delete/', 'BusinessController::deleteCategory');
+    });
 
     $routes->group('menu', function ($routes) {
         $routes->get('/', 'BusinessController::getMenuList');
         $routes->match(['get', 'post'], 'create', 'BusinessController::createMenu');
         $routes->match(['get', 'post'], '(:segment)/edit', 'BusinessController::editMenu/$1');
-        $routes->get('(:segment)/image', 'BusinessController::menuGetImage/$1');
+        $routes->post('delete/', 'BusinessController::deleteMenu');
     });
     $routes->group('orders', function ($routes) {
         $routes->get('/', 'OrderController::businessGetOrderList');
@@ -47,8 +49,8 @@ $routes->group('business', ['filter' => 'business'], function ($routes) {
         $routes->match(['get', 'post'], '/', 'BusinessController::seatManagement');
         $routes->get('generate-qr/(:segment)/(:segment)', 'BusinessController::getTableQRCode/$1/$2');
     });
-    
 });
+$routes->get('business/menu/(:segment)/image', 'BusinessController::menuGetImage/$1');
 
 $routes->group('customer', function ($routes) {
     $routes->group('orders', function ($routes) {

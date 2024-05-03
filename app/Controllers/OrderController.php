@@ -141,7 +141,7 @@ class OrderController extends Controller {
         }
     }
 
-    public function businessOrderGetKitchenView() {
+    public function businessGetOrderKitchenView() {
         try {
             $data = [
                 'business_name' => session()->get('business_name'),

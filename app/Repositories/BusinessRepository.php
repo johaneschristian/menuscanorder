@@ -29,17 +29,6 @@ class BusinessRepository
         return $businesses->where('owning_user_id', $owningUserId)->first();
     }
 
-    public static function getBusinessByUserIdOrThrowException($owningUserId) {
-        $foundBusiness = self::getBusinessByUserId($owningUserId);
-        
-        if(is_null($foundBusiness)) {
-            throw new ObjectNotFoundException(sprintf("Business belonging to user with ID %d does not exist", $owningUserId));
-
-        } else {
-            return $foundBusiness;
-        }
-    }
-
     public static function createBusiness($creatingUserID, $businessData) {
         $businesses = new BusinessModel();
         $businessID = Utils::generateUUID();

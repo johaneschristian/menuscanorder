@@ -193,7 +193,7 @@ class BusinessService
         $extension = pathinfo($menuImage->getName(), PATHINFO_EXTENSION);
         $fileName = "$businessID-$menuID.$extension";
         $menuImage->move(WRITEPATH . 'menu_images', $fileName);
-        MenuRepository::updateMenuImage($menuID, $fileName);
+        MenuRepository::updateMenu($menuID, ['image_url' => $fileName]);
     }
 
     private static function removeImageFileOfMenu($menu)
@@ -306,6 +306,13 @@ class BusinessService
         }
     }
 
+    public static function handleDeleteMenu($user, $requestData) {
+        $deletedMenu = MenuRepository::getMenuByIDOrThrowException($requestData['menu_item_id'] ?? '');
+        self::validateMenuOwnership($user->business_id, $deletedMenu);
+        self::removeImageFileOfMenu($deletedMenu);
+        MenuRepository::deleteMenu($deletedMenu->menu_item_id);
+    }
+
     public static function handleGetBusinessTableData($user, $requestData)
     {
         $userBusiness = BusinessRepository::getBusinessById($user->business_id);
@@ -347,9 +354,8 @@ class BusinessService
     public static function handleUpdateBusinessTableCapacity($user, $requestData)
     {
         self::validateCapacityData($requestData);
-        $userBusiness = BusinessRepository::getBusinessByUserIdOrThrowException($user->id);
         BusinessRepository::updateBusiness(
-            $userBusiness->business_id,
+            $user->business_id,
             [
                 'num_of_tables' => $requestData['new_table_quantity']
             ]

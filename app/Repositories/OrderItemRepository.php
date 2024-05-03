@@ -78,7 +78,7 @@ class OrderItemRepository
         if ($completeData) {
             $query = $query
                         ->select('order_items.order_item_id, order_items.num_of_items, order_items.item_order_time, order_items.order_item_status_id, order_items.notes, order_items.order_id, order_items.menu_item_id, order_items.price_when_bought, menu_items.name AS menu_item_name, order_item_statuses.status AS status_name')
-                        ->join('menu_items', 'order_items.menu_item_id=menu_items.menu_item_id')
+                        ->join('menu_items', 'order_items.menu_item_id=menu_items.menu_item_id', 'left')
                         ->join('order_item_statuses', 'order_items.order_item_status_id=order_item_statuses.id');
         }
         
@@ -93,7 +93,7 @@ class OrderItemRepository
         $orderItem = new OrderItemModel();
         return $orderItem
                 ->select('order_items.menu_item_id, order_items.price_when_bought, menu_items.name AS menu_item_name')
-                ->join('menu_items', 'order_items.menu_item_id=menu_items.menu_item_id')
+                ->join('menu_items', 'order_items.menu_item_id=menu_items.menu_item_id', 'left')
                 ->where('order_id', $orderID)
                 ->distinct()
                 ->findAll();
@@ -125,7 +125,7 @@ class OrderItemRepository
                     ->select('order_items.order_item_id, order_items.num_of_items, order_items.item_order_time, order_items.order_item_status_id, order_item_statuses.status AS status_name, order_items.notes, order_items.order_id, orders.table_number, order_items.menu_item_id, menu_items.name AS menu_item_name, order_items.price_when_bought')
                     ->join('orders', 'order_items.order_id=orders.order_id')
                     ->join('order_item_statuses', 'order_items.order_item_status_id=order_item_statuses.id')
-                    ->join('menu_items', 'order_items.menu_item_id=menu_items.menu_item_id')
+                    ->join('menu_items', 'order_items.menu_item_id=menu_items.menu_item_id', 'left')
                     ->where('orders.receiving_business_id', $businessID)
                     ->whereNotIn('order_item_statuses.status', ['served'])
                     ->orderBy('order_items.item_order_time', 'DESC');
