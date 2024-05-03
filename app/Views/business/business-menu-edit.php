@@ -35,7 +35,7 @@
   <div class="p-5 d-flex flex-column align-items-center">
     <h1 class="fw-bold"><?= $is_create ? "Create" : "Edit" ?> Menu</h1>
     <form id="menu-item-form" action="<?= !$is_create ? base_url("/business/menu/{$menu->menu_item_id}/edit") : base_url("/business/menu/create") ?>" method="post" enctype="multipart/form-data" class="w-100 d-flex flex-md-row flex-column justify-content-center gap-3">
-      <div class="w-mdc-25 w-100">
+      <div class="w-mdc-25 w-md-50 w-100">
         <div class="card shadow">
           <img src='<?= !$is_create && !is_null($menu->image_url) ? base_url("/business/menu/{$menu->menu_item_id}/image") : "https://theme-assets.getbento.com/sensei/7c1964e.sensei/assets/images/catering-item-placeholder-704x520.png" ?>' alt="" srcset="" id="menu-item-image-preview" class="rounded" style="min-height: 300px; max-height: 400px;">
         </div>

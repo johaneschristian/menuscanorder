@@ -12,6 +12,7 @@ use App\Utils\Utils;
 use App\Utils\Validator;
 use CodeIgniter\Files\File;
 use chillerlan\QRCode\{QRCode, QROptions};
+use Config\Services;
 
 class BusinessService
 {
@@ -210,6 +211,9 @@ class BusinessService
 
     public static function handleCreateMenu($user, $requestData, $menuImage)
     {
+        $db = \Config\Database::connect();
+        $db->transStart();
+
         $requestData = Utils::trimAllString($requestData);
         self::validateMenuData($requestData, $menuImage);
         $transformedMenuData = self::transformMenuData($requestData);
@@ -217,6 +221,8 @@ class BusinessService
         if ($menuImage->isValid()) {
             self::saveImageFile($user->business_id, $createdMenuID, $menuImage);
         }
+
+        $db->transComplete();
     }
 
     private static function transformMenuListRequestData($requestData)
@@ -298,6 +304,9 @@ class BusinessService
 
     public static function handleEditMenu($user, $menuID, $requestData, $menuImage)
     {
+        $db = \Config\Database::connect();
+        $db->transStart();
+
         $requestData = Utils::trimAllString($requestData);
         self::validateMenuData($requestData, $menuImage);
         $menu = MenuRepository::getMenuByIDOrThrowException($menuID);
@@ -309,6 +318,8 @@ class BusinessService
             self::removeImageFileOfMenu($menu);
             self::saveImageFile($user->business_id, $menuID, $menuImage);
         }
+        
+        $db->transComplete();
     }
 
     public static function handleDeleteMenu($user, $requestData) {
