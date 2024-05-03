@@ -192,7 +192,7 @@ class OrderService
         $formattedOrder = clone $order;
         $formattedOrder->business_name = BusinessRepository::getBusinessById($order->receiving_business_id)->business_name;
         $formattedOrder->status_name = OrderRepository::getOrderStatusByID($order->order_status_id)->status;
-        $formattedOrder->duration = Utils::calculateDuration($order->order_creation_time, $order->order_completion_time ?? date("c"));
+        $formattedOrder->duration = Utils::calculateDuration($order->order_creation_time, $order->order_completion_time ?? Utils::getCurrentTime());
         $formattedOrder->start_date = Utils::getDateFromDateTime($order->order_creation_time);
         $formattedOrder->formatted_creation_time = Utils::formatDateTimeForDisplay($order->order_creation_time);
         return $formattedOrder;
@@ -395,7 +395,7 @@ class OrderService
             $order->order_id, 
             [
                 'order_status_id' => $completedOrderStatus->id,
-                'order_completion_time' => date("c"),
+                'order_completion_time' => Utils::getCurrentTime(),
             ]
         );
     }

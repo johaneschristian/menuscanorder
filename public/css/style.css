@@ -37,6 +37,10 @@ body {
   background-color: var(--main-bg-color);  
 }
 
+.sidebar-title {
+  width: auto;
+}
+
 .logo {
   text-align: center;
   font-weight: bold;
@@ -207,6 +211,10 @@ body {
 @media only screen and (min-width: 915px) {
   .sidebar-md-none {
     display: none;
+  }
+
+  .sidebar-title {
+    width: 100%;
   }
 }
 

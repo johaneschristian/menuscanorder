@@ -30,7 +30,7 @@ async function submitOrder() {
 		selected_menus: getCompleteSelectedMenu(),
 	};
 
-	const response = await fetch(BASE_URL + "/customer/orders/submit", {
+	const response = await fetch(BASE_URL + "customer/orders/submit", {
 		method: "POST",
 		mode: "cors",
 		body: JSON.stringify(orderData),

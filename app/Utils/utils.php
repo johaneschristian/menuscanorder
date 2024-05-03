@@ -3,12 +3,19 @@
 namespace App\Utils;
 
 use DateTime;
+use DateTimeZone;
 use Ramsey\Uuid\Uuid;
 
 class Utils
 {
     public static function generateUUID() {
         return Uuid::uuid4()->toString();
+    }
+
+    public static function getCurrentTime() {
+        $dateTime = new DateTime();
+        $dateTime->setTimezone(new DateTimeZone('Australia/Brisbane'));
+        return $dateTime->format("c");        
     }
 
     public static function calculateDuration($timeOneText, $timeTwoText) {

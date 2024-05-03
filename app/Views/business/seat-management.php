@@ -78,7 +78,7 @@
         </thead>
         <tbody>
           <?php if (is_null($searched_table_number)) : ?>
-            <?php for ($tableNum = ($current_page - 1) * 10; $tableNum < ($current_page - 1) * 10 + 10 && $tableNum < $business->num_of_tables; $tableNum++) : ?>
+            <?php for ($tableNum = ($current_page - 1) * 10; $tableNum >= 0 && $tableNum < ($current_page - 1) * 10 + 10 && $tableNum < $business->num_of_tables; $tableNum++) : ?>
               <tr>
                 <td id="table-num-<?= esc($tableNum + 1) ?>"><?= esc($tableNum + 1) ?></td>
                 <td>
@@ -114,16 +114,18 @@
             </li>
 
             <?php for ($page = $current_page - 3; $page < $current_page; $page++) : ?>
-              <?php if ($page > 0) : ?>
-                <li class="page-item"><a class="page-link" href='<?= base_url("/business/seat-management/?page=$page") ?>'><?= esc($page) ?></a></li>
+              <?php if ($page > 0 && $page <= $total_pages) : ?>
+                <li class="page-item"><a class="page-link" href='<?= base_url("/business/seat-management/?page=$page") ?>'><?= $page ?></a></li>
               <?php endif; ?>
             <?php endfor; ?>
 
-            <li class="page-item"><a class="page-link active" href="#"><?= esc($current_page) ?></a></li>
+            <?php if ($current_page > 0 && $current_page <= $total_pages) : ?>
+              <li class="page-item"><a class="page-link active" href="#"><?= esc($current_page) ?></a></li>
+            <?php endif; ?>
 
             <?php for ($page = $current_page + 1; $page < $current_page + 4; $page++) : ?>
-              <?php if ($page <= $total_pages) : ?>
-                <li class="page-item"><a class="page-link" href='<?= base_url("/business/seat-management/?page=$page") ?>'><?= esc($page) ?></a></li>
+              <?php if ($page > 0 && $page <= $total_pages) : ?>
+                <li class="page-item"><a class="page-link" href='<?= base_url("/business/seat-management/?page=$page") ?>'><?= $page ?></a></li>
               <?php endif; ?>
             <?php endfor; ?>
 

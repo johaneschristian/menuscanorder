@@ -50,7 +50,7 @@
 			</div>
 			<div class="d-flex flex-sm-row flex-column mt-sm-0 mt-1 justify-content-end gap-1">
 				<button type="submit" class="btn bg-brown text-light">Update User Information</button>
-				<button class="btn btn-outline-primary">Cancel</button>
+				<a href="<?= base_url('') ?>" class="btn btn-outline-primary">Cancel</a>
 			</div>
 		</div>
 	</form>

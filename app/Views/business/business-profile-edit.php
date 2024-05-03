@@ -41,7 +41,7 @@
     </div>
     <div class="d-flex flex-sm-row flex-column mt-sm-0 mt-1 justify-content-end gap-1">
       <button class="btn bg-brown text-light">Update Business Information</button>
-      <button class="btn btn-outline-primary">Cancel</button>
+      <a href="<?= base_url('/business/orders') ?>" class="btn btn-outline-primary">Cancel</a>
     </div>
   </form>
 </div>
