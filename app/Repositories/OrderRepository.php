@@ -31,7 +31,7 @@ class OrderRepository
         $orderID = Utils::generateUUID();
         $order->insert([
             'order_id' => $orderID,
-            'order_creation_time' => date('c'),
+            'order_creation_time' => Utils::getCurrentTime(),
             'order_status_id' => $receivedOrderStatus->id,
             'table_number' => $tableNumber,
             'submitting_user_id' => $submittingUserID,

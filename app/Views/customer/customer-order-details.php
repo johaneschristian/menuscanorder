@@ -33,33 +33,35 @@
       </tr>
     </table>
     <p class="h4 fw-bold mt-3 mb-3">Order Summary</p>
-    <table class="table table-hover">
-      <thead class="align-middle">
-        <tr>
-          <th>Number</th>
-          <th>Item</th>
-          <th>Quantity</th>
-          <th>Item Price (AUD)</th>
-          <th>Subtotal (AUD)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php foreach($order->order_summary as $index => $order_item_summary): ?>
+    <div class="w-100 overflow-x-scroll">
+      <table class="table table-hover">
+        <thead class="align-middle">
           <tr>
-            <td><?= $index+1 ?></td>
-            <td class="d-flex flex-column">
-              <span><?= esc($order_item_summary['menu_item_name']) ?></span>
-              <?php foreach($order_item_summary['notes'] as $notes): ?>
-                <span class="small text-secondary">- <?= esc($notes) ?></span>
-              <?php endforeach; ?>
-            </td>
-            <td><?= esc($order_item_summary['num_of_items']) ?></td>
-            <td><?= esc(number_format($order_item_summary['price_when_bought'], 2, '.')) ?></td>
-            <td><?= esc(number_format($order_item_summary['subtotal'], 2, '.')) ?></td>
+            <th>Number</th>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Item Price (AUD)</th>
+            <th>Subtotal (AUD)</th>
           </tr>
-        <?php endforeach; ?>
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          <?php foreach($order->order_summary as $index => $order_item_summary): ?>
+            <tr>
+              <td><?= $index+1 ?></td>
+              <td class="d-flex flex-column">
+                <span><?= esc($order_item_summary['menu_item_name']) ?></span>
+                <?php foreach($order_item_summary['notes'] as $notes): ?>
+                  <span class="small text-secondary">- <?= esc($notes) ?></span>
+                <?php endforeach; ?>
+              </td>
+              <td><?= esc($order_item_summary['num_of_items']) ?></td>
+              <td><?= esc(number_format($order_item_summary['price_when_bought'], 2, '.')) ?></td>
+              <td><?= esc(number_format($order_item_summary['subtotal'], 2, '.')) ?></td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
     <div class="d-flex justify-content-end align-items-end">
       <h6 class="me-1 h6">Order Total:</h6><h4 class="fw-bold"><?= esc(number_format($order->total_price, 2, '.')) ?> (AUD)</h4>
     </div>
