@@ -46,7 +46,7 @@
       <tbody>
         <?php foreach($order->order_summary as $index => $order_item_summary): ?>
           <tr>
-            <td><?= esc($index+1) ?></td>
+            <td><?= $index+1 ?></td>
             <td class="d-flex flex-column">
               <span><?= esc($order_item_summary['menu_item_name']) ?></span>
               <?php foreach($order_item_summary['notes'] as $notes): ?>
@@ -96,7 +96,7 @@
         <div class="row d-flex flex-md-row flex-column align-items-md-center align-items-start">
           <div class="col-md-1 d-flex flex-md-column flex-column-reverse">
             <div class="row">
-              <div class="fw-bold"><?= esc($index+1) ?></div>
+              <div class="fw-bold"><?= $index+1 ?></div>
             </div>
             <div class="row">
               <div class="sub-text text-muted d-md-none">No.</div>

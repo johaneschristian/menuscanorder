@@ -8,6 +8,7 @@
 <div class="modal fade" id="reset-password-modal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
 	<div class="modal-dialog">
 		<form action="<?= base_url('change-password') ?>" method="post">
+			<input type="hidden" name="<?= csrf_token() ?>" value="<?= csrf_hash() ?>">
 			<div class="modal-content">
 				<div class="modal-body">
 					<p class="fw-bold fs-5">Change Password</p>
@@ -35,6 +36,7 @@
 <div class="d-flex flex-column align-items-center p-3">
 	<h1>Edit User Details</h1>
 	<form action="" method="post" class="card shadow w-mdc-50 w-100 pt-3 pb-3 ps-md-5 pe-md-5 ps-3 pe-3 mt-md-3 mt-1">
+		<input type="hidden" name="<?= csrf_token() ?>" value="<?= csrf_hash() ?>">
 		<span class="fw-bold fs-4 mb-3">Personal Information</span>
 		<div class="mb-3">
 			<label for="" class="form-label fw-bold lh-sm">Email</label>

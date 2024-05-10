@@ -6,6 +6,7 @@
 <?= $this->section('content') ?>
 <section class="d-flex flex-row justify-content-center p-5">
 	<form action="" method="post" class="card shadow-lg rounded p-3 w-mdc-25 w-100">
+		<input type="hidden" name="<?= csrf_token() ?>" value="<?= csrf_hash() ?>">
 		<div class="text-center">
 			<span class="fw-bold fs-4 mb-3">Login</span>
 		</div>

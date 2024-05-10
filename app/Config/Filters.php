@@ -42,17 +42,13 @@ class Filters extends BaseConfig
      */
     public array $globals = [
         'before' => [
-            // 'honeypot',
-            // 'csrf',
-            // 'invalidchars',
+            'csrf' => ['except' => ['customer/orders/submit', 'business/orders/item/update-status']],
             'loginredirect',
             'session' => ['except' => ['', 'login*', 'register', 'logout', 'business/seat-management/generate-qr/*']],
             'usercheckarchived' => ['except' => ['', 'login*', 'register', 'logout', 'business/seat-management/generate-qr/*']],
         ],
         'after' => [
             'toolbar',
-            // 'honeypot',
-            // 'secureheaders',
         ],
     ];
 

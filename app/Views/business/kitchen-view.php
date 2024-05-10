@@ -40,8 +40,6 @@
       </div>
     </div>
   </div>
-  <div id="order-items-holder" class="row d-flex justify-content-center text-center gy-3">
-    <h1>No Ongoing Orders</h1>
-  </div>
+  <div id="order-items-holder" class="row d-flex justify-content-center text-center gy-3"></div>
 </div>
 <?= $this->endSection() ?>

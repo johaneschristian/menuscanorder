@@ -15,7 +15,7 @@ $routes->group('admin', ['filter' => 'admin'], function ($routes) {
     $routes->group('users', function ($routes) {
         $routes->get('/', 'AdminController::getUserList');
         $routes->match(['get', 'post'], 'create', 'AdminController::createUser');
-        $routes->get('(:segment)', 'AdminController::userDetails/$1');
+        $routes->get('(:segment)', 'AdminController::getUserDetails/$1');
         $routes->match(['get', 'post'], '(:segment)/edit', 'AdminController::editUser/$1');
         $routes->post('(:segment)/edit/password', 'AdminController::changeUserPassword/$1');
     });

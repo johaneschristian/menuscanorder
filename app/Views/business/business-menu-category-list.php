@@ -16,6 +16,7 @@
 <div class="modal fade" id="create-category-modal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog">
     <form action="" method="post">
+      <input type="hidden" name="<?= csrf_token() ?>" value="<?= csrf_hash() ?>">
       <div class="modal-content">
         <div class="modal-body">
           <p class="fw-bold fs-5">Create Category</p>
@@ -35,6 +36,7 @@
 <div class="modal fade" id="edit-category-modal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog">
     <form action="<?= base_url('business/categories/update') ?>" method="post">
+      <input type="hidden" name="<?= csrf_token() ?>" value="<?= csrf_hash() ?>">
       <div class="modal-content">
         <div class="modal-body">
           <p class="fw-bold fs-5">Edit Category</p>
@@ -58,6 +60,7 @@
 <div class="modal fade" id="delete-confirmation-modal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog">
     <form action="<?= base_url('business/categories/delete') ?>" method="post">
+      <input type="hidden" name="<?= csrf_token() ?>" value="<?= csrf_hash() ?>">
       <div class="modal-content">
         <div class="modal-body">
           <p class="fw-bold fs-5">Are you sure you want to delete <span id="deleted-category-name"></span>?</p>
@@ -100,7 +103,7 @@
       <tbody>
         <?php foreach ($categories as $categoryIndex => $category) : ?>
           <tr>
-            <td><?= esc($categoryIndex + 1) ?></td>
+            <td><?= $categoryIndex + 1 ?></td>
             <td id="menu-category-<?= esc($category->category_id) ?>"><?= esc($category->name) ?></td>
             <td><?= esc($category->menu_count) ?></td>
             <td>

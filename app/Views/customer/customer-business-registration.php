@@ -10,6 +10,7 @@
 			<h1>Create Business</h1>
 			<span class="w-mdc-50 w-75 text-center"><i class="bi bi-info-circle me-1"></i>To access the business features, you must first register your business and affiliate it to your account.</span>
 			<form action="" method="post" class="card shadow w-mdc-50 w-100 pt-3 pb-3 ps-5 pe-5 mt-3">
+				<input type="hidden" name="<?= csrf_token() ?>" value="<?= csrf_hash() ?>">
 				<div class="" id="affiliated-business-form">
 					<div class="mb-3">
 						<label for="affiliated-business-name" class="form-label fw-bold lh-sm">Business Name</label>

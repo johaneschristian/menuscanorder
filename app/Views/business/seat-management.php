@@ -15,39 +15,36 @@
 <?= $this->section('content') ?>
 <div class="modal fade" id="qr-code-view-modal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog">
-    <form action="" method="post">
-      <div class="modal-content">
-        <div class="modal-body text-center">
-          <p class="h3 fw-bold">QR Code for Table <span id="qr-view-table-number">1</span></p>
-          <img id="qr-view-qr-code" src="" class="w-50" alt="" srcset="">
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary" onclick="downloadQRImageFromModal()">Download</button>
-          <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Close</button>
-        </div>
+    <div class="modal-content">
+      <div class="modal-body text-center">
+        <p class="h3 fw-bold">QR Code for Table <span id="qr-view-table-number">1</span></p>
+        <img id="qr-view-qr-code" src="" class="w-50" alt="" srcset="">
       </div>
-    </form>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="downloadQRImageFromModal()">Download</button>
+        <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
   </div>
 </div>
 <div class="modal fade" id="bulk-edit-table-number-modal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog">
-    <form action="" method="post">
-      <div class="modal-content">
-        <form action="" method="get">
-          <div class="modal-body">
-            <p class="h5 fw-bold">Update Table Quantity</p>
-            <label for="table-quantity" class="form-label">New Quantity</label>
-            <div class="input-group mb-3">
-              <input type="number" step="1" class="form-control" id="table-quantity" name="new_table_quantity" aria-describedby="basic-addon3" required>
-            </div>
+    <div class="modal-content">
+      <form action="" method="post">
+        <input type="hidden" name="<?= csrf_token() ?>" value="<?= csrf_hash() ?>">
+        <div class="modal-body">
+          <p class="h5 fw-bold">Update Table Quantity</p>
+          <label for="table-quantity" class="form-label">New Quantity</label>
+          <div class="input-group mb-3">
+            <input type="number" step="1" class="form-control" id="table-quantity" name="new_table_quantity" aria-describedby="basic-addon3" required>
           </div>
-          <div class="modal-footer">
-            <button type="submit" class="btn btn-primary">Update</button>
-            <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Close</button>
-          </div>
-        </form>
-      </div>
-    </form>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Update</button>
+          <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 <div class="p-md-5 p-3">
@@ -58,7 +55,7 @@
       <div class="col-md-6">
         <form action="" method="get">
           <div class="input-group mb-md-0 mb-3 me-3 p-0">
-            <input type="text" class="form-control bg-soft-gray" name="search" placeholder="Search Table Number" value='<?= is_null($searched_table_number) ? "" : $searched_table_number ?>'>
+            <input type="text" class="form-control bg-soft-gray" name="search" placeholder="Search Table Number" value='<?= is_null($searched_table_number) ? "" : esc($searched_table_number) ?>'>
             <button class="btn bg-brown text-white" type="submit" id="search-button">Search</button>
           </div>
         </form>
@@ -80,27 +77,27 @@
           <?php if (is_null($searched_table_number)) : ?>
             <?php for ($tableNum = ($current_page - 1) * 10; $tableNum >= 0 && $tableNum < ($current_page - 1) * 10 + 10 && $tableNum < $business->num_of_tables; $tableNum++) : ?>
               <tr>
-                <td id="table-num-<?= esc($tableNum + 1) ?>"><?= esc($tableNum + 1) ?></td>
+                <td id="table-num-<?= $tableNum + 1 ?>"><?= $tableNum + 1 ?></td>
                 <td>
-                  <img id="table-num-<?= esc($tableNum + 1) ?>-qr" src='<?= base_url("business/seat-management/generate-qr/{$business->business_id}/" . ($tableNum + 1)) ?>' style="width: 50px;" alt="" srcset="">
+                  <img id="table-num-<?= $tableNum + 1 ?>-qr" src='<?= base_url("business/seat-management/generate-qr/{$business->business_id}/" . ($tableNum + 1)) ?>' style="width: 50px;" alt="" srcset="">
                 </td>
                 <td>
-                  <button class="btn btn-sm btn-primary mb-1" data-bs-toggle="modal" data-bs-target="#qr-code-view-modal" onclick="toggleQRView(<?= esc($tableNum + 1) ?>)"><i class="bi bi-eye-fill"></i></button>
-                  <button class="btn btn-sm btn-danger mb-1" onclick="downloadQRImage(<?= esc($tableNum + 1) ?>)"><i class="bi bi-download"></i></button>
-                  <button class="btn btn-sm btn-warning mb-1" onclick="printQRImage(<?= esc($tableNum + 1) ?>)"><i class="bi bi-printer"></i></button>
+                  <button class="btn btn-sm btn-primary mb-1" data-bs-toggle="modal" data-bs-target="#qr-code-view-modal" onclick="toggleQRView(<?= $tableNum + 1 ?>)"><i class="bi bi-eye-fill"></i></button>
+                  <button class="btn btn-sm btn-danger mb-1" onclick="downloadQRImage(<?= $tableNum + 1 ?>)"><i class="bi bi-download"></i></button>
+                  <button class="btn btn-sm btn-warning mb-1" onclick="printQRImage(<?= $tableNum + 1 ?>)"><i class="bi bi-printer"></i></button>
                 </td>
               </tr>
             <?php endfor; ?>
-          <?php elseif ($searched_table_number <= $business->num_of_tables) : ?>
+          <?php elseif ($searched_table_number > 0 && $searched_table_number <= $business->num_of_tables) : ?>
             <tr>
               <td id="table-num-$searched_table_number"><?= esc($searched_table_number) ?></td>
               <td>
-                <img id="table-num-$searched_table_number-qr" src="<?= base_url('images/business/dummy-qr-code.png') ?>" style="width: 50px;" alt="" srcset="">
+                <img id="table-num-$searched_table_number-qr" src="<?= base_url("business/seat-management/generate-qr/{$business->business_id}/" . esc($searched_table_number)) ?>" style="width: 50px;" alt="" srcset="">
               </td>
               <td>
-                <button class="btn btn-sm btn-primary mb-1" data-bs-toggle="modal" data-bs-target="#qr-code-view-modal" onclick="toggleQRView(1)"><i class="bi bi-eye-fill"></i></button>
-                <button class="btn btn-sm btn-danger mb-1" onclick="downloadQRImage(1)"><i class="bi bi-download"></i></button>
-                <button class="btn btn-sm btn-warning mb-1" onclick="printQRImage(1)"><i class="bi bi-printer"></i></button>
+                <button class="btn btn-sm btn-primary mb-1" data-bs-toggle="modal" data-bs-target="#qr-code-view-modal" onclick="toggleQRView(<?= esc($searched_table_number) ?>)"><i class="bi bi-eye-fill"></i></button>
+                <button class="btn btn-sm btn-danger mb-1" onclick="downloadQRImage(<?= esc($searched_table_number) ?>)"><i class="bi bi-download"></i></button>
+                <button class="btn btn-sm btn-warning mb-1" onclick="printQRImage(<?= esc($searched_table_number) ?>)"><i class="bi bi-printer"></i></button>
               </td>
             </tr>
           <?php endif; ?>
