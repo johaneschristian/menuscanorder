@@ -2,10 +2,13 @@
 
 namespace App\Repositories;
 
+use App\CustomExceptions\InvalidRegistrationException;
 use App\CustomExceptions\ObjectNotFoundException;
 use App\Models\AppUser;
 use App\Utils\Utils;
+use CodeIgniter\Database\Exceptions\DatabaseException;
 use CodeIgniter\Shield\Entities\User;
+use Exception;
 
 class UserRepository {
     private static function generateSearchConditions($search) {
@@ -63,9 +66,18 @@ class UserRepository {
     }
 
     public static function createUser($userData) {
-        $users = auth()->getProvider();
-        $user = new User($userData);
-        return $users->insert($user, TRUE);
+        try {
+            $users = auth()->getProvider();
+            $user = new User($userData);
+            return $users->insert($user, TRUE);
+
+        } catch (Exception | DatabaseException $exception) {
+            if ($exception->getMessage() === 'Attempt to read property "id" on null' || str_contains($exception->getMessage(), 'Duplicate')) {
+                throw new InvalidRegistrationException("User with email {$userData['email']} is already registered");
+            }
+
+            throw $exception;
+        }
     }
 
     public static function updateUser($userID, $userData) {

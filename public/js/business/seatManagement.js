@@ -4,25 +4,24 @@ function toggleQRView(table_number) {
 
 	tableNumberSpan.innerText = table_number;
 	qrCodeImage.src = getTableQRImage(table_number);
-	console.log(qrCodeImage.src);
 }
 
 function downloadQRImageFromModal() {
 	downloadQRImage(getDisplayedQRCodeTableNumber());
 }
 
-function printQRImage(table_number) {
+function printQRImage(tableNumber) {
 	/* Adapted from https://www.sitepoint.com/community/t/print-specified-image-on-button-click/262539/2 */
 
 	const documentToPrint = window.open("about:blank", "_new");
 	documentToPrint.document.open();
 
 	const qrToPrint = document.createElement("img");
-	qrToPrint.src = getTableQRImage(table_number);
+	qrToPrint.src = getTableQRImage(tableNumber);
 	qrToPrint.style = `width: 200px; height: 200px`;
 
 	const qrTitle = document.createElement("h1");
-	qrTitle.innerText = `Table ${table_number}`;
+	qrTitle.innerText = `Table ${tableNumber}`;
 
 	const imageToPrint = document.createElement("div");
 	imageToPrint.style = `display: flex; flex-direction: column; align-items: center;`;
@@ -33,10 +32,11 @@ function printQRImage(table_number) {
 	documentToPrint.document.close();
 	documentToPrint.focus();
 
+	// Ensure that QR is displayed before printing
 	setTimeout(() => {
 		documentToPrint.print();
 		documentToPrint.close();
-	}, 50);
+	}, 1000);
 }
 
 function downloadQRImage(table_number) {

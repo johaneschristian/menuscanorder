@@ -40,7 +40,7 @@ class AdminController extends BaseController
                 }
             }
 
-            return view('admin/admin-create-user');
+            return view('admin/admin-edit-user-details');
         } catch (Exception $exception) {
             session()->setFlashdata('error', $exception->getMessage());
             return redirect()->to('/admin/users/');

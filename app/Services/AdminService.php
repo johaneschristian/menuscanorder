@@ -7,7 +7,6 @@ use App\Repositories\BusinessRepository;
 use App\Repositories\UserRepository;
 use App\Utils\Utils;
 use App\Utils\Validator;
-use Exception;
 
 class AdminService {
     private static function transformMenuListRequestData($requestData) {
@@ -36,14 +35,15 @@ class AdminService {
     }
 
     private static function appendAffiliatedBusinessDataToUser($user) {
+        $formattedUser = clone $user;
         $affiliatedBusiness = BusinessRepository::getBusinessByUserId($user->id);
-        $user->has_business = !is_null($affiliatedBusiness);
+        $formattedUser->has_business = !is_null($affiliatedBusiness);
         
         if (!is_null($affiliatedBusiness)) {
-            $user->business = $affiliatedBusiness;
+            $formattedUser->business = $affiliatedBusiness;
         }
 
-        return $user;
+        return $formattedUser;
     }
 
     public static function handleGetUserDetails($userID) {
@@ -71,31 +71,6 @@ class AdminService {
         }
     }
 
-    private static function transformUserData($requestData, $forCreate = TRUE) {
-        $transformedRequest = [
-            'name' => $requestData['name'],
-            'is_admin' => $requestData['account_type'] === "admin",
-            'is_archived' => $requestData['subscription_status'] === "archived",
-        ];
-
-        if ($forCreate) {
-            $transformedRequest['username'] = $requestData['email'];
-            $transformedRequest['email'] = $requestData['email'];
-            $transformedRequest['password'] = $requestData['password'];
-        }
-
-        return $transformedRequest;
-    }
-
-    private static function transformBusinessCreateRequest($requestData) {
-        return [
-            'business_name' => $requestData['business_name'],
-            'num_of_tables' => $requestData['num_of_tables'],
-            'address' => $requestData['address'],
-            'business_is_archived' => $requestData['business_subscription_status'] === "archived",
-        ];
-    }
-
     public static function handleAdminCreateUser($requestData) {
         $db = \Config\Database::connect();
         $db->transStart();
@@ -103,12 +78,12 @@ class AdminService {
         $requestData = Utils::trimAllString($requestData);
         self::validateBaseRequestData($requestData, TRUE);
         AuthService::validatePassword($requestData);
-        $transformedUserRequestData = self::transformUserData($requestData, TRUE);
+        $transformedUserRequestData = AuthService::transformUserData($requestData, TRUE, TRUE);
         $createdUserID = UserRepository::createUser($transformedUserRequestData);
 
         if (!is_null($requestData['business_name'] ?? NULL) && !empty($requestData['business_name'])) {
             BusinessService::validateBusinessData($requestData);
-            $transformedBusinessRequestData = self::transformBusinessCreateRequest($requestData);
+            $transformedBusinessRequestData = BusinessService::transformBusinessData($requestData, TRUE);
             BusinessRepository::createBusiness($createdUserID, $transformedBusinessRequestData);
         }
 
@@ -121,12 +96,12 @@ class AdminService {
 
         $requestData = Utils::trimAllString($requestData);
         self::validateBaseRequestData($requestData, FALSE);
-        $transformedUserRequestData = self::transformUserData($requestData, FALSE);
+        $transformedUserRequestData = AuthService::transformUserData($requestData, FALSE, TRUE);
         UserRepository::updateUser($updatedUserID, $transformedUserRequestData);
 
         if (!is_null($requestData['business_name'] ?? NULL) && !empty($requestData['business_name'])) {
             BusinessService::validateBusinessData($requestData);
-            $transformedBusinessRequestData = self::transformBusinessCreateRequest($requestData);
+            $transformedBusinessRequestData = BusinessService::transformBusinessData($requestData, TRUE);
 
             $userBusiness = BusinessRepository::getBusinessByUserId($updatedUserID);
             if (!is_null($userBusiness)) {

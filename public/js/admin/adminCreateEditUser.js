@@ -24,7 +24,7 @@ function hideAffiliatedBusinessForm() {
   const affiliatedBusinessSubscriptionStatus = document.querySelector(`#affiliated-business-subcription-status`);
   
   affiliatedBusinessName.value = "";
-  affiliatedBusinessAddress.innerText = "";
+  affiliatedBusinessAddress.value = "";
   affiliatedBusinessTableQuantity.value = ""; 
   affiliatedBusinessSubscriptionStatus.value = "active";
 }

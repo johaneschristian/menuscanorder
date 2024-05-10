@@ -58,10 +58,15 @@ class AuthService {
         }
     }
 
-    private static function transformUserData($userData, $forCreate = TRUE) {
+    public static function transformUserData($userData, $forCreate = TRUE, $isModifiedByAdmin = FALSE) {
         $transformedRequest = [
             'name' => $userData['name'],
         ];
+
+        if ($isModifiedByAdmin) {
+            $transformedRequest['is_admin'] = $userData['account_type'] === "admin";
+            $transformedRequest['is_archived'] = $userData['subscription_status'] === "archived";
+        }
 
         if ($forCreate) {
             $transformedRequest['username'] = $userData['email'];

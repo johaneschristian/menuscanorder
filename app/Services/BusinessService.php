@@ -63,13 +63,21 @@ class BusinessService
         }
     }
 
-    private static function transformBusinessData($businessData) {
-        return [
+    public static function transformBusinessData($businessData, $isModifiedByAdmin = FALSE) {
+        $transformedBusinessData = [
             'business_name' => $businessData['business_name'],
             'address' => $businessData['address'],
             'num_of_tables' => $businessData['num_of_tables'],
-            'is_open' => array_key_exists('is_open', $businessData)
         ];
+
+        if ($isModifiedByAdmin) {
+            $transformedBusinessData['business_is_archived'] = $businessData['business_subscription_status'] === "archived";
+            
+        } else {
+            $transformedBusinessData['is_open'] = array_key_exists('is_open', $businessData);
+        }
+
+        return $transformedBusinessData;
     }
 
     public static function handleRegisterBusiness($user, $requestData)
