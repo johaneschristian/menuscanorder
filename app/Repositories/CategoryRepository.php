@@ -38,11 +38,11 @@ class CategoryRepository
                         ->groupBy('menu_item_categories.category_id, menu_item_categories.name');
         }
 
-        $query = $query->where('menu_item_categories.owning_business_id', $owningBusinessID)->like('menu_item_categories.name', $categoryNameSearch, 'both');        
+        $query = $query->where('menu_item_categories.owning_business_id', $owningBusinessID)->like('menu_item_categories.name', $categoryNameSearch, 'both');
         return $query;
     }
 
-    public static function getCategoriesOfBusiness($owningBusinessID, $categoryNameSearch, $withMenuCount = FALSE) {     
+    public static function getCategoriesOfBusiness($owningBusinessID, $categoryNameSearch, $withMenuCount = FALSE) {
         return self::getQueryOfCategoriesOfBusiness($owningBusinessID, $categoryNameSearch, $withMenuCount)->findAll();
     }
     
@@ -53,8 +53,7 @@ class CategoryRepository
 
     public static function getCategoryByID($categoryID) {
         $category = new CategoryModel();
-        $matchingCategory = $category->where('category_id', $categoryID)->first();
-        return $matchingCategory;
+        return $category->where('category_id', $categoryID)->first();
     }
 
     public static function getCategoryByIDOrThrowException($categoryID) {

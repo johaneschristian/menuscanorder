@@ -71,8 +71,8 @@
                 <p class="card-text trunc-4 mt-3"><?= esc($menu->description) ?></p>
               </div>
               <div class="d-flex flex-row justify-content-end gap-1">
-                <a href="#" class="btn btn-warning" onclick='window.location.href = `<?= base_url("business/menu/{$menu->menu_item_id}/edit") ?>`'>Edit</a>
-                <a href="#" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delete-confirmation-modal" onclick='setDeletionModal("<?= esc($menu->menu_item_id) ?>")'>Delete</a>
+                <button class="btn btn-warning" onclick='window.location.href = `<?= base_url("business/menu/{$menu->menu_item_id}/edit") ?>`'>Edit</button>
+                <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delete-confirmation-modal" onclick='setDeletionModal("<?= esc($menu->menu_item_id) ?>")'>Delete</button>
               </div>
             </div>
           </div>

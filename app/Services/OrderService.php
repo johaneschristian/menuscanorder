@@ -29,13 +29,13 @@ class OrderService
         if (!$business->is_open) {
             throw new InvalidRegistrationException("Business with ID {$business->business_id} is currently closed");
             
-        } else if (!is_array($orderData['selected_menus'])) {
-            throw new InvalidRegistrationException("Selected menus must be an array"); 
+        } elseif (!is_array($orderData['selected_menus'])) {
+            throw new InvalidRegistrationException("Selected menus must be an array");
         }
 
         $rules = [
             'table_number' => "required|is_natural|less_than_equal_to[{$business->num_of_tables}]",
-            'selected_menus' => 'required',            
+            'selected_menus' => 'required',
         ];
 
         $validationResult = Validator::validate($rules, [], $orderData);
@@ -291,12 +291,12 @@ class OrderService
         }
 
         return $formattedOrderItems;
-    } 
+    }
 
     private static function getFormattedOrderItemsOfOrder($order)
     {
         $orderItems = OrderItemRepository::getOrderItemsOfOrder($order->order_id, TRUE, TRUE);
-        $orderItems = self::formatOrderItems($orderItems);        
+        $orderItems = self::formatOrderItems($orderItems);
 
         return $orderItems;
     }
@@ -392,7 +392,7 @@ class OrderService
         $completedOrderStatus = OrderRepository::getOrderStatusByName('Completed');
         self::validateOrderCompletion($order, $completedOrderStatus);
         OrderRepository::updateOrder(
-            $order->order_id, 
+            $order->order_id,
             [
                 'order_status_id' => $completedOrderStatus->id,
                 'order_completion_time' => Utils::getCurrentTime(),
@@ -428,9 +428,9 @@ class OrderService
 
         if ($currentOrderItemStatus->status === "received" && $newOrderItemStatus !== "being prepared") {
             throw new InvalidRegistrationException("Order item with status 'received' can only be updated to 'being prepared'");
-        } else if ($currentOrderItemStatus->status === "being prepared" && $newOrderItemStatus !== "served") {
+        } elseif ($currentOrderItemStatus->status === "being prepared" && $newOrderItemStatus !== "served") {
             throw new InvalidRegistrationException("Order item with status 'being prepared' can only be updated to 'served'");
-        } else if ($currentOrderItemStatus->status === "served") {
+        } elseif ($currentOrderItemStatus->status === "served") {
             throw new InvalidRegistrationException("Order item with status 'served' can no longer be modified");
         }
     }

@@ -6,6 +6,8 @@ use App\CustomExceptions\InvalidRegistrationException;
 use App\Services\AdminService;
 use Exception;
 
+const ADMIN_USERS_PATH = '/admin/users';
+
 class AdminController extends BaseController
 {
     public function getUserList()
@@ -22,7 +24,7 @@ class AdminController extends BaseController
             return view('admin/admin-view-user-details', $userData);
         } catch (Exception $exception) {
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to('/admin/users/');
+            return redirect()->to(ADMIN_USERS_PATH);
         }
     }
 
@@ -34,7 +36,7 @@ class AdminController extends BaseController
                     $requestData = $this->request->getPost();
                     AdminService::handleAdminCreateUser($requestData);
                     session()->setFlashdata('success', 'User is created successfully');
-                    return redirect()->to('/admin/users/');
+                    return redirect()->to(ADMIN_USERS_PATH);
                 } catch (InvalidRegistrationException $exception) {
                     session()->setFlashdata('error', $exception->getMessage());
                 }
@@ -43,7 +45,7 @@ class AdminController extends BaseController
             return view('admin/admin-edit-user-details');
         } catch (Exception $exception) {
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to('/admin/users/');
+            return redirect()->to(ADMIN_USERS_PATH);
         }
     }
 
@@ -55,7 +57,7 @@ class AdminController extends BaseController
                     $requestData = $this->request->getPost();
                     AdminService::handleEditUser($userId, $requestData);
                     session()->setFlashdata('success', 'User is updated successfully');
-                    return redirect()->to('/admin/users/');
+                    return redirect()->to(ADMIN_USERS_PATH);
                     
                 } catch (InvalidRegistrationException $exception) {
                     session()->setFlashdata('error', $exception->getMessage());
@@ -67,7 +69,7 @@ class AdminController extends BaseController
 
         } catch (Exception $exception) {
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to('/admin/users/');
+            return redirect()->to(ADMIN_USERS_PATH);
         }
     }
 

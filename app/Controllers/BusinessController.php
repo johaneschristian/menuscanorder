@@ -7,6 +7,11 @@ use App\CustomExceptions\ObjectNotFoundException;
 use App\Services\BusinessService;
 use Exception;
 
+const HOME_PATH = '/';
+const BUSINESS_CATEGORIES_PATH = 'business/categories/';
+const BUSINESS_MENU_PATH = 'business/menu/';
+const BUSINESS_ORDERS_PATH = 'business/orders/';
+
 class BusinessController extends BaseController
 {
     public function registerBusiness() {
@@ -18,23 +23,23 @@ class BusinessController extends BaseController
                     $requestData = $this->request->getPost();
                     BusinessService::handleRegisterBusiness($user, $requestData);
                     session()->setFlashData('success', 'Business is created successfully');
-                    return redirect()->to('/business/orders/');
+                    return redirect()->to(BUSINESS_ORDERS_PATH);
 
                 } catch (InvalidRegistrationException $exception) {
-                    session()->setFlashData('error', $exception->getMessage()); 
+                    session()->setFlashData('error', $exception->getMessage());
                 }
             }
 
             if (BusinessService::userHasBusiness($user)) {
-                return redirect()->to('business/orders/');
+                return redirect()->to(BUSINESS_ORDERS_PATH);
                 
             } else {
                 return view('customer/customer-business-registration');
             }
                     
         } catch (Exception $exception) {
-            session()->setFlashData('error', $exception->getMessage()); 
-            return redirect()->to('/');
+            session()->setFlashData('error', $exception->getMessage());
+            return redirect()->to(HOME_PATH);
         }
     }
 
@@ -54,7 +59,7 @@ class BusinessController extends BaseController
             return view('business/business-menu-category-list', $data);
         } catch (Exception $exception) {
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to('/');
+            return redirect()->to(HOME_PATH);
         }
     }
 
@@ -71,7 +76,7 @@ class BusinessController extends BaseController
             session()->setFlashdata('error', $exception->getMessage());
         }
 
-        return redirect()->to('/business/categories/');
+        return redirect()->to(BUSINESS_CATEGORIES_PATH);
     }
 
     public function updateCategory()
@@ -87,7 +92,7 @@ class BusinessController extends BaseController
             session()->setFlashdata('error', $exception->getMessage());
         }
 
-        return redirect()->to('/business/categories/');
+        return redirect()->to(BUSINESS_CATEGORIES_PATH);
     }
 
     public function deleteCategory() {
@@ -102,7 +107,7 @@ class BusinessController extends BaseController
             session()->setFlashdata('error', $exception->getMessage());
         }
 
-        return redirect()->to('/business/categories/');
+        return redirect()->to(BUSINESS_CATEGORIES_PATH);
     }
 
     public function getMenuList()
@@ -121,7 +126,7 @@ class BusinessController extends BaseController
             return view('business/business-menu-page', $data);
         } catch (Exception $exception) {
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to('/');
+            return redirect()->to(HOME_PATH);
         }
     }
 
@@ -136,7 +141,7 @@ class BusinessController extends BaseController
                     $imageFile = $this->request->getFile("product_image");
                     $requestData = $this->request->getPost();
                     BusinessService::handleCreateMenu($user, $requestData, $imageFile);
-                    return redirect()->to('business/menu/');
+                    return redirect()->to(BUSINESS_MENU_PATH);
                 } catch (InvalidRegistrationException $exception) {
                     session()->setFlashdata('error', $exception->getMessage());
                 }
@@ -145,14 +150,13 @@ class BusinessController extends BaseController
             $categoriesData = BusinessService::handleGetCategoryList($user, "");
             $data = [
                 ...$categoriesData,
-                'is_create' => TRUE,
                 'business_name' => session()->get('business_name'),
             ];
 
             return view('business/business-menu-edit', $data);
         } catch (Exception $exception) {
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to('/');
+            return redirect()->to(HOME_PATH);
         }
     }
 
@@ -168,7 +172,7 @@ class BusinessController extends BaseController
                     $requestData = $this->request->getPost();
                     BusinessService::handleEditMenu($user, $menuID, $requestData, $imageFile);
                     session()->setFlashdata('success', 'Menu is updated successfully');
-                    return redirect()->to('business/menu/');
+                    return redirect()->to(BUSINESS_MENU_PATH);
                 } catch (InvalidRegistrationException $exception) {
                     session()->setFlashdata('error', $exception->getMessage());
                 }
@@ -177,17 +181,16 @@ class BusinessController extends BaseController
             $menuData = BusinessService::handleGetMenuData($user, $menuID);
             $data = [
                 ...$menuData,
-                'is_create' => FALSE,
                 'business_name' => session()->get('business_name'),
             ];
 
             return view('business/business-menu-edit', $data);
         } catch (ObjectNotFoundException $exception) {
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to('business/menu/');
+            return redirect()->to(BUSINESS_MENU_PATH);
         } catch (Exception $exception) {
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to('/');
+            return redirect()->to(HOME_PATH);
         }
     }
 
@@ -204,7 +207,7 @@ class BusinessController extends BaseController
             session()->setFlashdata('error', $exception->getMessage());
         }
 
-        return redirect()->to('business/menu/');
+        return redirect()->to(BUSINESS_MENU_PATH);
     }
 
     public function menuGetImage($menuID)
@@ -267,7 +270,7 @@ class BusinessController extends BaseController
             return view('business/seat-management', $data);
         } catch (Exception $exception) {
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to('/');
+            return redirect()->to(HOME_PATH);
         }
     }
 

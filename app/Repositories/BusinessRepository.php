@@ -43,7 +43,7 @@ class BusinessRepository
         ]);
 
         return $businessID;
-    } 
+    }
 
     public static function updateBusiness($businessID, $businessData) {
         $business = new BusinessModel();

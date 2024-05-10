@@ -102,16 +102,16 @@ class OrderRepository
 
     public static function getOrdersOfUser($submittingUserID, $businessesID, $statusID) {
         return self::getQueryOfOrders(
-            $submittingUserID, 
-            $businessesID, 
+            $submittingUserID,
+            $businessesID,
             $statusID
         )->findAll();
     }
 
     public static function getPaginatedOrdersOfUser($submittingUserID, $businessesID, $statusID, $perPage = 10, $currentPage = 1) {
         $query = self::getQueryOfOrders(
-            $submittingUserID, 
-            $businessesID, 
+            $submittingUserID,
+            $businessesID,
             $statusID
         );
 

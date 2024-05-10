@@ -9,6 +9,11 @@ use App\Services\OrderService;
 use CodeIgniter\Controller;
 use Exception;
 
+const HOME_PATH = '/';
+const BUSINESS_ORDERS_PATH = 'business/orders';
+const CUSTOMER_ORDERS_PATH = 'customer/orders';
+const JSON_CONTENT_TYPE = 'application/json';
+
 class OrderController extends Controller {
     public function getOrderMenu($businessId, $tableNumber) {
         try {
@@ -17,7 +22,7 @@ class OrderController extends Controller {
 
         } catch (Exception $exception) {
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to('/customer/orders');
+            return redirect()->to(CUSTOMER_ORDERS_PATH);
         }
     }
 
@@ -27,22 +32,22 @@ class OrderController extends Controller {
             $requestData = $this->request->getJSON(true);
             OrderService::handleCreateOrder($user, $requestData);
             session()->setFlashdata('success', 'Order is created successfully');
-            return $this->response->setContentType('application/json')
+            return $this->response->setContentType(JSON_CONTENT_TYPE)
                                   ->setStatusCode(200)
                                   ->setBody(json_encode(['message' => 'Order is created successfully']));
 
         } catch (InvalidRegistrationException $exception) {
-            return $this->response->setContentType('application/json')
+            return $this->response->setContentType(JSON_CONTENT_TYPE)
                                   ->setStatusCode(400)
                                   ->setBody(json_encode(['message' => $exception->getMessage()]));
 
         } catch (ObjectNotFoundException $exception) {
-            return $this->response->setContentType('application/json')
+            return $this->response->setContentType(JSON_CONTENT_TYPE)
                                   ->setStatusCode(404)
                                   ->setBody(json_encode(['message' => $exception->getMessage()]));
 
         } catch (Exception $exception) {
-            return $this->response->setContentType('application/json')
+            return $this->response->setContentType(JSON_CONTENT_TYPE)
                                   ->setStatusCode(500)
                                   ->setBody(json_encode(['message' => $exception->getMessage()]));
         }
@@ -53,11 +58,11 @@ class OrderController extends Controller {
             $user = auth()->user();
             $requestData = $this->request->getGet();
             $customerOrders = OrderService::handleCustomerGetOrderList($user, $requestData);
-            return view('customer/customer-order-list', $customerOrders);   
+            return view('customer/customer-order-list', $customerOrders);
             
         } catch (Exception $exception) {
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to('/');
+            return redirect()->to(HOME_PATH);
         }
     }
 
@@ -69,11 +74,11 @@ class OrderController extends Controller {
 
         } catch (ObjectNotFoundException | NotAuthorizedException $exception) {
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to('customer/orders');
+            return redirect()->to(CUSTOMER_ORDERS_PATH);
 
         } catch (Exception $exception) {
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to('/');
+            return redirect()->to(HOME_PATH);
         }
     }
 
@@ -93,7 +98,7 @@ class OrderController extends Controller {
 
         } catch (Exception $exception) {
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to('/');
+            return redirect()->to(HOME_PATH);
         }
     }
 
@@ -112,11 +117,11 @@ class OrderController extends Controller {
 
         } catch (ObjectNotFoundException | NotAuthorizedException $exception) {
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to('/business/orders');
+            return redirect()->to(BUSINESS_ORDERS_PATH);
         
         } catch (Exception $exception) {
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to('/');
+            return redirect()->to(HOME_PATH);
         }
     }
 
@@ -129,15 +134,15 @@ class OrderController extends Controller {
             OrderService::handleBusinessCompleteOrder($user, $requestData);
 
             session()->setFlashdata('success', 'Order status is updated successfully');
-            return redirect()->to('/business/orders/');
+            return redirect()->to(BUSINESS_ORDERS_PATH);
 
         } catch (ObjectNotFoundException | NotAuthorizedException $exception) {
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to('/business/orders');
+            return redirect()->to(BUSINESS_ORDERS_PATH);
         
         } catch (Exception $exception) {
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to('/');
+            return redirect()->to(HOME_PATH);
         }
     }
 
@@ -151,8 +156,8 @@ class OrderController extends Controller {
 
         } catch (Exception $exception) {
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to('/');
-        }        
+            return redirect()->to(HOME_PATH);
+        }
     }
 
     public function businessGetOrderKitchenViewData() {
@@ -161,19 +166,19 @@ class OrderController extends Controller {
             $user->business_id = session()->get('business_id');
             $responseData = OrderService::handleBusinessGetOrderKitchenData($user);
             return $this->response
-                        ->setContentType('application/json')
+                        ->setContentType(JSON_CONTENT_TYPE)
                         ->setStatusCode(200)
                         ->setBody(json_encode($responseData));
 
         } catch (NotAuthorizedException $exception) {
             return $this->response
-                        ->setContentType('application/json')
+                        ->setContentType(JSON_CONTENT_TYPE)
                         ->setStatusCode(403)
                         ->setBody(json_encode(['message' => $exception->getMessage()]));
 
         } catch (Exception $exception) {
             return $this->response
-                        ->setContentType('application/json')
+                        ->setContentType(JSON_CONTENT_TYPE)
                         ->setStatusCode(500)
                         ->setBody(json_encode(['message' => $exception->getMessage()]));
         }
@@ -187,31 +192,31 @@ class OrderController extends Controller {
 
             OrderService::handleBusinessUpdateOrderItemStatus($user, $requestData);
             return $this->response
-                    ->setContentType('application/json')
+                    ->setContentType(JSON_CONTENT_TYPE)
                     ->setStatusCode(200)
                     ->setBody(json_encode(['message' => 'Order item was successfully updated']));
 
         } catch (NotAuthorizedException $exception) {
             return $this->response
-                        ->setContentType('application/json')
+                        ->setContentType(JSON_CONTENT_TYPE)
                         ->setStatusCode(403)
                         ->setBody(json_encode(['message' => $exception->getMessage()]));
 
         } catch (ObjectNotFoundException $exception) {
             return $this->response
-                        ->setContentType('application/json')
+                        ->setContentType(JSON_CONTENT_TYPE)
                         ->setStatusCode(404)
                         ->setBody(json_encode(['message' => $exception->getMessage()]));
 
         } catch (InvalidRegistrationException $exception) {
             return $this->response
-                        ->setContentType('application/json')
+                        ->setContentType(JSON_CONTENT_TYPE)
                         ->setStatusCode(400)
                         ->setBody(json_encode(['message' => $exception->getMessage()]));
 
         } catch (Exception $exception) {
             return $this->response
-                        ->setContentType('application/json')
+                        ->setContentType(JSON_CONTENT_TYPE)
                         ->setStatusCode(500)
                         ->setBody(json_encode(['message' => $exception->getMessage()]));
         }

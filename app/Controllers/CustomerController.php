@@ -1,8 +1,7 @@
-<?php 
+<?php
 
 namespace App\Controllers;
 
-use App\CustomExceptions\InvalidRegistrationException;
 use App\Services\CustomerService;
 use Exception;
 

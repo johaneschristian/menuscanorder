@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Services;
 
@@ -22,8 +22,8 @@ class AdminService {
     public static function handleGetUserList($requestData) {
         $transformedRequestData = self::transformMenuListRequestData($requestData);
         $paginatedUsers = UserRepository::getPaginatedUsers(
-            $transformedRequestData['search'], 
-            10, 
+            $transformedRequestData['search'],
+            10,
             $transformedRequestData['page']
         );
 
@@ -112,7 +112,7 @@ class AdminService {
             }
         }
 
-        $db->transComplete();        
+        $db->transComplete();
     }
 
     public static function handleChangeUserPassword($userID, $requestData) {

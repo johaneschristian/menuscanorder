@@ -7,7 +7,7 @@ use App\Models\CategoryModel;
 use App\Models\MenuItemModel;
 use App\Utils\Utils;
 
-class MenuRepository 
+class MenuRepository
 {
     public static function createMenu($owningBusinessID, $menuData) {
         $menu = new MenuItemModel();
@@ -70,18 +70,18 @@ class MenuRepository
 
     public static function getMenuItemsOfBusinessMatchingNameAndCategory($businessID, $name, $categoryID, $mustBeAvailable = FALSE) {
         return self::getQueryOfMenuItemsOfBusinessMatchingNameAndCategory(
-            $businessID, 
-            $name, 
-            $categoryID, 
+            $businessID,
+            $name,
+            $categoryID,
             $mustBeAvailable
         )->findAll();
     }
 
     public static function getPaginatedMenuItemsOfBusinessMatchingNameAndCategory($businessID, $name, $categoryID, $mustBeAvailable = FALSE, $perPage = 10, $currentPage = 1) {
         $query = self::getQueryOfMenuItemsOfBusinessMatchingNameAndCategory(
-            $businessID, 
-            $name, 
-            $categoryID, 
+            $businessID,
+            $name,
+            $categoryID,
             $mustBeAvailable
         );
 
@@ -103,7 +103,7 @@ class MenuRepository
         $allCategoriesWithMenus[] = [
             'category_id' => NULL,
             'name' => 'Others',
-            'menus' => self::getMenuItemsOfBusinessMatchingNameAndCategory($businessID, "", NULL, $mustBeAvailable), 
+            'menus' => self::getMenuItemsOfBusinessMatchingNameAndCategory($businessID, "", NULL, $mustBeAvailable),
         ];
 
         return $allCategoriesWithMenus;
