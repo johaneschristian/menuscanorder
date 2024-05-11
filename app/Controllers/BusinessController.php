@@ -120,10 +120,10 @@ class BusinessController extends BaseController
     /**
      * Handler for updating an existing category.
      *
-     * @param int $categoryId The ID of the category to update
+     * @param string $categoryID The ID of the category to update
      * @return \CodeIgniter\HTTP\Response|void
      */
-    public function updateCategory(int $categoryId)
+    public function updateCategory($categoryID)
     {
         try {
             // Retrieve authenticated user and associated business ID (from middleware)
@@ -134,7 +134,7 @@ class BusinessController extends BaseController
             $requestData = $this->request->getPost();
 
             // Update category owned by business affiliated with authenticated user
-            BusinessService::handleUpdateCategory($user, $categoryId, $requestData);
+            BusinessService::handleUpdateCategory($user, $categoryID, $requestData);
 
             // Set success flashdata when update is successful
             session()->setFlashdata('success', 'Category is updated successfully');
@@ -178,7 +178,6 @@ class BusinessController extends BaseController
         return redirect()->to(BUSINESS_CATEGORIES_PATH);
     }
 
-
     /**
      * Handler for retrieving the menu list.
      *
@@ -212,7 +211,6 @@ class BusinessController extends BaseController
             return redirect()->to(HOME_PATH);
         }
     }
-
 
     /**
      * Handler for creating a menu.
@@ -267,7 +265,7 @@ class BusinessController extends BaseController
     /**
      * Handler for editing a menu.
      *
-     * @param int $menuID The ID of the menu to edit
+     * @param string $menuID The ID of the menu to edit
      * @return \CodeIgniter\HTTP\Response|void
      */
     public function editMenu($menuID)
@@ -355,7 +353,7 @@ class BusinessController extends BaseController
     /**
      * Handler for retrieving a menu item image.
      *
-     * @param int $menuID The ID of the menu item
+     * @param string $menuID The ID of the menu item whose image want to be retrieved
      * @return \CodeIgniter\HTTP\Response|string
      */
     public function menuGetImage($menuID)
@@ -411,7 +409,6 @@ class BusinessController extends BaseController
         // Render the business profile edit page view with the data
         return view('business/business-profile-edit', $businessData);
     }
-
 
     /**
      * Handler for managing seat capacity.
@@ -470,7 +467,7 @@ class BusinessController extends BaseController
     /**
      * Handler for generating a QR code for a specific table.
      *
-     * @param int $businessID The ID of the business
+     * @param string $businessID The ID of the business
      * @param int $tableNumber The table number
      * @return \CodeIgniter\HTTP\Response|void
      */
@@ -479,5 +476,4 @@ class BusinessController extends BaseController
         // Retrieve QR code for table number in the facility of business corresponding to ID
         return BusinessService::handleGetTableQR($businessID, $tableNumber);
     }
-
 }

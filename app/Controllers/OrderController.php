@@ -21,15 +21,15 @@ class OrderController extends Controller {
     /**
      * Handler for retrieving menus for ordering.
      *
-     * @param int $businessId The ID of the business
+     * @param string $businessID The ID of the business whose menus want to be retrieved 
      * @param int $tableNumber The table number
      * @return \CodeIgniter\HTTP\Response|void
      */
-    public function getOrderMenu($businessId, $tableNumber)
+    public function getOrderMenu($businessID, $tableNumber)
     {
         try {
             // Retrieve menu data for the specified business
-            $menuData = OrderService::handleGetBusinessMenus($businessId);
+            $menuData = OrderService::handleGetBusinessMenus($businessID);
 
             // Render the order page view with the menu data
             return view('customer/order-page', $menuData);
@@ -117,17 +117,17 @@ class OrderController extends Controller {
     /**
      * Handler for retrieving details of a specific order for a customer.
      *
-     * @param int $orderId The ID of the order
+     * @param string $orderID The ID of the order
      * @return \CodeIgniter\HTTP\Response|void
      */
-    public function customerGetOrderDetail($orderId)
+    public function customerGetOrderDetail($orderID)
     {
         try {
             // Retrieve authenticated user
             $user = auth()->user();
 
             // Retrieve order details for the specified order ID
-            $orderData = OrderService::handleCustomerGetOrderDetail($user, $orderId);
+            $orderData = OrderService::handleCustomerGetOrderDetail($user, $orderID);
 
             // Render the customer order details view with the order data
             return view('customer/customer-order-details', $orderData);
@@ -181,10 +181,10 @@ class OrderController extends Controller {
     /**
      * Handler for retrieving details of a specific order for a business.
      *
-     * @param int $orderId The ID of the order
+     * @param string $orderID The ID of the order
      * @return \CodeIgniter\HTTP\Response|void
      */
-    public function businessOrderDetails($orderId)
+    public function businessOrderDetails($orderID)
     {
         try {
             // Retrieve authenticated user and affiliated business ID (from middleware)
@@ -192,7 +192,7 @@ class OrderController extends Controller {
             $user->business_id = session()->get('business_id');
 
             // Retrieve order details for the specified order ID
-            $orderData = OrderService::handleBusinessGetOrderDetails($user, $orderId);
+            $orderData = OrderService::handleBusinessGetOrderDetails($user, $orderID);
 
             // Prepare data for the view
             $data = [
@@ -357,5 +357,4 @@ class OrderController extends Controller {
                         ->setBody(json_encode(['message' => $exception->getMessage()]));
         }
     }
-
 }

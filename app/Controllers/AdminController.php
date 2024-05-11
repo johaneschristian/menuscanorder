@@ -33,7 +33,7 @@ class AdminController extends BaseController
     /**
      * Handler for retrieving details of a specific user and display them.
      *
-     * @param int $userId User ID
+     * @param int $userId ID of user whose details want to be viewed
      * @return \CodeIgniter\HTTP\Response|void
      */
     public function getUserDetails($userId)
@@ -89,7 +89,7 @@ class AdminController extends BaseController
     /**
      * Handler for editing details of an existing user.
      *
-     * @param int $userId User ID
+     * @param int $userId ID of user whose details want to be updated
      * @return \CodeIgniter\HTTP\Response|void
      */
     public function editUser($userId)
@@ -129,7 +129,7 @@ class AdminController extends BaseController
     /**
      * Handler for changing password of a user.
      *
-     * @param int $userID User ID
+     * @param int $userID ID of user whose password want to be viewed
      * @return \CodeIgniter\HTTP\Response|void
      */
     public function changeUserPassword($userID)
