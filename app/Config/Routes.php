@@ -11,6 +11,7 @@ $routes->match(['get', 'post'], '/register', 'AuthController::register');
 $routes->get('/logout', 'AuthController::logout');
 $routes->post('/change-password', 'AuthController::changePassword');
 
+// Routes for admin-related functionalities
 $routes->group('admin', ['filter' => 'admin'], function ($routes) {
     $routes->group('users', function ($routes) {
         $routes->get('/', 'AdminController::getUserList');
@@ -21,6 +22,7 @@ $routes->group('admin', ['filter' => 'admin'], function ($routes) {
     });
 });
 
+// Routes for business-related functionalities
 $routes->group('business', ['filter' => 'business'], function ($routes) {
     $routes->group('categories', function ($routes) {
         $routes->get('', 'BusinessController::getCategoryList');
@@ -50,8 +52,11 @@ $routes->group('business', ['filter' => 'business'], function ($routes) {
         $routes->get('generate-qr/(:segment)/(:segment)', 'BusinessController::getTableQRCode/$1/$2');
     });
 });
+
+// Place outside of group to allow non-business user from accessing endpoint
 $routes->get('business/menu/(:segment)/image', 'BusinessController::menuGetImage/$1');
 
+// Routes for customer-related functionalities
 $routes->group('customer', function ($routes) {
     $routes->group('orders', function ($routes) {
         $routes->get('/', 'OrderController::customerGetOrderList');
