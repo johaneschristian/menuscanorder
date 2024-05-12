@@ -9,7 +9,7 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<div class="p-5 d-flex flex-column align-items-center">
+<div class="d-flex flex-column align-items-center p-3">
   <?php if (isset($user)) : ?>
     <div class="modal fade" id="reset-password-modal" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
       <div class="modal-dialog">

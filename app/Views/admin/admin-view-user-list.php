@@ -5,7 +5,7 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<div class="p-5 d-flex flex-column align-items-center">
+<div class="p-3 d-flex flex-column align-items-center">
   <div class="card shadow p-3 w-100 d-flex flex-md-row flex-column justify-content-between align-items-center">
     <form action="" method="get" class="w-mdc-50 w-75">
       <div class="input-group mb-md-0 mb-3 me-3 p-0">

@@ -5,7 +5,7 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<div class="p-5 d-flex flex-column align-items-center">
+<div class="d-flex flex-column align-items-center p-3">
   <h1>User Details</h1>
   <div class="card shadow w-mdc-50 w-100 pt-3 pb-3 ps-5 pe-5 mt-3">
     <span class="fw-bold fs-4 mb-3">Personal Information</span>
@@ -53,7 +53,7 @@
     </div>
   <?php endif; ?>
 
-  <div class="row card shadow p-3 mt-3 w-50">
+  <div class="row card shadow p-3 mt-3 w-mdc-50 w-100">
     <div class="w-100 d-flex flex-row justify-content-end">
       <a href='<?= base_url("/admin/users/{$user->id}/edit") ?>' type="button" class="btn btn-warning">Edit User Information</a>
     </div>

@@ -17,7 +17,6 @@ class AppUser extends ShieldUserModel
             'name',
             'is_archived',
             'is_admin',
-            'email',
         ];
     }
 }
