@@ -16,7 +16,7 @@ class AdminController extends BaseController
     /**
      * Handler for retrieving a list of users and display them.
      *
-     * @return \CodeIgniter\HTTP\Response|void
+     * @return string The admin all users page.
      */
     public function getUserList()
     {
@@ -34,7 +34,7 @@ class AdminController extends BaseController
      * Handler for retrieving details of a specific user and display them.
      *
      * @param int $userID ID of user whose details want to be viewed
-     * @return \CodeIgniter\HTTP\Response|void
+     * @return \CodeIgniter\HTTP\RedirectResponse|string The user details page or redirect when fail.
      */
     public function getUserDetails($userID)
     {
@@ -55,7 +55,7 @@ class AdminController extends BaseController
     /**
      * Handler for creating a new user.
      *
-     * @return \CodeIgniter\HTTP\Response|void
+     * @return \CodeIgniter\HTTP\RedirectResponse|string The user registration page or redirect when successful/failing.
      */
     public function createUser()
     {
@@ -90,7 +90,7 @@ class AdminController extends BaseController
      * Handler for editing details of an existing user.
      *
      * @param int $userID ID of user whose details want to be updated
-     * @return \CodeIgniter\HTTP\Response|void
+     * @return \CodeIgniter\HTTP\RedirectResponse|string The user edit page or redirect when successful/failing.
      */
     public function editUser($userID)
     {
@@ -130,7 +130,7 @@ class AdminController extends BaseController
      * Handler for changing password of a user.
      *
      * @param int $userID ID of user whose password want to be viewed
-     * @return \CodeIgniter\HTTP\Response|void
+     * @return \CodeIgniter\HTTP\RedirectResponse Redirect to last page when successful/failing.
      */
     public function changeUserPassword($userID)
     {

@@ -20,7 +20,7 @@ class BusinessController extends BaseController
     /**
      * Handler for business registration.
      *
-     * @return \CodeIgniter\HTTP\Response|void
+     * @return \CodeIgniter\HTTP\RedirectResponse|string The business registration page or redirect when user owns a business.
      */
     public function registerBusiness() {
         try {
@@ -62,7 +62,7 @@ class BusinessController extends BaseController
     /**
      * Handler for retrieving all categories of a business.
      *
-     * @return \CodeIgniter\HTTP\Response|void
+     * @return \CodeIgniter\HTTP\RedirectResponse|string The category list page or redirect when fail.
      */
     public function getCategoryList()
     {
@@ -70,10 +70,10 @@ class BusinessController extends BaseController
             // Retrieve authenticated user and associated business ID (from middleware)
             $user = auth()->user();
             $user->business_id = session()->get('business_id');
-            $search = $this->request->getGet('search');
+            $requestData = $this->request->getGet();
             
             // Retrieve all categories of business, matching name if requested
-            $categoriesData = BusinessService::handleGetCategoryList($user, $search);
+            $categoriesData = BusinessService::handleGetCategoryList($user, $requestData);
             $data = [
                 ...$categoriesData,
                 'business_name' => session()->get('business_name'),
@@ -92,7 +92,7 @@ class BusinessController extends BaseController
     /**
      * Handler for creating a new category.
      *
-     * @return \CodeIgniter\HTTP\Response|void
+     * @return \CodeIgniter\HTTP\RedirectResponse Redirect to all category page when successful/failing.
      */
     public function createCategory()
     {
@@ -120,10 +120,9 @@ class BusinessController extends BaseController
     /**
      * Handler for updating an existing category.
      *
-     * @param string $categoryID The ID of the category to update
-     * @return \CodeIgniter\HTTP\Response|void
+     * @return \CodeIgniter\HTTP\RedirectResponse Redirect to all category page when successful/failing.
      */
-    public function updateCategory($categoryID)
+    public function updateCategory()
     {
         try {
             // Retrieve authenticated user and associated business ID (from middleware)
@@ -134,7 +133,7 @@ class BusinessController extends BaseController
             $requestData = $this->request->getPost();
 
             // Update category owned by business affiliated with authenticated user
-            BusinessService::handleUpdateCategory($user, $categoryID, $requestData);
+            BusinessService::handleUpdateCategory($user, $requestData);
 
             // Set success flashdata when update is successful
             session()->setFlashdata('success', 'Category is updated successfully');
@@ -151,7 +150,7 @@ class BusinessController extends BaseController
     /**
      * Handler for deleting a category.
      *
-     * @return \CodeIgniter\HTTP\Response|void
+     * @return \CodeIgniter\HTTP\RedirectResponse Redirect to all category page when successful/failing.
      */
     public function deleteCategory()
     {
@@ -181,7 +180,7 @@ class BusinessController extends BaseController
     /**
      * Handler for retrieving the menu list.
      *
-     * @return \CodeIgniter\HTTP\Response|void
+     * @return \CodeIgniter\HTTP\RedirectResponse|string The menu list page or redirect when failing.
      */
     public function getMenuList()
     {
@@ -215,7 +214,7 @@ class BusinessController extends BaseController
     /**
      * Handler for creating a menu.
      *
-     * @return \CodeIgniter\HTTP\Response|void
+     * @return \CodeIgniter\HTTP\RedirectResponse|string The menu registration page or redirect when successful/failing.
      */
     public function createMenu()
     {
@@ -246,7 +245,7 @@ class BusinessController extends BaseController
             }
 
             // Prepare data for view
-            $categoriesData = BusinessService::handleGetCategoryList($user, "");
+            $categoriesData = BusinessService::handleGetCategoryList($user, []);
             $data = [
                 ...$categoriesData,
                 'business_name' => session()->get('business_name'),
@@ -266,7 +265,7 @@ class BusinessController extends BaseController
      * Handler for editing a menu.
      *
      * @param string $menuID The ID of the menu to edit
-     * @return \CodeIgniter\HTTP\Response|void
+     * @return \CodeIgniter\HTTP\RedirectResponse|string The menu edit page or redirect when successful/failing.
      */
     public function editMenu($menuID)
     {
@@ -323,7 +322,7 @@ class BusinessController extends BaseController
     /**
      * Handler for deleting a menu item.
      *
-     * @return \CodeIgniter\HTTP\Response|void
+     * @return \CodeIgniter\HTTP\RedirectResponse Redirect to all menu page when successful/failing.
      */
     public function deleteMenu()
     {
@@ -354,7 +353,7 @@ class BusinessController extends BaseController
      * Handler for retrieving a menu item image.
      *
      * @param string $menuID The ID of the menu item whose image want to be retrieved
-     * @return \CodeIgniter\HTTP\Response|string
+     * @return \CodeIgniter\HTTP\Response|string The image data when successful or an empty string when failing.
      */
     public function menuGetImage($menuID)
     {
@@ -369,7 +368,7 @@ class BusinessController extends BaseController
                 ->setStatusCode(200)
                 ->setBody($menuImageData['content']);
                 
-        } catch (Exception) {
+        } catch (Exception $exception) {
             // Return an empty string if an exception occurs
             return "";
         }
@@ -378,7 +377,7 @@ class BusinessController extends BaseController
     /**
      * Handler for editing business profile.
      *
-     * @return \CodeIgniter\HTTP\Response|void
+     * @return string The edit profile page.
      */
     public function editProfile()
     {
@@ -413,7 +412,7 @@ class BusinessController extends BaseController
     /**
      * Handler for managing seat capacity.
      *
-     * @return \CodeIgniter\HTTP\Response|void
+     * @return \CodeIgniter\HTTP\RedirectResponse|string The seat management page or redirect when successful/failing.
      */
     public function seatManagement()
     {
@@ -467,9 +466,9 @@ class BusinessController extends BaseController
     /**
      * Handler for generating a QR code for a specific table.
      *
-     * @param string $businessID The ID of the business
-     * @param int $tableNumber The table number
-     * @return \CodeIgniter\HTTP\Response|void
+     * @param string $businessID The ID of the business.
+     * @param int $tableNumber The table number.
+     * @return string The rendered QR png data.
      */
     public function getTableQRCode($businessID, $tableNumber)
     {

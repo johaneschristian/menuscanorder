@@ -21,9 +21,9 @@ class OrderController extends Controller {
     /**
      * Handler for retrieving menus for ordering.
      *
-     * @param string $businessID The ID of the business whose menus want to be retrieved 
-     * @param int $tableNumber The table number
-     * @return \CodeIgniter\HTTP\Response|void
+     * @param string $businessID The ID of the business whose menus want to be retrieved.
+     * @param int $tableNumber The table number.
+     * @return \CodeIgniter\HTTP\RedirectResponse|string The customer order page or redirect when failing.
      */
     public function getOrderMenu($businessID, $tableNumber)
     {
@@ -44,7 +44,7 @@ class OrderController extends Controller {
     /**
      * Handler for creating an order.
      *
-     * @return \CodeIgniter\HTTP\Response
+     * @return \CodeIgniter\HTTP\Response Containing message representating the success/fail of the action.
      */
     public function createOrder()
     {
@@ -64,33 +64,33 @@ class OrderController extends Controller {
 
             // Return success response
             return $this->response->setContentType(JSON_CONTENT_TYPE)
-                                ->setStatusCode(200)
-                                ->setBody(json_encode(['message' => 'Order is created successfully']));
+                                  ->setStatusCode(200)
+                                  ->setBody(json_encode(['message' => 'Order is created successfully']));
 
         } catch (InvalidRequestException $exception) {
             // Return error response with status code 400 when (part of) the submitted data is invalid
             return $this->response->setContentType(JSON_CONTENT_TYPE)
-                                ->setStatusCode(400)
-                                ->setBody(json_encode(['message' => $exception->getMessage()]));
+                                  ->setStatusCode(400)
+                                  ->setBody(json_encode(['message' => $exception->getMessage()]));
 
         } catch (ObjectNotFoundException $exception) {
             // Return error response with status code 404 when any submitted ID does not exist
             return $this->response->setContentType(JSON_CONTENT_TYPE)
-                                ->setStatusCode(404)
-                                ->setBody(json_encode(['message' => $exception->getMessage()]));
+                                  ->setStatusCode(404)
+                                  ->setBody(json_encode(['message' => $exception->getMessage()]));
 
         } catch (Exception $exception) {
             // Return error response with status code 500 when an unexpected error occurred
             return $this->response->setContentType(JSON_CONTENT_TYPE)
-                                ->setStatusCode(500)
-                                ->setBody(json_encode(['message' => $exception->getMessage()]));
+                                  ->setStatusCode(500)
+                                  ->setBody(json_encode(['message' => $exception->getMessage()]));
         }
     }
 
     /**
      * Handler for retrieving a list of orders for a customer.
      *
-     * @return \CodeIgniter\HTTP\Response|void
+     * @return \CodeIgniter\HTTP\RedirectResponse|string The order list page or redirect when failing.
      */
     public function customerGetOrderList()
     {
@@ -118,7 +118,7 @@ class OrderController extends Controller {
      * Handler for retrieving details of a specific order for a customer.
      *
      * @param string $orderID The ID of the order
-     * @return \CodeIgniter\HTTP\Response|void
+     * @return \CodeIgniter\HTTP\RedirectResponse|string The order details page or redirect when failing.
      */
     public function customerGetOrderDetail($orderID)
     {
@@ -147,7 +147,7 @@ class OrderController extends Controller {
     /**
      * Handler for retrieving a list of orders for a business.
      *
-     * @return \CodeIgniter\HTTP\Response|void
+     * @return \CodeIgniter\HTTP\RedirectResponse|string The business orders page or redirect when failing.
      */
     public function businessGetOrderList()
     {
@@ -182,7 +182,7 @@ class OrderController extends Controller {
      * Handler for retrieving details of a specific order for a business.
      *
      * @param string $orderID The ID of the order
-     * @return \CodeIgniter\HTTP\Response|void
+     * @return \CodeIgniter\HTTP\RedirectResponse|string The business' order details page or redirect when failing.
      */
     public function businessOrderDetails($orderID)
     {
@@ -218,7 +218,7 @@ class OrderController extends Controller {
     /**
      * Handler for completing an order from the business side.
      *
-     * @return \CodeIgniter\HTTP\Response|void
+     * @return \CodeIgniter\HTTP\RedirectResponse Redirect to business orders page when successful/failing.
      */
     public function businessCompleteOrder()
     {
@@ -254,7 +254,7 @@ class OrderController extends Controller {
     /**
      * Handler for retrieving the kitchen view page for managing orders.
      *
-     * @return \CodeIgniter\HTTP\Response|void
+     * @return \CodeIgniter\HTTP\RedirectResponse|string The kitchen items page or redirect when failing.
      */
     public function businessGetOrderKitchenView()
     {
@@ -277,7 +277,7 @@ class OrderController extends Controller {
     /**
      * Handler for retrieving data for the kitchen view to manage orders.
      *
-     * @return \CodeIgniter\HTTP\Response
+     * @return \CodeIgniter\HTTP\Response JSON of all active order items received by the business.
      */
     public function businessGetOrderKitchenViewData()
     {
@@ -307,7 +307,7 @@ class OrderController extends Controller {
     /**
      * Handler for updating the status of an order item from the kitchen view.
      *
-     * @return \CodeIgniter\HTTP\Response
+     * @return \CodeIgniter\HTTP\Response Containing message representating the success/fail of the action.
      */
     public function businessUpdateOrderItemStatus()
     {

@@ -13,7 +13,7 @@ class CustomerController extends BaseController
     /**
      * Handler for updating customer profile.
      *
-     * @return \CodeIgniter\HTTP\Response|void
+     * @return string The profile update page or redirect when successful.
      */
     public function updateProfile()
     {

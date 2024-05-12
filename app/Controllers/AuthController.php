@@ -17,7 +17,7 @@ class AuthController extends BaseController
     /**
      * Display the landing page.
      *
-     * @return \CodeIgniter\HTTP\Response|void
+     * @return string The landing page.
      */
     public function index()
     {
@@ -27,7 +27,7 @@ class AuthController extends BaseController
     /**
      * Handler for user login.
      *
-     * @return \CodeIgniter\HTTP\Response|void
+     * @return \CodeIgniter\HTTP\RedirectResponse|string The login page or redirect on successful login.
      */
     public function login()
     {
@@ -64,7 +64,7 @@ class AuthController extends BaseController
     /**
      * Handler for user registration.
      *
-     * @return \CodeIgniter\HTTP\Response|void
+     * @return \CodeIgniter\HTTP\RedirectResponse|string The registration page or redirect when registration is successful.
      */
     public function register()
     {
@@ -91,7 +91,7 @@ class AuthController extends BaseController
     /**
      * Handler for user logout.
      *
-     * @return \CodeIgniter\HTTP\Response|void
+     * @return \CodeIgniter\HTTP\RedirectResponse Redirect to home page upon logout.
      */
     public function logout()
     {
@@ -103,7 +103,7 @@ class AuthController extends BaseController
     /**
      * Handler for changing user password.
      *
-     * @return \CodeIgniter\HTTP\Response|void
+     * @return \CodeIgniter\HTTP\RedirectResponse Redirect to customer profile when successful/failing.
      */
     public function changePassword()
     {
