@@ -40,7 +40,7 @@ function displayErrorToast(errorMessage) {
 		text: errorMessage,
 		duration: 5000,
 		offset: {
-			x: 50,
+			x: 0,
 			y: 10,
 		},
 		gravity: "bottom",

@@ -350,15 +350,15 @@ function updateItemActionButton(orderItemID, previousStatus, newStatus) {
 
 	} else {
 		// Remove previous status classes from the action button
-		const previousStatusClasses = `btn-${getStatusColor(previousStatus)}`.split(" ");
+		const previousStatusClasses = `btn-${getStatusColor(newStatus)}`.split(" ");
 		previousStatusClasses.forEach((previousClass) => {
 			if (orderItemActionButton.classList.contains(previousClass)) {
 				orderItemActionButton.classList.remove(previousClass);
 			}
 		});
 
-		// Add new status classes to the action button
-		const newStatusClasses = `btn-${getStatusColor(newStatus)}`.split(" ");
+		// Add new status' next status classes to the action button
+		const newStatusClasses = `btn-${getStatusColor(newStatusNextStatus)}`.split(" ");
 		newStatusClasses.forEach((newClass) => {
 			if (!orderItemActionButton.classList.contains(newClass)) {
 				orderItemActionButton.classList.add(newClass);

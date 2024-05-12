@@ -16,6 +16,7 @@ class AppUser extends ShieldUserModel
             ...$this->allowedFields,
             'name',
             'is_archived',
+            'is_admin',
             'email',
         ];
     }

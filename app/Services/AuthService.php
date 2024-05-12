@@ -36,11 +36,11 @@ class AuthService {
      * Validate if a user can login.
      *
      * @param object $user The user object to validate.
-     * @throws NotAuthorizedException If the user is archived and cannot log in.
+     * @throws NotAuthorizedException If the user is archived.
      */
     private static function validateUserCanLogin($user) {
         // Throw an exception indicating that the user is not authorized to log in because they are archived
-        if ($user->is_archived) {
+        if (!is_null($user) && $user->is_archived) {
             throw new NotAuthorizedException("User is archived");
         }
     }
