@@ -1,10 +1,15 @@
 window.addEventListener("load", async (e) => {
+	// Initialize page by displaying all active order items and the summary
 	await setupKitchenViewPage();
+
+	// Refresh data every 10 seconds to allow receiving new order
+	// without manually refreshing the page
 	setInterval(async () => await setupKitchenViewPage(), 10000);
 });
 
 let statuses = [];
 
+// Define the order items' statuses summary and their property
 let statusData = [
 	{
 		frontendID: 1,
@@ -26,23 +31,48 @@ let statusData = [
 	},
 ];
 
+/**
+ * Retrieves the current number of order items with under a status given the status name.
+ *
+ * @param {string} statusName - Name of the status whose quantity is to be retrieved.
+ * @returns {number} The quantity of order items currently with the status.
+ */
 function getStatusQuantity(statusName) {
 	return Number(
 		statusData.find((status) => status.name === statusName).quantity
 	);
 }
 
+/**
+ * Retrieves the color associated with the status.
+ *
+ * @param {string} statusName - Name of the status whose color is to be retrieved.
+ * @returns {string} The color associated with the status.
+ */
 function getStatusColor(statusName) {
 	return statusData.find((status) => status.name === statusName).color;
 }
 
+/**
+ * Update the number of order items currently under a status.
+ *
+ * @param {string} statusName - Name of the status whose quantity is to be updated.
+ * @param {number} newQuantity New quantity for the status.
+ */
 function updateStatusQuantity(statusName, newQuantity) {
+	// Find the status data to be modified
 	const modifiedStatus = statusData.find(
 		(status) => status.name === statusName
 	);
+
+	// Retrieve the other statuses that are not modified
 	const nonModifiedStatus = statusData.filter(
 		(status) => status.name !== statusName
 	);
+
+	// Update the modified status quantity
+	// and sort based on ID such that the array can be used
+	// to determine the next status for an order item
 	statusData = [
 		...nonModifiedStatus,
 		{
@@ -52,17 +82,30 @@ function updateStatusQuantity(statusName, newQuantity) {
 	].sort((statusA, statusB) => statusA.frontendID - statusB.frontendID);
 }
 
+/**
+ * Find the next status' name of a given status.
+ *
+ * @param {string} statusName - Name of the status whose next status data is to be retrieved.
+ * @returns {string} Name of the next status.
+ */
 function getNextStatus(statusName) {
 	const statusIndex = statusData.findIndex(
 		(status) => status.name === statusName
 	);
+
 	if (statusIndex + 1 < statusData.length) {
 		return statusData[statusIndex + 1].name;
+
 	} else {
 		return null;
 	}
 }
 
+/**
+ * Fetches all required data for the kitchen page.
+ *
+ * @returns {array} Containing the list of active order items and order items summary grouped by its status.
+ */
 async function getKitchenViewData() {
 	const response = await fetch(BASE_URL + "business/orders/kitchen-view/data");
 	const responseData = JSON.parse(await response.text());
@@ -74,24 +117,31 @@ async function getKitchenViewData() {
 	return responseData;
 }
 
+/**
+ * Reload the quantities of the status summary cards displayed at the kitchen view page.
+ */
 function reloadKitchenViewOrderItemSummary() {
-	const receivedSummarySpan = document.querySelector(
-		"#order-item-summary-received"
-	);
-	const beingPreparedSummarySpan = document.querySelector(
-		"#order-item-summary-being-prepared"
-	);
-	const servedSummarySpan = document.querySelector(
-		"#order-item-summary-served"
-	);
+	const receivedSummarySpan = document.querySelector("#order-item-summary-received");
+	const beingPreparedSummarySpan = document.querySelector("#order-item-summary-being-prepared");
+	const servedSummarySpan = document.querySelector("#order-item-summary-served");
 
+	// Set the content of the summary card text element with the refreshed data
 	receivedSummarySpan.innerHTML = getStatusQuantity("received");
 	beingPreparedSummarySpan.innerHTML = getStatusQuantity("being prepared");
 	servedSummarySpan.innerHTML = getStatusQuantity("served");
 }
 
+/**
+ * Generate the display card for each order item.
+ *
+ * @param {object} orderItem - Object containing all the information of an order item.
+ * @returns {string} Formatted order item card HTML string with complete data and action buttons.
+ */
 function getItemCard(orderItem) {
+	// Get the next status for the order item
 	const orderItemNextStatus = getNextStatus(orderItem.status_name);
+
+	// Get the next status for the order item
 	return `
 	<div class="col-auto">
 		<div
@@ -178,21 +228,37 @@ function getItemCard(orderItem) {
 	</div>`;
 }
 
+/**
+ * Populates the order items HTML element with the provided order items.
+ *
+ * @param {array} orderItems - An array of order item objects.
+ */
 function setupOrderItemsList(orderItems) {
+	// Select the HTML element that will hold the order items
 	const orderItemsHolder = document.querySelector("#order-items-holder");
+
+	// Clear any existing content inside the holder
 	orderItemsHolder.innerHTML = "";
 
+	// Generate HTML card for each order item and append it to the holder
 	for (let i = 0; i < orderItems.length; i++) {
 		const orderItem = orderItems[i];
 		orderItemsHolder.innerHTML += getItemCard(orderItem);
 	}
 }
 
+/**
+ * Sets up the kitchen view page.
+ */
 async function setupKitchenViewPage() {
 	try {
+		// Fetch kitchen view data from the server
 		const kitchenViewData = await getKitchenViewData();
+
+		// Update global statuses variable with data from the server
 		statuses = kitchenViewData.order_item_statuses;
 
+		// Update status quantities based on the fetched data
 		statusData.forEach((statusDatum) => {
 			updateStatusQuantity(
 				statusDatum.name,
@@ -202,38 +268,61 @@ async function setupKitchenViewPage() {
 			);
 		});
 
-		reloadKitchenViewOrderItemSummary(kitchenViewData.order_item_summary);
+		// Reload the kitchen view order item summary with the fetched data
+		reloadKitchenViewOrderItemSummary();
+
+		// Populate the order items list with the fetched order items
 		setupOrderItemsList(kitchenViewData.order_items);
+
 	} catch (exception) {
+		// Display an error toast if an exception occurs
 		displayErrorToast(exception.message);
 	}
 }
 
+/**
+ * Retrieves the current status of an order item based on its ID.
+ *
+ * @param {string} orderItemID - The ID of the order item.
+ * @returns {string} The current status of the order item.
+ */
 function getOrderItemCurrentStatus(orderItemID) {
-	return document.querySelector(`#order-item-${orderItemID}-status`).innerHTML;
+	const statusElement = document.querySelector(`#order-item-${orderItemID}-status`);
+	return statusElement.innerHTML;
 }
 
+/**
+ * Retrieves the quantity of an order item based on its ID.
+ *
+ * @param {string} orderItemID - The ID of the order item.
+ * @returns {number} The quantity of the order item.
+ */
 function getOrderItemQuantity(orderItemID) {
-	return Number(
-		document.querySelector(`#order-item-${orderItemID}-quantity`).innerHTML
-	);
+	const quantityElement = document.querySelector(`#order-item-${orderItemID}-quantity`);
+	return Number(quantityElement.innerHTML);
 }
 
+/**
+ * Updates the status span of an order item with a new status, applying appropriate background color classes.
+ *
+ * @param {string} orderItemID - The ID of the order item.
+ * @param {string} previousStatus - The previous status of the order item.
+ * @param {string} newStatus - The new status of the order item.
+ */
 function updateItemStatusSpan(orderItemID, previousStatus, newStatus) {
-	const orderItemStatusSpan = document.querySelector(
-		`#order-item-${orderItemID}-status`
-	);
+	// Update the innerHTML of the status span to the new status
+	const orderItemStatusSpan = document.querySelector(`#order-item-${orderItemID}-status`);
 	orderItemStatusSpan.innerHTML = newStatus;
 
-	const previousStatusClasses = `bg-${getStatusColor(previousStatus)}`.split(
-		" "
-	);
+	// Remove previous status classes from the status span
+	const previousStatusClasses = `bg-${getStatusColor(previousStatus)}`.split(" ");
 	previousStatusClasses.forEach((previousClass) => {
 		if (orderItemStatusSpan.classList.contains(previousClass)) {
 			orderItemStatusSpan.classList.remove(previousClass);
 		}
 	});
 
+	// Add new status classes to the status span
 	const newStatusClasses = `bg-${getStatusColor(newStatus)}`.split(" ");
 	newStatusClasses.forEach((newClass) => {
 		if (!orderItemStatusSpan.classList.contains(newClass)) {
@@ -242,78 +331,113 @@ function updateItemStatusSpan(orderItemID, previousStatus, newStatus) {
 	});
 }
 
+/**
+ * Updates the action button of an order item based on its previous and new statuses.
+ *
+ * @param {string} orderItemID - The ID of the order item.
+ * @param {string} previousStatus - The previous status name of the order item.
+ * @param {string} newStatus - The new status name of the order item.
+ */
 function updateItemActionButton(orderItemID, previousStatus, newStatus) {
-	const orderItemActionButton = document.querySelector(
-		`#order-item-${orderItemID}-action-button`
-	);
+	const orderItemActionButton = document.querySelector(`#order-item-${orderItemID}-action-button`);
 
-	// Get next status of new status
+	// Get the next status after the new status
 	const newStatusNextStatus = getNextStatus(newStatus);
 
-	// Hide action button if next status is null (new status is "served")
+	// If the next status is null (meaning that the new status is "served"), hide the action button
 	if (newStatusNextStatus === null) {
 		toggleElement(orderItemActionButton, false);
+
 	} else {
-		const newStatusClasses = `btn-${getStatusColor(newStatus)}`.split(" ");
-		newStatusClasses.forEach((newClass) => {
-			if (orderItemActionButton.classList.contains(newClass)) {
-				orderItemActionButton.classList.remove(newClass);
+		// Remove previous status classes from the action button
+		const previousStatusClasses = `btn-${getStatusColor(previousStatus)}`.split(" ");
+		previousStatusClasses.forEach((previousClass) => {
+			if (orderItemActionButton.classList.contains(previousClass)) {
+				orderItemActionButton.classList.remove(previousClass);
 			}
 		});
 
-		const nextStatusClasses = `btn-${getStatusColor(
-			newStatusNextStatus
-		)}`.split(" ");
-		nextStatusClasses.forEach((newClass) => {
+		// Add new status classes to the action button
+		const newStatusClasses = `btn-${getStatusColor(newStatus)}`.split(" ");
+		newStatusClasses.forEach((newClass) => {
 			if (!orderItemActionButton.classList.contains(newClass)) {
 				orderItemActionButton.classList.add(newClass);
 			}
 		});
 
-		orderItemActionButton.innerHTML = `Mark as ${capitalizeFirstLetter(
-			newStatusNextStatus
-		)}`;
+		// Update the text of the action button to reflect the next status
+		orderItemActionButton.innerHTML = `Mark as ${capitalizeFirstLetter(newStatusNextStatus)}`;
 	}
 }
 
+/**
+ * Updates the display of an order item's status and action button based on its status.
+ *
+ * @param {string} orderItemID - The ID of the order item.
+ * @param {string} previousStatus - The previous status of the order item.
+ * @param {string} newStatus - The new status of the order item.
+ */
 function updateItemStatusDisplay(orderItemID, previousStatus, newStatus) {
 	updateItemStatusSpan(orderItemID, previousStatus, newStatus);
 	updateItemActionButton(orderItemID, previousStatus, newStatus);
 }
 
+/**
+ * Submits an update for the status of an order item to the server.
+ *
+ * @param {string} orderItemID - The ID of the order item.
+ * @param {string} newStatusID - The ID of the new status for the order item.
+ * @returns {Promise<object>} A promise resolving to the response data from the server.
+ * @throws {Error} If the server response is not successful.
+ */
 async function submitItemStatusUpdate(orderItemID, newStatusID) {
-	const response = await fetch(BASE_URL + "business/orders/item/update-status", {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		body: JSON.stringify({
-			order_item_id: orderItemID,
-			new_status_id: newStatusID,
-		}),
-	});
+	// Send a POST request to the server endpoint with the order item ID and new status ID
+	const response = await fetch(
+		BASE_URL + "business/orders/item/update-status",
+		{
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				order_item_id: orderItemID,
+				new_status_id: newStatusID,
+			}),
+		}
+	);
 
+	// Parse the response data as JSON
 	const responseData = JSON.parse(await response.text());
 
+	// If the response is not successful, throw an error with the error message from the server
 	if (!response.ok) {
 		throw new Error(responseData.message);
 	}
 
+	// Return the response data
 	return responseData;
 }
 
+/**
+ * Updates the status of an order item.
+ *
+ * @param {string} orderItemID - The ID of the order item.
+ */
 async function updateItemStatus(orderItemID) {
+	// Get the current status of the order item
 	const currentStatus = getOrderItemCurrentStatus(orderItemID);
+
+	// Get the next status based on the current status
 	const nextStatus = getNextStatus(currentStatus);
-	const nextStatusID = statuses.find(
-		(status) => status.status === nextStatus
-	).id;
+	
+	// Find the ID of the next status in the statuses array
+	const nextStatusID = statuses.find((status) => status.status === nextStatus).id;
 
 	try {
-		// Update remote data
+		// Update the status of the order item remotely
 		await submitItemStatusUpdate(orderItemID, nextStatusID);
 
-		// Update item summary
+		// Update item summary locally
 		updateStatusQuantity(
 			currentStatus,
 			getStatusQuantity(currentStatus) - getOrderItemQuantity(orderItemID)
@@ -322,11 +446,15 @@ async function updateItemStatus(orderItemID) {
 			nextStatus,
 			getStatusQuantity(nextStatus) + getOrderItemQuantity(orderItemID)
 		);
+
+		// Reload the kitchen view order item summary
 		reloadKitchenViewOrderItemSummary();
 
-		// Update item text, color. and action button
+		// Update item display (text, color, action button)
 		updateItemStatusDisplay(orderItemID, currentStatus, nextStatus);
+		
 	} catch (exception) {
+		// Display an error toast if an exception occurs
 		displayErrorToast(exception.message);
 	}
 }
