@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use App\CustomExceptions\InvalidRegistrationException;
+use App\CustomExceptions\InvalidRequestException;
 use App\CustomExceptions\ObjectNotFoundException;
 use App\Models\AppUser;
 use App\Utils\Utils;
@@ -123,7 +123,7 @@ class UserRepository {
      *
      * @param array $userData The data for the new user.
      * @return int The ID of the newly created user if successful.
-     * @throws InvalidRegistrationException If the user with the provided email is already registered.
+     * @throws InvalidRequestException If the user with the provided email is already registered.
      * @throws Exception|DatabaseException If an error occurs during user creation.
      */
     public static function createUser($userData)
@@ -142,7 +142,7 @@ class UserRepository {
             if ($exception->getMessage() === 'Attempt to read property "id" on null' || str_contains($exception->getMessage(), 'Duplicate')) {
                 
                 // If a duplicate entry error is detected, throw an InvalidRegistrationException
-                throw new InvalidRegistrationException("User with email {$userData['email']} is already registered");
+                throw new InvalidRequestException("User with email {$userData['email']} is already registered");
             }
 
             // If it's not a duplicate entry error, rethrow the original exception

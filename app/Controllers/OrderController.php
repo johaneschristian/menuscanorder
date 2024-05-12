@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\CustomExceptions\InvalidRegistrationException;
+use App\CustomExceptions\InvalidRequestException;
 use App\CustomExceptions\NotAuthorizedException;
 use App\CustomExceptions\ObjectNotFoundException;
 use App\Services\OrderService;
@@ -67,7 +67,7 @@ class OrderController extends Controller {
                                 ->setStatusCode(200)
                                 ->setBody(json_encode(['message' => 'Order is created successfully']));
 
-        } catch (InvalidRegistrationException $exception) {
+        } catch (InvalidRequestException $exception) {
             // Return error response with status code 400 when (part of) the submitted data is invalid
             return $this->response->setContentType(JSON_CONTENT_TYPE)
                                 ->setStatusCode(400)
@@ -342,7 +342,7 @@ class OrderController extends Controller {
                         ->setStatusCode(404)
                         ->setBody(json_encode(['message' => $exception->getMessage()]));
 
-        } catch (InvalidRegistrationException $exception) {
+        } catch (InvalidRequestException $exception) {
             // Return error response with status code 400 when request data is invalid
             return $this->response
                         ->setContentType(JSON_CONTENT_TYPE)

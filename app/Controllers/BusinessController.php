@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\CustomExceptions\InvalidRegistrationException;
+use App\CustomExceptions\InvalidRequestException;
 use App\CustomExceptions\ObjectNotFoundException;
 use App\Services\BusinessService;
 use Exception;
@@ -37,7 +37,7 @@ class BusinessController extends BaseController
                     session()->setFlashData('success', 'Business is created successfully');
                     return redirect()->to(BUSINESS_ORDERS_PATH);
 
-                } catch (InvalidRegistrationException $exception) {
+                } catch (InvalidRequestException $exception) {
                     // Set error message if registration fails
                     session()->setFlashData('error', $exception->getMessage());
                 }
@@ -239,7 +239,7 @@ class BusinessController extends BaseController
                     session()->setFlashdata('success', 'Menu is created successfully');
                     return redirect()->to(BUSINESS_MENU_PATH);
 
-                } catch (InvalidRegistrationException $exception) {
+                } catch (InvalidRequestException $exception) {
                     // Set error message if menu creation fails
                     session()->setFlashdata('error', $exception->getMessage());
                 }
@@ -292,7 +292,7 @@ class BusinessController extends BaseController
                     // Redirect to the business menu page upon successful update
                     return redirect()->to(BUSINESS_MENU_PATH);
 
-                } catch (InvalidRegistrationException $exception) {
+                } catch (InvalidRequestException $exception) {
                     // Set error message if menu editing fails
                     session()->setFlashdata('error', $exception->getMessage());
                 }
@@ -436,7 +436,7 @@ class BusinessController extends BaseController
                     // Redirect back to seat management page
                     return redirect()->to('business/seat-management');
 
-                } catch (InvalidRegistrationException $exception) {
+                } catch (InvalidRequestException $exception) {
                     // Set error message if update fails
                     session()->setFlashdata('error', $exception->getMessage());
                 }

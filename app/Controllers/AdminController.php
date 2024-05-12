@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\CustomExceptions\InvalidRegistrationException;
+use App\CustomExceptions\InvalidRequestException;
 use App\Services\AdminService;
 use Exception;
 
@@ -33,14 +33,14 @@ class AdminController extends BaseController
     /**
      * Handler for retrieving details of a specific user and display them.
      *
-     * @param int $userId ID of user whose details want to be viewed
+     * @param int $userID ID of user whose details want to be viewed
      * @return \CodeIgniter\HTTP\Response|void
      */
-    public function getUserDetails($userId)
+    public function getUserDetails($userID)
     {
         try {
             // Retrieve user details based on user ID
-            $userData = AdminService::handleGetUserDetails($userId);
+            $userData = AdminService::handleGetUserDetails($userID);
 
             // Render view with user details
             return view('admin/admin-view-user-details', $userData);
@@ -70,7 +70,7 @@ class AdminController extends BaseController
                     session()->setFlashdata('success', 'User is created successfully');
                     return redirect()->to(ADMIN_USERS_PATH);
 
-                } catch (InvalidRegistrationException $exception) {
+                } catch (InvalidRequestException $exception) {
                     // Set error flashdata if any registration data is invalid
                     session()->setFlashdata('error', $exception->getMessage());
                 }
@@ -89,10 +89,10 @@ class AdminController extends BaseController
     /**
      * Handler for editing details of an existing user.
      *
-     * @param int $userId ID of user whose details want to be updated
+     * @param int $userID ID of user whose details want to be updated
      * @return \CodeIgniter\HTTP\Response|void
      */
-    public function editUser($userId)
+    public function editUser($userID)
     {
         try {
             if ($this->request->getMethod() === "post") {
@@ -101,20 +101,20 @@ class AdminController extends BaseController
                     $requestData = $this->request->getPost();
 
                     // Update user corresponding to ID with updated data
-                    AdminService::handleEditUser($userId, $requestData);
+                    AdminService::handleAdminEditUser($userID, $requestData);
 
                     // Set success flashdata and redirect upon successful edit
                     session()->setFlashdata('success', 'User is updated successfully');
                     return redirect()->to(ADMIN_USERS_PATH);
 
-                } catch (InvalidRegistrationException $exception) {
+                } catch (InvalidRequestException $exception) {
                     // Set error flashdata if registration exception occurs during edit
                     session()->setFlashdata('error', $exception->getMessage());
                 }
             }
 
             // Retrieve user details for editing
-            $userData = AdminService::handleGetUserDetails($userId);
+            $userData = AdminService::handleGetUserDetails($userID);
 
             // Render view for editing user details
             return view('admin/admin-edit-user-details', $userData);
@@ -139,7 +139,7 @@ class AdminController extends BaseController
             $requestData = $this->request->getPost();
 
             // Change user matching ID's password based on request data
-            AdminService::handleChangeUserPassword($userID, $requestData);
+            AdminService::handleAdminChangeUserPassword($userID, $requestData);
 
             // Set success flashdata and redirect upon successful password change
             session()->setFlashdata('success', 'User password is changed successfully');

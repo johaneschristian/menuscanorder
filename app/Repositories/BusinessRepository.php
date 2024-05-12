@@ -14,29 +14,29 @@ class BusinessRepository
     /**
      * Retrieve a business record from the database by its ID.
      *
-     * @param string $businessId The ID of the business to retrieve.
+     * @param string $businessID The ID of the business to retrieve.
      * @return mixed The business record if found, otherwise NULL.
      */
-    public static function getBusinessById($businessId) {
+    public static function getBusinessByID($businessID) {
         $businesses = new BusinessModel();
-        return $businesses->where('business_id', $businessId)->first();
+        return $businesses->where('business_id', $businessID)->first();
     }
 
     /**
      * Retrieve a business record by ID or throw an exception if not found.
      *
-     * @param string $businessId The ID of the business to retrieve.
+     * @param string $businessID The ID of the business to retrieve.
      * @return object The business record if found.
      * @throws ObjectNotFoundException If the business with the specified ID does not exist.
      */
-    public static function getBusinessByIdOrThrowException($businessId)
+    public static function getBusinessByIDOrThrowException($businessID)
     {
         // Retrieve the business record by ID
-        $foundBusiness = self::getBusinessById($businessId);
+        $foundBusiness = self::getBusinessByID($businessID);
 
         // Check if the business was found, if business is not found, throw an ObjectNotFoundException
         if (is_null($foundBusiness)) {
-            throw new ObjectNotFoundException(sprintf("Business with ID %s does not exist", $businessId));
+            throw new ObjectNotFoundException(sprintf("Business with ID %s does not exist", $businessID));
         } else {
             return $foundBusiness;
         }
@@ -45,13 +45,13 @@ class BusinessRepository
     /**
      * Retrieve a business record from the database by its owning user ID.
      *
-     * @param int $owningUserId The ID of the owning user.
+     * @param int $owningUserID The ID of the owning user.
      * @return mixed The business record if found, otherwise NULL.
      */
-    public static function getBusinessByUserId($owningUserId)
+    public static function getBusinessByUserID($owningUserID)
     {
         $businesses = new BusinessModel();
-        return $businesses->where('owning_user_id', $owningUserId)->first();
+        return $businesses->where('owning_user_id', $owningUserID)->first();
     }
 
     /**
