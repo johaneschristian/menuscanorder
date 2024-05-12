@@ -9,41 +9,28 @@ use CodeIgniter\HTTP\ResponseInterface;
 class LoginRedirectFilter implements FilterInterface
 {
     /**
-     * Do whatever processing this filter needs to do.
-     * By default it should not return anything during
-     * normal execution. However, when an abnormal state
-     * is found, it should return an instance of
-     * CodeIgniter\HTTP\Response. If it does, script
-     * execution will end and that Response will be
-     * sent back to the client, allowing for error pages,
-     * redirects, etc.
+     * Record last intended URL before login page.
+     * 
+     * This middleware is used to allow the application to redirect to the user's
+     * intended page after a successful login, if they were trying to access a page
+     * that requires authentication without logging in.
      *
      * @param RequestInterface $request
      * @param array|null       $arguments
      *
-     * @return RequestInterface|ResponseInterface|string|void
+     * @return void.
      */
     public function before(RequestInterface $request, $arguments = null)
     {
+        // Check if the current URL does not contain "login" or "register"
         if (!str_contains(current_url(), "login") && !str_contains(current_url(), "register")) {
-            session()->set('redirect_url', current_url()); 
+            // If not, set the redirect URL in the session to the current URL
+            session()->set('redirect_url', current_url());
         }
     }
 
-    /**
-     * Allows After filters to inspect and modify the response
-     * object as needed. This method does not allow any way
-     * to stop execution of other after filters, short of
-     * throwing an Exception or Error.
-     *
-     * @param RequestInterface  $request
-     * @param ResponseInterface $response
-     * @param array|null        $arguments
-     *
-     * @return ResponseInterface|void
-     */
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
     {
-        //
+        // No action needed after the controller method is executed
     }
 }

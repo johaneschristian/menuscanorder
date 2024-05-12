@@ -10,19 +10,13 @@ use CodeIgniter\HTTP\ResponseInterface;
 class UserCheckArchivedFilter implements FilterInterface
 {
     /**
-     * Do whatever processing this filter needs to do.
-     * By default it should not return anything during
-     * normal execution. However, when an abnormal state
-     * is found, it should return an instance of
-     * CodeIgniter\HTTP\Response. If it does, script
-     * execution will end and that Response will be
-     * sent back to the client, allowing for error pages,
-     * redirects, etc.
+     * Checks whether the authenticated user is archived.
+     * This will be used to prevent archived users from accessing the system.
      *
      * @param RequestInterface $request
      * @param array|null       $arguments
      *
-     * @return RequestInterface|ResponseInterface|string|void
+     * @return \CodeIgniter\HTTP\RedirectResponse|void Redirects to home page when user is archived.
      */
     public function before(RequestInterface $request, $arguments = null)
     {
@@ -34,20 +28,8 @@ class UserCheckArchivedFilter implements FilterInterface
         }
     }
 
-    /**
-     * Allows After filters to inspect and modify the response
-     * object as needed. This method does not allow any way
-     * to stop execution of other after filters, short of
-     * throwing an Exception or Error.
-     *
-     * @param RequestInterface  $request
-     * @param ResponseInterface $response
-     * @param array|null        $arguments
-     *
-     * @return ResponseInterface|void
-     */
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
     {
-        //
+        // No action needed after the controller method is executed
     }
 }
