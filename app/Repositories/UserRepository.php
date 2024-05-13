@@ -6,7 +6,6 @@ use App\CustomExceptions\InvalidRequestException;
 use App\CustomExceptions\ObjectNotFoundException;
 use App\Models\AppUser;
 use App\Utils\Utils;
-use CodeIgniter\CodeIgniter;
 use CodeIgniter\Database\Exceptions\DatabaseException;
 use CodeIgniter\Shield\Entities\User;
 use Exception;

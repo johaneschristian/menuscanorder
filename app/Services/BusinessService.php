@@ -229,6 +229,7 @@ class BusinessService
      */
     public static function handleCreateCategory($user, $requestData)
     {
+        // TODO: Possibility to combine with update
         // Trim all string values in the request data
         $requestData = Utils::trimAllString($requestData);
         
@@ -237,32 +238,6 @@ class BusinessService
         
         // Create a new category record in the database
         CategoryRepository::createCategory($user->business_id, $requestData);
-    }
-
-    /**
-     * Handle the retrieval of a paginated list of categories associated with a user's business.
-     *
-     * @param object $user The user object representing the logged-in business.
-     * @param array $requestData The request data containing search and pagination parameters.
-     * @return array An array containing paginated categories, search parameter, and pager information.
-     */
-    public static function handleGetCategoryList($user, $requestData)
-    {
-        // Retrieve paginated categories associated with the user's business
-        $businessCategoriesPaginated = CategoryRepository::getPaginatedCategoriesOfBusiness(
-            $user->business_id,
-            $requestData['search'] ?? '',
-            TRUE,
-            10,
-            (int) ($requestData['page'] ?? 1),
-        );
-
-        // Return paginated categories, search parameter, and pager information
-        return [
-            'categories' => $businessCategoriesPaginated['result'],
-            'search' => $requestData['search'] ?? '',
-            'pager' => $businessCategoriesPaginated['pager'],
-        ];
     }
 
     /**
@@ -290,6 +265,32 @@ class BusinessService
         
         // Update the category details
         CategoryRepository::updateCategory($updatedCategory->category_id, $requestData);
+    }
+
+    /**
+     * Handle the retrieval of a paginated list of categories associated with a user's business.
+     *
+     * @param object $user The user object representing the logged-in business.
+     * @param array $requestData The request data containing search and pagination parameters.
+     * @return array An array containing paginated categories, search parameter, and pager information.
+     */
+    public static function handleGetCategoryList($user, $requestData)
+    {
+        // Retrieve paginated categories associated with the user's business
+        $businessCategoriesPaginated = CategoryRepository::getPaginatedCategoriesOfBusiness(
+            $user->business_id,
+            $requestData['search'] ?? '',
+            TRUE,
+            10,
+            (int) ($requestData['page'] ?? 1),
+        );
+
+        // Return paginated categories, search parameter, and pager information
+        return [
+            'categories' => $businessCategoriesPaginated['result'],
+            'search' => $requestData['search'] ?? '',
+            'pager' => $businessCategoriesPaginated['pager'],
+        ];
     }
 
     /**
@@ -417,45 +418,6 @@ class BusinessService
             // Delete the image file from the server
             unlink($filePath);
         }
-    }
-
-    /**
-     * Handle the creation of a new menu entry.
-     *
-     * @param object $user The user object representing the logged-in business, creating the menu.
-     * @param array $requestData The request data containing information about the new menu.
-     * @param \CodeIgniter\HTTP\Files\UploadedFile $menuImage The uploaded menu image file.
-     * @throws InvalidRequestException If menu data or image validation fails during creation process.
-     */
-    public static function handleCreateMenu($user, $requestData, $menuImage)
-    {
-        // Start a transaction for database operations (to prevent data commit before the related image is saved)
-        $db = \Config\Database::connect();
-        $db->transStart();
-
-        // Trim all string values in the request data
-        $requestData = Utils::trimAllString($requestData);
-
-        // Validate the menu data
-        self::validateMenuData($requestData);
-
-        // Transform the menu data to match database field names and format
-        $transformedMenuData = self::transformMenuData($requestData);
-
-        // Create the menu entry in the database
-        $createdMenuID = MenuRepository::createMenu($user->business_id, $transformedMenuData);
-        
-        // Check if the uploaded image is valid and has not been moved
-        if ($menuImage->isValid() && !$menuImage->hasMoved()) {
-            // Validate the uploaded image file
-            self::validateImageFile($menuImage);
-            
-            // Save the uploaded image file
-            self::saveImageFile($user->business_id, $createdMenuID, $menuImage);
-        }
-
-        // Complete the transaction
-        $db->transComplete();
     }
 
     /**
@@ -598,51 +560,72 @@ class BusinessService
     }
 
     /**
-     * Handle the editing of a menu, including updating menu data and optionally changing its image.
+     * Updates the image associated with a menu entry if image exists.
      *
-     * @param object $user The user object representing the logged-in business, updating the menu data.
-     * @param string $menuID The ID of the menu being edited.
-     * @param array $requestData The request data containing updated menu details.
-     * @param \CodeIgniter\HTTP\Files\UploadedFile $menuImage The uploaded menu image (can be null if no image uploaded).
-     * @throws InvalidRequestException If validation of menu data fails during update process.
+     * @param int $menuID The ID of the menu entry to update the image for.
+     * @param \CodeIgniter\HTTP\Files\UploadedFile $menuImage The uploaded image file.
+     */
+    private static function updateMenuImage($menuID, $menuImage) {
+        // Check if the uploaded image is valid and has not been moved
+        if ($menuImage->isValid() && !$menuImage->hasMoved()) {
+            // Retrieve the menu object from the database using its ID
+            $menu = MenuRepository::getMenuByIDOrThrowException($menuID);
+
+            // Remove any existing image file associated with the menu if a new image is uploaded
+            self::removeImageFileOfMenu($menu);
+
+            // Validate the uploaded image file
+            self::validateImageFile($menuImage);
+            
+            // Save the uploaded image file to the appropriate directory
+            // using the owning business ID and the menu ID
+            self::saveImageFile($menu->owning_business_id, $menuID, $menuImage);
+        }
+    }
+
+    /**
+     * Handle the creation or editing of a menu and assigning an image to the menu.
+     *
+     * @param object $user The user object representing the logged-in business, creating/updating the menu data.
+     * @param string|null $menuID The ID of the menu being edited.
+     * @param array $requestData The request data containing the menu details.
+     * @param \CodeIgniter\HTTP\Files\UploadedFile $menuImage The uploaded menu image.
+     * @throws InvalidRequestException If validation of menu data fails during update/create process.
      * @throws ObjectNotFoundException If menu matching the ID does not exist.
      * @throws NotAuthorizedException If the user affiliated business does not own the menu.
      */
-    public static function handleEditMenu($user, $menuID, $requestData, $menuImage)
+    public static function handleCreateOrEditMenu($user, $menuID, $requestData, $menuImage)
     {
-        // Start a transaction for database operations
+        // Start a transaction for database operations to prevent commit before image is saved
         $db = \Config\Database::connect();
         $db->transStart();
+
+        $isCreate = is_null($menuID);
 
         // Trim whitespace from all string values in the request data
         $requestData = Utils::trimAllString($requestData);
         
         // Validate the menu data for update
         self::validateMenuData($requestData);
-        
-        // Retrieve the menu to be updated by its ID or throw an exception if not found
-        $menu = MenuRepository::getMenuByIDOrThrowException($menuID);
-        
-        // Validate if the user owns the menu
-        self::validateMenuOwnership($user->business_id, $menu);
-        
+
         // Transform the menu data to match the database structure
         $transformedMenuData = self::transformMenuData($requestData);
         
-        // Update the menu details in the database
-        MenuRepository::updateMenu($menuID, $transformedMenuData);
+        if ($isCreate) {
+            // Create the menu entry in the database
+            $menuID = MenuRepository::createMenu($user->business_id, $transformedMenuData);
 
-        // Check if a new menu image has been uploaded
-        if ($menuImage->isValid()) {
-            // Validate the uploaded menu image
-            self::validateImageFile($menuImage);
-            
-            // Remove any existing image file associated with the menu
-            self::removeImageFileOfMenu($menu);
-            
-            // Save the new image file for the menu
-            self::saveImageFile($user->business_id, $menuID, $menuImage);
+        } else {
+            // Perform additional validation if operation is update
+            $menu = MenuRepository::getMenuByIDOrThrowException($menuID);
+            self::validateMenuOwnership($user->business_id, $menu);
+
+            // Update the menu details in the database
+            MenuRepository::updateMenu($menuID, $transformedMenuData);
         }
+
+        // Save the uploaded image file
+        self::updateMenuImage($menuID, $menuImage);
         
         // Complete the database transaction
         $db->transComplete();

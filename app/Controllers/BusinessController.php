@@ -31,6 +31,8 @@ class BusinessController extends BaseController
                 try {
                     // Register new business for the authenticated user based on request data
                     $requestData = $this->request->getPost();
+
+                    // TODO: MERGE
                     BusinessService::handleRegisterBusiness($user, $requestData);
 
                     // Set success message upon successful business registration
@@ -212,64 +214,15 @@ class BusinessController extends BaseController
     }
 
     /**
-     * Handler for creating a menu.
-     *
-     * @return \CodeIgniter\HTTP\RedirectResponse|string The menu registration page or redirect when successful/failing.
-     */
-    public function createMenu()
-    {
-        try {
-            // Retrieve authenticated user and associated business ID (from middleware)
-            $user = auth()->user();
-            $user->business_id = session()->get('business_id');
-
-            if ($this->request->getMethod() === "post") {
-                try {
-                    // Get the uploaded image file
-                    $imageFile = $this->request->getFile("product_image");
-
-                    // Get other form data
-                    $requestData = $this->request->getPost();
-
-                    // Create menu for affiliated business based on submitted data
-                    BusinessService::handleCreateMenu($user, $requestData, $imageFile);
-
-                    // Redirect to the business menu page upon successful creation
-                    session()->setFlashdata('success', 'Menu is created successfully');
-                    return redirect()->to(BUSINESS_MENU_PATH);
-
-                } catch (InvalidRequestException $exception) {
-                    // Set error message if menu creation fails
-                    session()->setFlashdata('error', $exception->getMessage());
-                }
-            }
-
-            // Prepare data for view
-            $categoriesData = BusinessService::handleGetCategoryList($user, []);
-            $data = [
-                ...$categoriesData,
-                'business_name' => session()->get('business_name'),
-            ];
-
-            // Render the business menu edit page view with the data
-            return view('business/business-menu-edit', $data);
-
-        } catch (Exception $exception) {
-            // Set error message if an unexpected exception occurs and redirect to home page
-            session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to(HOME_PATH);
-        }
-    }
-
-    /**
      * Handler for editing a menu.
      *
-     * @param string $menuID The ID of the menu to edit
+     * @param string|null $menuID The ID of the menu to edit (optional).
      * @return \CodeIgniter\HTTP\RedirectResponse|string The menu edit page or redirect when successful/failing.
      */
-    public function editMenu($menuID)
-    {
+    public function createOrEditMenu($menuID = NULL) {
         try {
+            $isCreate = is_null($menuID);
+
             // Retrieve authenticated user and associated business ID (from middleware)
             $user = auth()->user();
             $user->business_id = session()->get('business_id');
@@ -283,10 +236,15 @@ class BusinessController extends BaseController
                     $requestData = $this->request->getPost();
                     
                     // Edit menu based on submitted data
-                    BusinessService::handleEditMenu($user, $menuID, $requestData, $imageFile);
+                    BusinessService::handleCreateOrEditMenu($user, $menuID, $requestData, $imageFile);
                     
-                    // Set success flashdata when update is successful
-                    session()->setFlashdata('success', 'Menu is updated successfully');
+                    // Set success flashdata when successful
+                    if ($isCreate) {
+                        session()->setFlashdata('success', 'Menu is created successfully');
+
+                    } else {
+                        session()->setFlashdata('success', 'Menu is updated successfully');
+                    }
                     
                     // Redirect to the business menu page upon successful update
                     return redirect()->to(BUSINESS_MENU_PATH);
@@ -296,9 +254,9 @@ class BusinessController extends BaseController
                     session()->setFlashdata('error', $exception->getMessage());
                 }
             }
-
-            // Retrieve menu data for editing
-            $menuData = BusinessService::handleGetMenuData($user, $menuID);
+            
+            // Prepare data for view
+            $menuData = $isCreate ? BusinessService::handleGetCategoryList($user, []) : BusinessService::handleGetMenuData($user, $menuID);
             $data = [
                 ...$menuData,
                 'business_name' => session()->get('business_name'),

@@ -33,8 +33,8 @@ $routes->group('business', ['filter' => 'business'], function ($routes) {
 
     $routes->group('menu', function ($routes) {
         $routes->get('/', 'BusinessController::getMenuList');
-        $routes->match(['get', 'post'], 'create', 'BusinessController::createMenu');
-        $routes->match(['get', 'post'], '(:segment)/edit', 'BusinessController::editMenu/$1');
+        $routes->match(['get', 'post'], 'create', 'BusinessController::createOrEditMenu');
+        $routes->match(['get', 'post'], '(:segment)/edit', 'BusinessController::createOrEditMenu/$1');
         $routes->post('delete/', 'BusinessController::deleteMenu');
     });
     $routes->group('orders', function ($routes) {

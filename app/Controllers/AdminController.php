@@ -54,7 +54,7 @@ class AdminController extends BaseController
     /**
      * Handler for allowing admin to create or edit a user.
      *
-     * @param int $userID ID of user whose details want to be updated (optional).
+     * @param int|null $userID ID of user whose details want to be updated (optional).
      * @return \CodeIgniter\HTTP\RedirectResponse|string The user edit page or redirect when successful/failing.
      */
     public function createOrEditUser($userID = NULL)
