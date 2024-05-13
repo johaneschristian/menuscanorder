@@ -198,7 +198,7 @@ class AdminService {
         // Validate the new password
         AuthService::validatePassword($requestData);
         
-        // Retrieve the user by ID or throw an exception if not found
+        // Check if user exists and throw an exception if not found
         UserRepository::getUserByIDOrThrowException($userID);
         
         // Transform the password data to repository expected format for updating

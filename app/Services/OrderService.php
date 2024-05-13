@@ -386,7 +386,6 @@ class OrderService
      */
     public static function handleCustomerGetOrderList($user, $requestData)
     {
-        // TODO: Possible merge?
         // Transform request data for processing
         $transformedRequestData = self::transformCustomerOrderListRequestData($requestData);
         
@@ -561,32 +560,6 @@ class OrderService
     }
 
     /**
-     * Handle the retrieval of detailed information for a specific order requested by a customer.
-     *
-     * @param object $user The user object representing the logged-in customer.
-     * @param string $orderID The ID of the order to retrieve details for.
-     * @return array An array containing detailed information of the requested order.
-     * @throws ObjectNotFoundException If the order matching the provided ID does not exist.
-     * @throws NotAuthorizedException If the user is not the owner of the order.
-     */
-    public static function handleCustomerGetOrderDetail($user, $orderID)
-    {
-        // Retrieve the order by its ID or throw an exception if not found
-        $order = OrderRepository::getOrderByIDOrThrowException($orderID);
-        
-        // Validate if the logged-in user is the owner of the order, otherwise throw an exception
-        self::validateCustomerOrderOwnership($user, $order);
-        
-        // Get complete details of the order (base information, order summary, formatted order items)
-        $orderWithCompleteDetails = self::getOrderCompleteDetails($order);
-
-        // Return an array containing detailed information of the requested order
-        return [
-            'order' => $orderWithCompleteDetails,
-        ];
-    }
-
-    /**
      * Transform request data for processing business order list.
      *
      * @param array $requestData The request data containing table_number, status_id, and page parameters.
@@ -667,23 +640,29 @@ class OrderService
     }
 
     /**
-     * Handle the retrieval of detailed information for a specific order when requested by a business.
+     * Handle the retrieval of detailed information for a specific order.
      *
-     * @param object $user The user object representing the logged-in business.
+     * @param object $user The user object representing the logged-in customer or business.
      * @param string $orderID The ID of the order to retrieve details for.
+     * @param bool $byBusiness Whether the requester is a business or customer with respect to the order.
      * @return array An array containing detailed information of the requested order.
      * @throws ObjectNotFoundException If the order matching the provided ID does not exist.
-     * @throws NotAuthorizedException If the business is not authorized to access the order.
+     * @throws NotAuthorizedException If the user is not the owner (customer/business) of the order.
      */
-    public static function handleBusinessGetOrderDetails($user, $orderID)
-    {
-        // TODO: Merge
+    public static function handleGetOrderDetails($user, $orderID, $byBusiness = FALSE) {
         // Retrieve the order by its ID or throw an exception if not found
         $order = OrderRepository::getOrderByIDOrThrowException($orderID);
-        
-        // Validate if the business is the owner of the order
-        self::validateBusinessOrderOwnership($user->business_id, $order);
-        
+
+        // Validate ownership depending on requesting user
+        if ($byBusiness) {
+            // Validate if the business is the owner of the order
+            self::validateBusinessOrderOwnership($user->business_id, $order);
+
+        } else {
+            // Validate if the logged-in user is the owner of the order, otherwise throw an exception
+            self::validateCustomerOrderOwnership($user, $order);
+        }
+
         // Get complete details of the order (base information, order summary, formatted order items)
         $orderWithCompleteDetails = self::getOrderCompleteDetails($order);
 

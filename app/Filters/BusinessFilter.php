@@ -23,6 +23,11 @@ class BusinessFilter implements FilterInterface
         // Retrieve the currently authenticated user
         $user = auth()->user();
         
+        if (is_null($user)) {
+            session()->setFlashdata('error', 'You must log in to access this page');
+            return redirect()->to('/login');
+        }
+
         // Retrieve the business associated with the user
         $userBusiness = BusinessRepository::getBusinessByUserID($user->id);
 

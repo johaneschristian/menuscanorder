@@ -127,7 +127,7 @@ class OrderController extends Controller {
             $user = auth()->user();
 
             // Retrieve order details for the specified order ID
-            $orderData = OrderService::handleCustomerGetOrderDetail($user, $orderID);
+            $orderData = OrderService::handleGetOrderDetails($user, $orderID, FALSE);
 
             // Render the customer order details view with the order data
             return view('customer/customer-order-details', $orderData);
@@ -192,7 +192,7 @@ class OrderController extends Controller {
             $user->business_id = session()->get('business_id');
 
             // Retrieve order details for the specified order ID
-            $orderData = OrderService::handleBusinessGetOrderDetails($user, $orderID);
+            $orderData = OrderService::handleGetOrderDetails($user, $orderID, TRUE);
 
             // Prepare data for the view
             $data = [
