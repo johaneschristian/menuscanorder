@@ -102,7 +102,7 @@ class OrderController extends Controller {
             $requestData = $this->request->getGet();
 
             // Retrieve the list of orders for the customer, filtered with search params if provided
-            $customerOrders = OrderService::handleCustomerGetOrderList($user, $requestData);
+            $customerOrders = OrderService::handleGetOrderList($user, $requestData, FALSE);
 
             // Render the customer order list view with the order data
             return view('customer/customer-order-list', $customerOrders);
@@ -160,7 +160,7 @@ class OrderController extends Controller {
             $requestData = $this->request->getGet();
 
             // Retrieve the list of orders for the business, filtered by search params if provided
-            $businessOrders = OrderService::handleBusinessGetOrderList($user, $requestData);
+            $businessOrders = OrderService::handleGetOrderList($user, $requestData, TRUE);
 
             // Prepare data for the view
             $data = [

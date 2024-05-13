@@ -290,20 +290,20 @@ class OrderService
         $db->transComplete();
     }
 
-    /**
-     * Transform customer order list request data for processing.
-     *
-     * @param array $requestData The request data containing search, status_id, and page parameters.
-     * @return array Transformed request data.
-     */
-    private static function transformCustomerOrderListRequestData($requestData)
+    private static function transformOrderListRequestData($requestData)
     {
         // Initialize transformed request data with default values
         $transformedRequestData = [
+            'table_number' => NULL,
             'business_ids' => NULL,
             'status_id' => NULL,
             'page' => (int) ($requestData['page'] ?? 1),
         ];
+
+        // Check if table_number parameter exists and is numeric, then transform it
+        if (array_key_exists('table_number', $requestData) && is_numeric($requestData['table_number'])) {
+            $transformedRequestData['table_number'] = (int) $requestData['table_number'];
+        }
 
         // Set business_ids in transformed request data to IDs of businesses matching name 
         if (array_key_exists('business_name', $requestData) && !empty(trim($requestData['business_name']))) {
@@ -378,38 +378,66 @@ class OrderService
     }
 
     /**
-     * Handle the retrieval of a paginated list of orders for a customer.
+     * Retrieve paginated list of orders for business or customer.
      *
-     * @param object $user The user object representing the logged-in customer.
-     * @param array $requestData The request data containing search, business name, status ID, and page parameters.
+     * @param object $user The user object either business or customer.
+     * @param array $requestData The request data containing search, business name, table number, status ID, and page parameters.
+     * @param bool $ofBusiness Whether the function is accessed as a business or as a customer.
+     * @return array An array containing orders data and pagination information.
+     */
+    public static function getPaginatedOrders($user, $requestData, $ofBusiness) {
+        if ($ofBusiness) {
+            // Retrieve paginated orders of the business based on transformed request data
+            $ordersPaginated = OrderRepository::getPaginatedOrdersOfBusiness(
+                $user->business_id,
+                $requestData['status_id'],
+                $requestData['table_number'],
+                10,
+                $requestData['page'],
+            );
+
+        } else {
+            // Retrieve paginated orders of the customer/user based on transformed request data
+            $ordersPaginated = OrderRepository::getPaginatedOrdersOfUser(
+                $user->id,
+                $requestData['business_ids'],
+                $requestData['status_id'],
+                10,
+                $requestData['page'],
+            );
+        }
+
+        return $ordersPaginated;
+    }
+
+    /**
+     * Handle the retrieval of a paginated list of orders for business or customer.
+     *
+     * @param object $user The user object representing the logged-in user, either business or customer.
+     * @param array $requestData The request data containing search, business name, table number, status ID, and page parameters.
+     * @param bool $ofBusiness Whether the function is accessed as a business or as a customer.
      * @return array An array containing orders data, pagination information, statuses, search term, and selected status ID.
      */
-    public static function handleCustomerGetOrderList($user, $requestData)
-    {
+    public static function handleGetOrderList($user, $requestData, $ofBusiness) {
         // Transform request data for processing
-        $transformedRequestData = self::transformCustomerOrderListRequestData($requestData);
+        $transformedRequestData = self::transformOrderListRequestData($requestData);
         
-        // Retrieve paginated orders of the user based on transformed request data
-        $userOrdersPaginated = OrderRepository::getPaginatedOrdersOfUser(
-            $user->id,
-            $transformedRequestData['business_ids'],
-            $transformedRequestData['status_id'],
-            10,
-            $transformedRequestData['page'],
-        );
+        // Get orders of user based on current role
+        $ordersPaginated = self::getPaginatedOrders($user, $transformedRequestData, $ofBusiness);
 
         // Append related information to each order in the paginated result
-        $userCompleteOrderData = self::appendRelatedInformationOfOrders($userOrdersPaginated['result']);
-
+        $completeOrderData = self::appendRelatedInformationOfOrders($ordersPaginated['result']);
+        
         // Retrieve all order statuses
         $allStatus = OrderRepository::getAllOrderStatus();
 
         // Construct and return the response array
+        // Business searches by table number, while customer searches by business name
         return [
-            'orders' => $userCompleteOrderData,
-            'pager' => $userOrdersPaginated['pager'],
+            'orders' => $completeOrderData,
+            'pager' => $ordersPaginated['pager'],
             'statuses' => $allStatus,
-            'search' => $requestData['business_name'] ?? '',
+            'search' => $ofBusiness ? $requestData['table_number'] ?? '' : $requestData['business_name'] ?? '',
             'selected_status_id' => $requestData['status_id'] ?? '',
         ];
     }
@@ -557,72 +585,6 @@ class OrderService
         $orderWithBaseInformation->order_summary = self::getOrderItemsSummary($order);
         $orderWithBaseInformation->order_items = self::getFormattedOrderItemsOfOrder($order);
         return $orderWithBaseInformation;
-    }
-
-    /**
-     * Transform request data for processing business order list.
-     *
-     * @param array $requestData The request data containing table_number, status_id, and page parameters.
-     * @return array Transformed request data.
-     */
-    private static function transformBusinessOrderListRequestData($requestData)
-    {
-        // Initialize transformed request data array with default values
-        $transformedRequestData = [
-            'table_number' => NULL,
-            'status_id' => NULL,
-            'page' => (int) ($requestData['page'] ?? 1),
-        ];
-
-        // Check if table_number parameter exists and is numeric, then transform it
-        if (array_key_exists('table_number', $requestData) && is_numeric($requestData['table_number'])) {
-            $transformedRequestData['table_number'] = (int) $requestData['table_number'];
-        }
-
-        // Check if status_id parameter exists and is numeric, then transform it
-        if (array_key_exists('status_id', $requestData) && is_numeric($requestData['status_id'])) {
-            $transformedRequestData['status_id'] = (int) $requestData['status_id'];
-        }
-
-        // Return the transformed request data
-        return $transformedRequestData;
-    }
-
-    /**
-     * Handle the retrieval of a paginated list of orders for a business.
-     *
-     * @param object $user The user object representing the logged-in business.
-     * @param array $requestData The request data containing table_number, status_id, and page parameters.
-     * @return array An array containing orders data, pager, statuses, search term, and selected status ID.
-     */
-    public static function handleBusinessGetOrderList($user, $requestData)
-    {
-        // Transform request data for processing
-        $transformedRequestData = self::transformBusinessOrderListRequestData($requestData);
-        
-        // Retrieve paginated orders of the business based on transformed request data
-        $businessOrdersPaginated = OrderRepository::getPaginatedOrdersOfBusiness(
-            $user->business_id,
-            $transformedRequestData['status_id'],
-            $transformedRequestData['table_number'],
-            10,
-            $transformedRequestData['page'],
-        );
-
-        // Append related information to each order in the paginated result
-        $businessCompleteOrderData = self::appendRelatedInformationOfOrders($businessOrdersPaginated['result']);
-
-        // Retrieve all order statuses
-        $allStatus = OrderRepository::getAllOrderStatus();
-
-        // Construct and return the response array
-        return [
-            'orders' => $businessCompleteOrderData,
-            'pager' => $businessOrdersPaginated['pager'],
-            'statuses' => $allStatus,
-            'search' => $requestData['table_number'] ?? '',
-            'selected_status_id' => $requestData['status_id'] ?? '',
-        ];
     }
 
     /**
