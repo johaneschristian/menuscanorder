@@ -83,21 +83,6 @@ class BusinessService
     }
 
     /**
-     * Validate user's eligibility to create a business.
-     *
-     * @param object $creatingUser The user object to check for business eligibility.
-     * @throws InvalidRequestException When the user is not eligible to create a business (already has one).
-     */
-    private static function validateUserBusinessEligibility($creatingUser)
-    {
-        // Check if the user already has an associated business
-        if (self::userHasBusiness($creatingUser)) {
-            // If the user has a business associated, throw an exception
-            throw new InvalidRequestException("A user can only have one business.");
-        }
-    }
-
-    /**
      * Transform business data to match database field names.
      * This method also sanitize input to prevent user from modifying other role-managed fields.
      *
@@ -127,49 +112,31 @@ class BusinessService
     }
 
     /**
-     * Handle the registration of a new business.
+     * Handle the registration or update of a business.
      *
-     * @param object $user The user object representing the logged-in user, initiating the business registration.
-     * @param array $requestData The request data containing business details for registration.
-     * @throws InvalidRequestException If data is invalid or user business registration eligibility checks fails.
+     * @param object $user The user object representing the logged-in user, initiating the business registration or update.
+     * @param array $requestData The request data containing business details.
+     * @throws InvalidRequestException If business details is invalid.
      */
-    public static function handleRegisterBusiness($user, $requestData)
+    public static function handleCreateOrEditBusiness($user, $requestData)
     {
         // Trim all string values in the request data
         $requestData = Utils::trimAllString($requestData);
         
         // Validate the trimmed business data
         self::validateBusinessData($requestData);
-        
-        // Validate the user's eligibility to register a new business
-        self::validateUserBusinessEligibility($user);
-        
+
         // Transform the validated business data
         $transformedBusinessData = self::transformBusinessData($requestData);
-        
-        // Create a new business record in the database
-        BusinessRepository::createBusiness($user->id, $transformedBusinessData);
-    }
 
-    /**
-     * Handle the editing of business profile.
-     *
-     * @param object $user The user object representing the logged-in business, initiating the business profile edit.
-     * @param array $requestData The request data containing updated business profile information.
-     * @throws InvalidRequestException If submitted business data is invalid.
-     */
-    public static function handleBusinessEditProfile($user, $requestData) {
-        // Trim all string values in the request data
-        $requestData = Utils::trimAllString($requestData);
-        
-        // Validate the trimmed business data
-        self::validateBusinessData($requestData);
-        
-        // Transform the validated business data
-        $businessData = self::transformBusinessData($requestData);
-        
-        // Update the business record in the database
-        BusinessRepository::updateBusiness($user->business_id, $businessData);
+        if (!isset($user->business_id)) {
+            // Create a new business record in the database
+            BusinessRepository::createBusiness($user->id, $transformedBusinessData);
+
+        } else {
+            // Update the business record in the database
+            BusinessRepository::updateBusiness($user->business_id, $transformedBusinessData);
+        }
     }
 
     /**

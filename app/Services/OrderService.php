@@ -386,6 +386,7 @@ class OrderService
      */
     public static function handleCustomerGetOrderList($user, $requestData)
     {
+        // TODO: Possible merge?
         // Transform request data for processing
         $transformedRequestData = self::transformCustomerOrderListRequestData($requestData);
         
@@ -676,6 +677,7 @@ class OrderService
      */
     public static function handleBusinessGetOrderDetails($user, $orderID)
     {
+        // TODO: Merge
         // Retrieve the order by its ID or throw an exception if not found
         $order = OrderRepository::getOrderByIDOrThrowException($orderID);
         

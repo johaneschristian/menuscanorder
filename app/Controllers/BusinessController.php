@@ -32,8 +32,7 @@ class BusinessController extends BaseController
                     // Register new business for the authenticated user based on request data
                     $requestData = $this->request->getPost();
 
-                    // TODO: MERGE
-                    BusinessService::handleRegisterBusiness($user, $requestData);
+                    BusinessService::handleCreateOrEditBusiness($user, $requestData);
 
                     // Set success message upon successful business registration
                     session()->setFlashData('success', 'Business is created successfully');
@@ -59,6 +58,41 @@ class BusinessController extends BaseController
             session()->setFlashData('error', $exception->getMessage());
             return redirect()->to(HOME_PATH);
         }
+    }
+
+    /**
+     * Handler for editing business profile.
+     *
+     * @return string The edit profile page.
+     */
+    public function editProfile()
+    {
+        // Retrieve authenticated user and associated business ID (from middleware)
+        $user = auth()->user();
+        $user->business_id = session()->get('business_id');
+
+        if ($this->request->getMethod() === "post") {
+            try {
+                // Get profile data
+                $requestData = $this->request->getPost();
+
+                // Update business profile
+                BusinessService::handleCreateOrEditBusiness($user, $requestData);
+
+                // Set success flashdata when update is successful
+                session()->setFlashdata('success', 'Business is updated successfully');
+
+            } catch (Exception $exception) {
+                // Set error message if editing fails
+                session()->setFlashdata('error', $exception->getMessage());
+            }
+        }
+
+        // Retrieve business profile data
+        $businessData = BusinessService::handleGetBusinessProfile($user);
+
+        // Render the business profile edit page view with the data
+        return view('business/business-profile-edit', $businessData);
     }
 
     /**
@@ -199,7 +233,7 @@ class BusinessController extends BaseController
      * @param string|null $menuID The ID of the menu to edit (optional).
      * @return \CodeIgniter\HTTP\RedirectResponse|string The menu edit page or redirect when successful/failing.
      */
-    public function createOrEditMenu($menuID = NULL) 
+    public function createOrEditMenu($menuID = NULL)
     {
         try {
             $isCreate = is_null($menuID);
@@ -311,41 +345,6 @@ class BusinessController extends BaseController
             // Return an empty string if an exception occurs
             return "";
         }
-    }
-
-    /**
-     * Handler for editing business profile.
-     *
-     * @return string The edit profile page.
-     */
-    public function editProfile()
-    {
-        // Retrieve authenticated user and associated business ID (from middleware)
-        $user = auth()->user();
-        $user->business_id = session()->get('business_id');
-
-        if ($this->request->getMethod() === "post") {
-            try {
-                // Get profile data
-                $requestData = $this->request->getPost();
-
-                // Update business profile
-                BusinessService::handleBusinessEditProfile($user, $requestData);
-
-                // Set success flashdata when update is successful
-                session()->setFlashdata('success', 'Business is updated successfully');
-
-            } catch (Exception $exception) {
-                // Set error message if editing fails
-                session()->setFlashdata('error', $exception->getMessage());
-            }
-        }
-
-        // Retrieve business profile data
-        $businessData = BusinessService::handleGetBusinessProfile($user);
-
-        // Render the business profile edit page view with the data
-        return view('business/business-profile-edit', $businessData);
     }
 
     /**
