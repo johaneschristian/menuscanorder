@@ -6,6 +6,7 @@ use App\CustomExceptions\InvalidRequestException;
 use App\CustomExceptions\ObjectNotFoundException;
 use App\Models\AppUser;
 use App\Utils\Utils;
+use CodeIgniter\CodeIgniter;
 use CodeIgniter\Database\Exceptions\DatabaseException;
 use CodeIgniter\Shield\Entities\User;
 use Exception;
@@ -140,8 +141,6 @@ class UserRepository {
         } catch (Exception | DatabaseException $exception) {
             // Check if the exception message indicates a duplicate entry error
             if ($exception->getMessage() === 'Attempt to read property "id" on null' || str_contains($exception->getMessage(), 'Duplicate')) {
-                
-                // If a duplicate entry error is detected, throw an InvalidRegistrationException
                 throw new InvalidRequestException("User with email {$userData['email']} is already registered");
             }
 
@@ -159,15 +158,25 @@ class UserRepository {
      */
     public static function updateUser($userID, $userData)
     {
-        $users = auth()->getProvider();
+        try {
+            $users = auth()->getProvider();
         
-        // Find the user by their ID
-        $matchingUser = $users->findById($userID);
-        
-        // Fill the user's data with the provided updated data
-        $matchingUser->fill($userData);
-        
-        // Save the updated user data
-        $users->save($matchingUser);
+            // Find the user by their ID
+            $matchingUser = $users->findById($userID);
+            
+            // Fill the user's data with the provided updated data
+            $matchingUser->fill($userData);
+            
+            // Save the updated user data
+            $users->save($matchingUser);
+
+        } catch (\Throwable $exception) {
+            // Check if the exception message indicates a entry not found
+            if ($exception->getMessage() === 'Call to a member function fill() on null') {
+                throw new InvalidRequestException("User with ID $userID does not exist");
+            }
+
+            throw $exception;
+        }
     }
 }

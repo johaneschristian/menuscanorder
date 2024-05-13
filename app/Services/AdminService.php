@@ -127,73 +127,39 @@ class AdminService {
         }
     }
 
-
     /**
-     * Handle the creation of a new user by an admin.
+     * Handle the creation or edit of a user by Admin.
      *
-     * @param array $requestData The request data containg the user details.
-     * @throws InvalidRequestException If request data validation fails.
-     */
-    public static function handleAdminCreateUser($requestData) {
-        // Start a database transaction
-        $db = \Config\Database::connect();
-        $db->transStart();
-
-        // Trim whitespace from all string values in the request data
-        $requestData = Utils::trimAllString($requestData);
-        
-        // Validate base request data for user creation
-        self::validateBaseRequestData($requestData, TRUE);
-        
-        // Validate password in the request data
-        AuthService::validatePassword($requestData);
-        
-        // Transform request data key and values to repository expected format
-        $transformedUserRequestData = AuthService::transformUserData($requestData, TRUE, TRUE);
-        
-        // Create user
-        $createdUserID = UserRepository::createUser($transformedUserRequestData);
-
-        // Check if business data is provided and create a business if necessary
-        if (!is_null($requestData['business_name'] ?? NULL) && !empty($requestData['business_name'])) {
-            
-            // Validate business data
-            BusinessService::validateBusinessData($requestData);
-            
-            // Transform business data to repository expected format
-            $transformedBusinessRequestData = BusinessService::transformBusinessData($requestData, TRUE);
-            
-            // Create business associated with the created user
-            BusinessRepository::createBusiness($createdUserID, $transformedBusinessRequestData);
-        }
-
-        // Complete the database transaction
-        $db->transComplete();
-    }
-
-    /**
-     * Handle the editing of a user's details by Admin.
-     *
-     * @param int $updatedUserID The ID of the user to be updated.
+     * @param int|null $updatedUserID The ID of the user to be updated or null if it is for create.
      * @param array $requestData The request data containing updated user details.
      * @throws InvalidRequestException If admin submitted data validation fails.
      */
-    public static function handleAdminEditUser($updatedUserID, $requestData) {
+    public static function handleAdminCreateEditUser($userID, $requestData) {
+        // Set flag to determine whether the operation is create or edit
+        $isCreate = is_null($userID);
+
         // Start a database transaction
         $db = \Config\Database::connect();
         $db->transStart();
 
         // Trim whitespace from all string values in the request data
         $requestData = Utils::trimAllString($requestData);
-        
+
         // Validate base request data for user editing
-        self::validateBaseRequestData($requestData, FALSE);
-        
-        // Transform user data to repository expected format for editing
-        $transformedUserRequestData = AuthService::transformUserData($requestData, FALSE, TRUE);
-        
-        // Update user details
-        UserRepository::updateUser($updatedUserID, $transformedUserRequestData);
+        self::validateBaseRequestData($requestData, $isCreate);
+
+        // Transform user data to repository expected format
+        $transformedUserRequestData = AuthService::transformUserData($requestData, $isCreate, TRUE);
+
+        if ($isCreate) {
+            // Validate password in the request data and create user
+            AuthService::validatePassword($requestData);
+            $userID = UserRepository::createUser($transformedUserRequestData);
+
+        } else {
+            // Update user details
+            UserRepository::updateUser($userID, $transformedUserRequestData);
+        }
 
         // Check if business data is provided and update/create business accordingly
         if (!is_null($requestData['business_name'] ?? NULL) && !empty($requestData['business_name'])) {
@@ -205,14 +171,14 @@ class AdminService {
             $transformedBusinessRequestData = BusinessService::transformBusinessData($requestData, TRUE);
 
             // Check if user already has a business associated
-            $userBusiness = BusinessRepository::getBusinessByUserID($updatedUserID);
+            $userBusiness = BusinessRepository::getBusinessByUserID($userID);
             
             // If user has a business, update it; otherwise, create a new business
             if (!is_null($userBusiness)) {
                 BusinessRepository::updateBusiness($userBusiness->business_id, $transformedBusinessRequestData);
 
             } else {
-                BusinessRepository::createBusiness($updatedUserID, $transformedBusinessRequestData);
+                BusinessRepository::createBusiness($userID, $transformedBusinessRequestData);
             }
         }
 

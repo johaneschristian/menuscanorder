@@ -2,7 +2,6 @@
 
 namespace App\Controllers;
 
-use App\CustomExceptions\InvalidRequestException;
 use App\Services\AdminService;
 use Exception;
 
@@ -53,68 +52,49 @@ class AdminController extends BaseController
     }
 
     /**
-     * Handler for creating a new user.
+     * Handler for allowing admin to create or edit a user.
      *
-     * @return \CodeIgniter\HTTP\RedirectResponse|string The user registration page or redirect when successful/failing.
-     */
-    public function createUser()
-    {
-        try {
-            if ($this->request->getMethod() === "post") {
-                try {
-                    // Retrieve request data for creating user
-                    $requestData = $this->request->getPost();
-                    AdminService::handleAdminCreateUser($requestData);
-                    
-                    // Set success flashdata and redirect upon successful creation
-                    session()->setFlashdata('success', 'User is created successfully');
-                    return redirect()->to(ADMIN_USERS_PATH);
-
-                } catch (InvalidRequestException $exception) {
-                    // Set error flashdata if any registration data is invalid
-                    session()->setFlashdata('error', $exception->getMessage());
-                }
-            }
-
-            // Render view for creating/editing user details
-            return view('admin/admin-edit-user-details');
-
-        } catch (Exception $exception) {
-            // Set error flashdata and redirect if exception not related to payload occurs
-            session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to(ADMIN_USERS_PATH);
-        }
-    }
-
-    /**
-     * Handler for editing details of an existing user.
-     *
-     * @param int $userID ID of user whose details want to be updated
+     * @param int $userID ID of user whose details want to be updated (optional).
      * @return \CodeIgniter\HTTP\RedirectResponse|string The user edit page or redirect when successful/failing.
      */
-    public function editUser($userID)
+    public function createOrEditUser($userID = NULL)
     {
+        // Define whether operation is create or edit
+        $isCreate = is_null($userID);
+
         try {
             if ($this->request->getMethod() === "post") {
                 try {
-                    // Retrieve updated user data
+                    // Retrieve user data
                     $requestData = $this->request->getPost();
 
-                    // Update user corresponding to ID with updated data
-                    AdminService::handleAdminEditUser($userID, $requestData);
+                    // Create or update user based on values in request data
+                    AdminService::handleAdminCreateEditUser($userID, $requestData);
 
-                    // Set success flashdata and redirect upon successful edit
-                    session()->setFlashdata('success', 'User is updated successfully');
+                    // Set success flashdata and redirect upon successful create or edit
+                    if ($isCreate) {
+                        session()->setFlashdata('success', 'User is created successfully');
+
+                    } else {
+                        session()->setFlashdata('success', 'User is updated successfully');
+                    }
+
                     return redirect()->to(ADMIN_USERS_PATH);
 
-                } catch (InvalidRequestException $exception) {
-                    // Set error flashdata if registration exception occurs during edit
+                } catch (Exception $exception) {
+                    // Set error flashdata if invalid data is found
                     session()->setFlashdata('error', $exception->getMessage());
                 }
             }
 
-            // Retrieve user details for editing
-            $userData = AdminService::handleGetUserDetails($userID);
+            if ($isCreate) {
+                // Set user details to empty if creating
+                $userData = [];
+
+            } else {
+                // Retrieve user details for editing
+                $userData = AdminService::handleGetUserDetails($userID);
+            }
 
             // Render view for editing user details
             return view('admin/admin-edit-user-details', $userData);
