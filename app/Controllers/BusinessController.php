@@ -92,39 +92,11 @@ class BusinessController extends BaseController
     }
 
     /**
-     * Handler for creating a new category.
+     * Handler for creating or updating an existing category.
      *
      * @return \CodeIgniter\HTTP\RedirectResponse Redirect to all category page when successful/failing.
      */
-    public function createCategory()
-    {
-        try {
-            // Retrieve authenticated user and associated business ID (from middleware)
-            $user = auth()->user();
-            $user->business_id = session()->get('business_id');
-            $requestData = $this->request->getPost();
-
-            // Create category for the business affiliated with authenticated user
-            BusinessService::handleCreateCategory($user, $requestData);
-
-            // Set success flashdata when creation is successful
-            session()->setFlashdata('success', 'Category is created successfully');
-
-        } catch (Exception $exception) {
-            // Set error message if creation failed
-            session()->setFlashdata('error', $exception->getMessage());
-        }
-
-        // Redirect to all categories path
-        return redirect()->to(BUSINESS_CATEGORIES_PATH);
-    }
-
-    /**
-     * Handler for updating an existing category.
-     *
-     * @return \CodeIgniter\HTTP\RedirectResponse Redirect to all category page when successful/failing.
-     */
-    public function updateCategory()
+    public function createOrEditCategory()
     {
         try {
             // Retrieve authenticated user and associated business ID (from middleware)
@@ -134,11 +106,19 @@ class BusinessController extends BaseController
             // Retrieve the category data to update
             $requestData = $this->request->getPost();
 
+            // Determine whether operation is create or update
+            $isCreate = !array_key_exists('category_id', $requestData);
+
             // Update category owned by business affiliated with authenticated user
-            BusinessService::handleUpdateCategory($user, $requestData);
+            BusinessService::handleCreateOrEditCategory($user, $requestData);
 
             // Set success flashdata when update is successful
-            session()->setFlashdata('success', 'Category is updated successfully');
+            if ($isCreate) {
+                session()->setFlashdata('success', 'Category is created successfully');
+
+            } else {
+                session()->setFlashdata('success', 'Category is updated successfully');
+            }
 
         } catch (Exception $exception) {
             // Set error message if update failed
@@ -219,7 +199,8 @@ class BusinessController extends BaseController
      * @param string|null $menuID The ID of the menu to edit (optional).
      * @return \CodeIgniter\HTTP\RedirectResponse|string The menu edit page or redirect when successful/failing.
      */
-    public function createOrEditMenu($menuID = NULL) {
+    public function createOrEditMenu($menuID = NULL) 
+    {
         try {
             $isCreate = is_null($menuID);
 

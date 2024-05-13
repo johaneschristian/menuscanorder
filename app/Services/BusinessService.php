@@ -221,50 +221,35 @@ class BusinessService
     }
 
     /**
-     * Handle the creation of a new category.
+     * Handle business' create or update of a category by a business.
      *
-     * @param object $user The user object representing the logged-in business, initiating the category creation.
+     * @param object $user The user object representing the logged-in business, creating/updating the category.
      * @param array $requestData The request data containing category details.
-     * @throws InvalidRequestException If validation of category data fails during the creation process.
-     */
-    public static function handleCreateCategory($user, $requestData)
-    {
-        // TODO: Possibility to combine with update
-        // Trim all string values in the request data
-        $requestData = Utils::trimAllString($requestData);
-        
-        // Validate the trimmed category data
-        self::validateCategoryData($requestData);
-        
-        // Create a new category record in the database
-        CategoryRepository::createCategory($user->business_id, $requestData);
-    }
-
-    /**
-     * Handle business' update of a category by a business.
-     *
-     * @param object $user The user object representing the logged-in business, updating the category.
-     * @param array $requestData The request data containing updated category details.
-     * @throws NotAuthorizedException If the user affiliated business does not own the category.
+     * @throws NotAuthorizedException If the user affiliated business does not own the category (during an update).
      * @throws InvalidRequestException If validation of category data fails during update process.
-     * @throws ObjectNotFoundException If category matching ID does not exist.
+     * @throws ObjectNotFoundException If category matching ID does not exist (during an update).
      */
-    public static function handleUpdateCategory($user, $requestData)
-    {
+    public static function handleCreateOrEditCategory($user, $requestData) {
+        $isCreate = !array_key_exists('category_id', $requestData);
+
         // Trim whitespace from all string values in the request data
         $requestData = Utils::trimAllString($requestData);
         
         // Validate the category data for update
-        self::validateCategoryData($requestData, FALSE);
-        
-        // Retrieve the category to be updated by its ID or throw an exception if not found
-        $updatedCategory = CategoryRepository::getCategoryByIDOrThrowException($requestData['category_id']);
-        
-        // Validate if the user owns the category
-        self::validateCategoryOwnership($user->business_id, $updatedCategory);
-        
-        // Update the category details
-        CategoryRepository::updateCategory($updatedCategory->category_id, $requestData);
+        self::validateCategoryData($requestData, $isCreate);
+
+        if ($isCreate) {
+            // Create a new category record in the database
+            CategoryRepository::createCategory($user->business_id, $requestData);
+
+        } else {
+            // Validate if the user owns the category
+            $updatedCategory = CategoryRepository::getCategoryByIDOrThrowException($requestData['category_id']);
+            self::validateCategoryOwnership($user->business_id, $updatedCategory);
+
+            // Update the category details
+            CategoryRepository::updateCategory($updatedCategory->category_id, $requestData);
+        }
     }
 
     /**
@@ -592,7 +577,7 @@ class BusinessService
      * @param \CodeIgniter\HTTP\Files\UploadedFile $menuImage The uploaded menu image.
      * @throws InvalidRequestException If validation of menu data fails during update/create process.
      * @throws ObjectNotFoundException If menu matching the ID does not exist.
-     * @throws NotAuthorizedException If the user affiliated business does not own the menu.
+     * @throws NotAuthorizedException If the user affiliated business does not own the menu (during update).
      */
     public static function handleCreateOrEditMenu($user, $menuID, $requestData, $menuImage)
     {

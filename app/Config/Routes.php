@@ -26,8 +26,8 @@ $routes->group('admin', ['filter' => 'admin'], function ($routes) {
 $routes->group('business', ['filter' => 'business'], function ($routes) {
     $routes->group('categories', function ($routes) {
         $routes->get('', 'BusinessController::getCategoryList');
-        $routes->post('', 'BusinessController::createCategory');
-        $routes->post('update/', 'BusinessController::updateCategory');
+        $routes->post('', 'BusinessController::createOrEditCategory');
+        $routes->post('update/', 'BusinessController::createOrEditCategory');
         $routes->post('delete/', 'BusinessController::deleteCategory');
     });
 
