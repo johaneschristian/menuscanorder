@@ -107,8 +107,8 @@
         </div>
       </div>
       <?php if (!isset($user) || !$user->has_business) : ?>
-        <button id="add-business-button" type="button" class="btn btn-success" onclick="displayAffiliatedBusinessForm()">Create a Business for User</button>
-        <button id="remove-business-button" type="button" class="btn btn-secondary d-none" onclick="hideAffiliatedBusinessForm()">Remove Business from User</button>
+        <button id="add-business-button" type="button" class="btn btn-success" onclick="toggleAffiliatedBusinessForm(true)">Create a Business for User</button>
+        <button id="remove-business-button" type="button" class="btn btn-secondary d-none" onclick="toggleAffiliatedBusinessForm(false)">Remove Business from User</button>
       <?php endif; ?>
     </div>
   </form>

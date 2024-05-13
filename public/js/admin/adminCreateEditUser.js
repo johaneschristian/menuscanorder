@@ -1,44 +1,30 @@
 /**
- * Displays the form for adding affiliated businesses
- * and hides the display button.
+ * Display or hide the form for adding affiliated businesses and corresponding buttons.
+ * 
+ * @param {boolean} shouldDisplay - Whether or not the affiliated business form should be displayed.
  */
-function displayAffiliatedBusinessForm() {
+function toggleAffiliatedBusinessForm(shouldDisplay) {
 	const affiliatedBusinessForm = document.querySelector(`#affiliated-business-form`);
 	const removeAffiliatedBusinessButton = document.querySelector(`#remove-business-button`);
 	const addAffiliatedBusinessButton = document.querySelector(`#add-business-button`);
 
-	// Display the affiliated business form and button
-	toggleElement(affiliatedBusinessForm, true);
-	toggleElement(removeAffiliatedBusinessButton, true);
+	// Display or hide the affiliated business form and button
+	toggleElement(affiliatedBusinessForm, shouldDisplay);
+	toggleElement(removeAffiliatedBusinessButton, shouldDisplay);
 
-	// Hide the button for adding affiliated businesses
-	toggleElement(addAffiliatedBusinessButton, false);
-}
+	// Add affiliated button should not be present when form is displayed
+	toggleElement(addAffiliatedBusinessButton, !shouldDisplay);
 
-/**
- * Hides the form for adding affiliated businesses, shows the corresponding buttons,
- * and clears the form content.
- */
-function hideAffiliatedBusinessForm() {
-	const affiliatedBusinessForm = document.querySelector(`#affiliated-business-form`);
-	const removeAffiliatedBusinessButton = document.querySelector(`#remove-business-button`);
-	const addAffiliatedBusinessButton = document.querySelector(`#add-business-button`);
+	if (!shouldDisplay) {
+		// Clear the values of the form fields
+		const affiliatedBusinessName = document.querySelector(`#affiliated-business-name`);
+		const affiliatedBusinessAddress = document.querySelector(`#affiliated-business-address`);
+		const affiliatedBusinessTableQuantity = document.querySelector(`#affiliated-business-table-quantity`);
+		const affiliatedBusinessSubscriptionStatus = document.querySelector(`#affiliated-business-subcription-status`);
 
-	// Hide the affiliated business form and form related button
-	toggleElement(affiliatedBusinessForm, false);
-	toggleElement(removeAffiliatedBusinessButton, false);
-
-	// Show the button for adding affiliated businesses
-	toggleElement(addAffiliatedBusinessButton, true);
-
-	// Clear the values of the form fields
-	const affiliatedBusinessName = document.querySelector(`#affiliated-business-name`);
-	const affiliatedBusinessAddress = document.querySelector(`#affiliated-business-address`);
-	const affiliatedBusinessTableQuantity = document.querySelector(`#affiliated-business-table-quantity`);
-	const affiliatedBusinessSubscriptionStatus = document.querySelector(`#affiliated-business-subcription-status`);
-
-	affiliatedBusinessName.value = "";
-	affiliatedBusinessAddress.value = "";
-	affiliatedBusinessTableQuantity.value = "";
-	affiliatedBusinessSubscriptionStatus.value = "active";
+		affiliatedBusinessName.value = "";
+		affiliatedBusinessAddress.value = "";
+		affiliatedBusinessTableQuantity.value = "";
+		affiliatedBusinessSubscriptionStatus.value = "active";
+	}
 }
