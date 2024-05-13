@@ -11,7 +11,7 @@
       <span class="display-2">Sit, Scan, Order.</span>
       <p class="fs-4 fw-light">Enhance your overall dining experience with straightforward ordering upon arrival, equipped with the ability to track the status of your order.</p>
       <div class="">
-        <button class="btn bg-brown text-light clickable">Get Started</button>
+        <a href="<?= base_url('login') ?>" class="btn bg-brown text-light clickable">Get Started</a>
       </div>
     </div>
     <div class="col-lg-4">
