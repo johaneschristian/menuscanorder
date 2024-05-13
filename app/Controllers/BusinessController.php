@@ -22,7 +22,8 @@ class BusinessController extends BaseController
      *
      * @return \CodeIgniter\HTTP\RedirectResponse|string The business registration page or redirect when user owns a business.
      */
-    public function registerBusiness() {
+    public function registerBusiness() 
+    {
         try {
             // Retrieve authenticated user
             $user = auth()->user();

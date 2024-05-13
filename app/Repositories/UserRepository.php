@@ -13,14 +13,16 @@ use Exception;
 /**
  * Repository to deal with database insertion, retrieval, and update for user model (AppUser)
  */
-class UserRepository {
+class UserRepository
+{
     /**
      * Generate search conditions for filtering AppUser records.
      *
      * @param string $search The search string to filter records.
      * @return string The generated search conditions.
      */
-    private static function generateSearchConditions($search) {
+    private static function generateSearchConditions($search)
+    {
         $model = new AppUser();
 
         // Initialize an empty array to store search conditions
@@ -51,10 +53,10 @@ class UserRepository {
 
         // Build the query to retrieve user records, joining auth_identities to retrieve email
         $query = $model->select('users.id, auth_identities.secret AS email, users.name, users.is_admin, users.is_archived, COUNT(businesses.business_id) > 0 AS has_business')
-                       ->join('auth_identities', 'auth_identities.user_id=users.id')
-                       ->join('businesses', 'businesses.owning_user_id=users.id', 'left')
-                       ->groupBy('users.id, auth_identities.secret, users.is_admin, users.is_archived');
-        
+            ->join('auth_identities', 'auth_identities.user_id=users.id')
+            ->join('businesses', 'businesses.owning_user_id=users.id', 'left')
+            ->groupBy('users.id, auth_identities.secret, users.is_admin, users.is_archived');
+
         // If a search term is provided, add search conditions to the query
         if (!is_null($search)) {
             $searchCondition = self::generateSearchConditions($search);
@@ -74,11 +76,11 @@ class UserRepository {
     public static function getUserByID($userID)
     {
         $model = new AppUser();
-        
+
         // Build the query to retrieve the user record by ID, joining auth_identities to retrieve email
         $query = $model->select('users.id, auth_identities.secret AS email, users.name, users.is_admin, users.is_archived')
-                       ->join('auth_identities', 'auth_identities.user_id=users.id')
-                       ->where('users.id', $userID);
+            ->join('auth_identities', 'auth_identities.user_id=users.id')
+            ->where('users.id', $userID);
 
         // Execute the query and retrieve the first result
         return $query->first();
@@ -93,7 +95,7 @@ class UserRepository {
     public static function getUserByEmail($userEmail)
     {
         $users = auth()->getProvider();
-        
+
         // Find the user by their email
         return $users->findByCredentials(['email' => $userEmail]);
     }
@@ -112,7 +114,6 @@ class UserRepository {
         // If the user is not found, throw an exception
         if (is_null($foundUser)) {
             throw new ObjectNotFoundException("User with ID $userID does not exist");
-
         } else {
             return $foundUser;
         }
@@ -136,7 +137,6 @@ class UserRepository {
 
             // Insert the user into the database
             return $users->insert($user, TRUE);
-
         } catch (Exception | DatabaseException $exception) {
             // Check if the exception message indicates a duplicate entry error
             if ($exception->getMessage() === 'Attempt to read property "id" on null' || str_contains($exception->getMessage(), 'Duplicate')) {
@@ -159,16 +159,15 @@ class UserRepository {
     {
         try {
             $users = auth()->getProvider();
-        
+
             // Find the user by their ID
             $matchingUser = $users->findById($userID);
-            
+
             // Fill the user's data with the provided updated data
             $matchingUser->fill($userData);
-            
+
             // Save the updated user data
             $users->save($matchingUser);
-
         } catch (\Throwable $exception) {
             // Check if the exception message indicates a entry not found
             if ($exception->getMessage() === 'Call to a member function fill() on null') {

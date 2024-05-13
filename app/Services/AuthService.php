@@ -11,7 +11,8 @@ use App\Utils\Validator;
 /**
  * Service to deal with business logic for authentication related operations
  */
-class AuthService {
+class AuthService
+{
     /**
      * Attempt to log in a user with the provided email and password.
      *
@@ -19,7 +20,8 @@ class AuthService {
      * @param string $password The password of the user attempting to log in.
      * @throws NotAuthorizedException If the login attempt fails.
      */
-    private static function loginUser($email, $password) {
+    private static function loginUser($email, $password)
+    {
         // Attempt to log in the user
         $loginAttempt = auth()->remember()->attempt([
             'email' => $email,
@@ -38,7 +40,8 @@ class AuthService {
      * @param object $user The user object to validate.
      * @throws NotAuthorizedException If the user is archived.
      */
-    private static function validateUserCanLogin($user) {
+    private static function validateUserCanLogin($user)
+    {
         // Throw an exception indicating that the user is not authorized to log in because they are archived
         if (!is_null($user) && $user->is_archived) {
             throw new NotAuthorizedException("User is archived");
@@ -51,7 +54,8 @@ class AuthService {
      * @param array $userData Array containing user email and password.
      * @throws NotAuthorizedException If the user is not allowed to log in or password is incorrect.
      */
-    public static function handleLogin($userData) {
+    public static function handleLogin($userData)
+    {
         // Retrieve user data from the UserRepository based on email
         $user = UserRepository::getUserByEmail($userData['email']);
 
@@ -114,7 +118,8 @@ class AuthService {
      * @param bool $isModifiedByAdmin Whether the user data is modified by an admin.
      * @return array Transformed user data.
      */
-    public static function transformUserData($userData, $forCreate = TRUE, $isModifiedByAdmin = FALSE) {
+    public static function transformUserData($userData, $forCreate = TRUE, $isModifiedByAdmin = FALSE)
+    {
         // Initialize the transformed request array with basic user data.
         $transformedRequest = [
             'name' => $userData['name'],
@@ -136,14 +141,15 @@ class AuthService {
         // Return the transformed user data.
         return $transformedRequest;
     }
- 
+
     /**
      * Handle user registration process.
      *
      * @param array $requestData Array containing registration data.
      * @throws InvalidRequestException If the registration data is invalid.
      */
-    public static function handleRegister($requestData) {
+    public static function handleRegister($requestData)
+    {
         // Trim all string values in the request data
         $requestData = Utils::trimAllString($requestData);
 
@@ -180,14 +186,15 @@ class AuthService {
             throw new InvalidRequestException("Password is incorrect");
         }
     }
-    
+
     /**
      * Transform password data to prevent modification of additional fields.
      *
      * @param array $passwordData Array containing password data.
      * @return array Sanitized password data.
      */
-    public static function transformPasswordData($passwordData) {
+    public static function transformPasswordData($passwordData)
+    {
         // Return password data containing only the password field
         return [
             'password' => $passwordData['password'],
@@ -201,7 +208,8 @@ class AuthService {
      * @param array $passwordData Array containing password data.
      * @throws InvalidRequestException If the password data is invalid or the current password is incorrect.
      */
-    public static function handleChangePassword($user, $passwordData) {
+    public static function handleChangePassword($user, $passwordData)
+    {
         // Retrieve user complete data (including email)
         $userData = UserRepository::getUserByID($user->id);
 

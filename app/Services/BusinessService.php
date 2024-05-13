@@ -24,7 +24,8 @@ class BusinessService
      * @param object $user The user object for whom to retrieve the business profile.
      * @return array An array containing the retrieved business record.
      */
-    public static function handleGetBusinessProfile($user) {
+    public static function handleGetBusinessProfile($user) 
+    {
         // Retrieve the business information based on the user's business ID
         $userBusiness = BusinessRepository::getBusinessByID($user->business_id);
         
@@ -77,7 +78,8 @@ class BusinessService
      * @param object $user The user object to check for affiliated business.
      * @return bool Returns true if the user has an affiliated business, otherwise returns false.
      */
-    public static function userHasBusiness($user) {
+    public static function userHasBusiness($user) 
+    {
         $associatedBusiness = BusinessRepository::getBusinessByUserID($user->id);
         return !is_null($associatedBusiness);
     }
@@ -253,7 +255,8 @@ class BusinessService
      * @throws NotAuthorizedException If the user does not own the category.
      * @throws ObjectNotFoundException If category matching ID does not exist.
      */
-    public static function handleDeleteCategory($user, $requestData) {
+    public static function handleDeleteCategory($user, $requestData) 
+    {
         // Retrieve the category to be deleted by its ID or throw an exception if not found
         $deletedCategory = CategoryRepository::getCategoryByIDOrThrowException($requestData['category_id'] ?? '');
         
@@ -517,7 +520,8 @@ class BusinessService
      * @param int $menuID The ID of the menu entry to update the image for.
      * @param \CodeIgniter\HTTP\Files\UploadedFile $menuImage The uploaded image file.
      */
-    private static function updateMenuImage($menuID, $menuImage) {
+    private static function updateMenuImage($menuID, $menuImage) 
+    {
         // Check if the uploaded image is valid and has not been moved
         if ($menuImage->isValid() && !$menuImage->hasMoved()) {
             // Retrieve the menu object from the database using its ID

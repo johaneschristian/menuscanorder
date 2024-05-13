@@ -17,7 +17,8 @@ class OrderRepository
      *
      * @return array An array containing all order statuses.
      */
-    public static function getAllOrderStatus() {
+    public static function getAllOrderStatus()
+    {
         $orderStatus = new OrderStatusModel();
         return $orderStatus->findAll();
     }
@@ -28,7 +29,8 @@ class OrderRepository
      * @param string $statusName The name of the order status to retrieve.
      * @return mixed The order status record if found, otherwise NULL.
      */
-    public static function getOrderStatusByName($statusName) {
+    public static function getOrderStatusByName($statusName)
+    {
         $orderStatus = new OrderStatusModel();
         return $orderStatus->where('status', $statusName)->first();
     }
@@ -39,7 +41,8 @@ class OrderRepository
      * @param int $statusID The ID of the order status to retrieve.
      * @return mixed The order status record if found, otherwise NULL.
      */
-    public static function getOrderStatusByID($statusID) {
+    public static function getOrderStatusByID($statusID)
+    {
         $orderStatus = new OrderStatusModel();
         return $orderStatus->where('id', $statusID)->first();
     }
@@ -52,15 +55,16 @@ class OrderRepository
      * @param int $tableNumber The number of the table associated with the order.
      * @return string The ID of the created order.
      */
-    public static function createOrder($submittingUserID, $receivingBusinessID, $tableNumber) {
+    public static function createOrder($submittingUserID, $receivingBusinessID, $tableNumber)
+    {
         $order = new OrderModel();
-        
+
         // Retrieve the order status with the name 'New Order'
         $newOrderStatus = self::getOrderStatusByName('New Order');
-        
+
         // Generate a UUID for the new order
         $orderID = Utils::generateUUID();
-        
+
         // Insert the order data into the database
         $order->insert([
             'order_id' => $orderID,
@@ -80,11 +84,12 @@ class OrderRepository
      * @param string $orderID The ID of the order to retrieve.
      * @return mixed The order record if found, otherwise NULL.
      */
-    public static function getOrderByID($orderID) {
+    public static function getOrderByID($orderID)
+    {
         $order = new OrderModel();
         return $order->where('order_id', $orderID)->first();
     }
-    
+
     /**
      * Retrieve an order from the database by its ID or throw an exception if not found.
      *
@@ -92,13 +97,13 @@ class OrderRepository
      * @return object The order record if found.
      * @throws ObjectNotFoundException If the order with the specified ID does not exist.
      */
-    public static function getOrderByIDOrThrowException($orderID) {
+    public static function getOrderByIDOrThrowException($orderID)
+    {
         $foundOrder = self::getOrderByID($orderID);
 
         // If the order is not found, throw an exception
         if (is_null($foundOrder)) {
             throw new ObjectNotFoundException("Order with ID $orderID does not exist");
-
         } else {
             return $foundOrder;
         }
@@ -112,19 +117,20 @@ class OrderRepository
      * @param int $tableNumber The number of the table where the order is made.
      * @return mixed The order record if found, otherwise NULL.
      */
-    public static function getLatestUncompleteOrderOfCustomerInBusiness($submittingUserID, $businessID, $tableNumber) {
+    public static function getLatestUncompleteOrderOfCustomerInBusiness($submittingUserID, $businessID, $tableNumber)
+    {
         $order = new OrderModel();
-        
+
         // Retrieve the order status with the name 'Completed'
         $completedOrderStatus = self::getOrderStatusByName('Completed');
-        
+
         // Retrieve the latest uncompleted order of the customer in the business
         return $order->where('submitting_user_id', $submittingUserID)
-                     ->where('receiving_business_id', $businessID)
-                     ->where('table_number', $tableNumber)
-                     ->whereNotIn('order_status_id', [$completedOrderStatus->id])
-                     ->orderBy('order_creation_time', 'DESC')
-                     ->first();
+            ->where('receiving_business_id', $businessID)
+            ->where('table_number', $tableNumber)
+            ->whereNotIn('order_status_id', [$completedOrderStatus->id])
+            ->orderBy('order_creation_time', 'DESC')
+            ->first();
     }
 
     /**
@@ -134,7 +140,8 @@ class OrderRepository
      * @param array $orderData An associative array containing the new data for the order.
      * @return void
      */
-    public static function updateOrder($orderID, $orderData) {
+    public static function updateOrder($orderID, $orderData)
+    {
         $order = new OrderModel();
         $order->update($orderID, $orderData);
     }
@@ -148,7 +155,8 @@ class OrderRepository
      * @param int|null $tableNumber The number of the table associated with the order (optional).
      * @return object The query with applied conditions.
      */
-    private static function getQueryOfOrders($submittingUserID = null, $businessesIDs = null, $statusID = null, $tableNumber = null) {
+    private static function getQueryOfOrders($submittingUserID = null, $businessesIDs = null, $statusID = null, $tableNumber = null)
+    {
         $query = new OrderModel();
 
         // Filter based on user ID if provided
@@ -159,7 +167,6 @@ class OrderRepository
         // Filter based on business IDs if provided
         if (!is_null($businessesIDs) && !empty($businessesIDs)) {
             $query = $query->whereIn('receiving_business_id', $businessesIDs);
-
         } elseif (!is_null($businessesIDs) && empty($businessesIDs)) {
             // If business IDs is empty, need to use null array as empty array lead to an SQL error
             $query = $query->whereIn('receiving_business_id', [null]);
@@ -188,7 +195,8 @@ class OrderRepository
      * @param int|null $statusID The status ID of the orders to be retrieved.
      * @return array Array of orders.
      */
-    public static function getOrdersOfUser($submittingUserID, $businessesID, $statusID) {
+    public static function getOrdersOfUser($submittingUserID, $businessesID, $statusID)
+    {
         $query = self::getQueryOfOrders(
             $submittingUserID,
             $businessesID,
@@ -208,7 +216,8 @@ class OrderRepository
      * @param int $currentPage The current page of orders to retrieve. Defaults to the first page (1) if not specified.
      * @return array Array of paginated orders.
      */
-    public static function getPaginatedOrdersOfUser($submittingUserID, $businessesID, $statusID, $perPage = 10, $currentPage = 1) {
+    public static function getPaginatedOrdersOfUser($submittingUserID, $businessesID, $statusID, $perPage = 10, $currentPage = 1)
+    {
         $query = self::getQueryOfOrders(
             $submittingUserID,
             $businessesID,
@@ -228,7 +237,8 @@ class OrderRepository
      * @param int $currentPage The current page of orders to retrieve (optional).
      * @return array Array of paginated orders.
      */
-    public static function getPaginatedOrdersOfBusiness($businessID, $statusID, $tableNumber, $perPage = 10, $currentPage = 1) {
+    public static function getPaginatedOrdersOfBusiness($businessID, $statusID, $tableNumber, $perPage = 10, $currentPage = 1)
+    {
         $query = self::getQueryOfOrders(
             NULL,
             [$businessID],

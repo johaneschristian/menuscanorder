@@ -19,7 +19,8 @@ class AdminService {
      * @param array $requestData The array containing the request data.
      * @return array Transformed request data.
      */
-    private static function transformUserListRequestData($requestData) {
+    private static function transformUserListRequestData($requestData) 
+    {
         // Extract search parameter, set to NULL if empty
         $search = empty($requestData['search']) ? NULL : $requestData['search'];
         
@@ -39,7 +40,8 @@ class AdminService {
      * @param array $requestData The request data containing search and page parameters.
      * @return array Data to be displayed, containing paginated user list, pager, and search parameter.
      */
-    public static function handleGetUserList($requestData) {
+    public static function handleGetUserList($requestData) 
+    {
         // Transform request data for standardization
         $transformedRequestData = self::transformUserListRequestData($requestData);
         
@@ -64,7 +66,8 @@ class AdminService {
      * @param object $user The base user object.
      * @return object A formatted user object with appended affiliated business data.
      */
-    private static function appendAffiliatedBusinessDataToUser($user) {
+    private static function appendAffiliatedBusinessDataToUser($user) 
+    {
         // Clone the user object to prevent modification of the original
         $formattedUser = clone $user;
         
@@ -89,7 +92,8 @@ class AdminService {
      * @return array An array containing user details.
      * @throws ObjectNotFoundException if user with ID is not found.
      */
-    public static function handleGetUserDetails($userID) {
+    public static function handleGetUserDetails($userID) 
+    {
         // Retrieve user details by user ID or throw an exception if not found
         $user = UserRepository::getUserByIDOrThrowException($userID);
         
@@ -134,7 +138,8 @@ class AdminService {
      * @param array $requestData The request data containing updated user details.
      * @throws InvalidRequestException If admin submitted data validation fails.
      */
-    public static function handleAdminCreateEditUser($userID, $requestData) {
+    public static function handleAdminCreateEditUser($userID, $requestData) 
+    {
         // Set flag to determine whether the operation is create or edit
         $isCreate = is_null($userID);
 
@@ -194,7 +199,8 @@ class AdminService {
      * @throws InvalidRequestException If the password data is invalid or does not match.
      * @throws ObjectNotFoundException If the user with ID does not exist.
      */
-    public static function handleAdminChangeUserPassword($userID, $requestData) {
+    public static function handleAdminChangeUserPassword($userID, $requestData) 
+    {
         // Validate the new password
         AuthService::validatePassword($requestData);
         
