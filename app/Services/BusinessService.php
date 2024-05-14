@@ -349,9 +349,9 @@ class BusinessService
             $dataToBeUpdated['description'] = $menuData['description'];
         }
 
-        // Include category ID if not 'others'
+        // Include category ID or if 'others', set to NULL
         if (array_key_exists('category_id', $menuData) && $menuData['category_id'] !== 'others') {
-            $dataToBeUpdated['category_id'] = $menuData['category_id'];
+            $dataToBeUpdated['category_id'] = $menuData['category_id'] === 'others' ? NULL : $menuData['category_id'];
         }
 
         // Return the transformed menu data
@@ -387,13 +387,18 @@ class BusinessService
      */
     private static function removeImageFileOfMenu($menu)
     {
-        // Check if the menu has an associated image
-        if (!is_null($menu->image_url)) {
-            // Construct the path to the image file
-            $filePath = WRITEPATH . 'menu_images/' . $menu->image_url;
+        try {
+            // Check if the menu has an associated image
+            if (!is_null($menu->image_url)) {
+                // Construct the path to the image file
+                $filePath = WRITEPATH . 'menu_images/' . $menu->image_url;
 
-            // Delete the image file from the server
-            unlink($filePath);
+                // Delete the image file from the server
+                unlink($filePath);
+            }
+
+        } catch (\Exception $exception) {
+            // Prevent error if file has been deleted manually
         }
     }
 
@@ -472,7 +477,7 @@ class BusinessService
     private static function validateMenuOwnership($businessID, $menu)
     {
         if ($menu->owning_business_id !== $businessID) {
-            throw new NotAuthorizedException("Menu with ID {$menu->menu_id} does not belong to the business with ID $businessID");
+            throw new NotAuthorizedException("Menu with ID {$menu->menu_item_id} does not belong to the business with ID $businessID");
         }
     }
 
@@ -549,11 +554,11 @@ class BusinessService
             // Retrieve the menu object from the database using its ID
             $menu = MenuRepository::getMenuByIDOrThrowException($menuID);
 
-            // Remove any existing image file associated with the menu if a new image is uploaded
-            self::removeImageFileOfMenu($menu);
-
             // Validate the uploaded image file
             self::validateImageFile($menuImage);
+
+            // Remove any existing image file associated with the menu if a new image is uploaded
+            self::removeImageFileOfMenu($menu);
             
             // Save the uploaded image file to the appropriate directory
             // using the owning business ID and the menu ID

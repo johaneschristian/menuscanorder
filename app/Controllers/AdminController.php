@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\CustomExceptions\InvalidRequestException;
 use App\Services\AdminService;
 use Exception;
 
@@ -81,7 +82,7 @@ class AdminController extends BaseController
 
                     return redirect()->to(ADMIN_USERS_PATH);
 
-                } catch (Exception $exception) {
+                } catch (InvalidRequestException $exception) {
                     // Set error flashdata if invalid data is found
                     session()->setFlashdata('error', $exception->getMessage());
                 }
