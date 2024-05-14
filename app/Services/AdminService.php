@@ -199,18 +199,9 @@ class AdminService {
      * @throws InvalidRequestException If the password data is invalid or does not match.
      * @throws ObjectNotFoundException If the user with ID does not exist.
      */
-    public static function handleAdminChangeUserPassword($userID, $requestData) 
+    public static function handleAdminChangeUserPassword($userID, $requestData)
     {
-        // Validate the new password
-        AuthService::validatePassword($requestData);
-        
-        // Check if user exists and throw an exception if not found
-        UserRepository::getUserByIDOrThrowException($userID);
-        
-        // Transform the password data to repository expected format for updating
-        $transformedPasswordData = AuthService::transformPasswordData($requestData);
-        
-        // Update the user's password
-        UserRepository::updateUser($userID, $transformedPasswordData);
+        // Change user password without checking old password
+        AuthService::changePassword($userID, $requestData, FALSE);
     }
 }

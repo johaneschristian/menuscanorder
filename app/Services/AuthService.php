@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\CustomExceptions\InvalidRequestException;
 use App\CustomExceptions\NotAuthorizedException;
+use App\CustomExceptions\ObjectNotFoundException;
 use App\Repositories\UserRepository;
 use App\Utils\Utils;
 use App\Utils\Validator;
@@ -202,6 +203,35 @@ class AuthService
     }
 
     /**
+     * Helper class to change user password.
+     *
+     * @param int $userID The ID of the user whose password wants to be changed.
+     * @param array $passwordData Array containing password data.
+     * @param bool $checkOldPassword Whether to check old password before changing password (optional).
+     * @throws ObjectNotFoundException If the user with ID does not exist.
+     * @throws InvalidRequestException If the password data is invalid or the current password is incorrect.
+     */
+    public static function changePassword($userID, $passwordData, $checkOldPassword = TRUE)
+    {
+        // Check if user exists and throw an exception if not found
+        $userData = UserRepository::getUserByIDOrThrowException($userID);
+
+        // Validate the new password data
+        self::validatePassword($passwordData);
+
+        if ($checkOldPassword) {
+            // Validate the current password
+            self::validateUserCurrentPassword($userData->email, $passwordData['old_password'] ?? '');
+        }
+
+        // Sanitize the new password data to prevent unrelated data modification
+        $transformedPasswordData = self::transformPasswordData($passwordData);
+
+        // Update user's password using transformed password data
+        UserRepository::updateUser($userID, $transformedPasswordData);
+    }
+
+    /**
      * Handle changing user password.
      *
      * @param object $user The user object representing the logged-in user, changing the password.
@@ -210,19 +240,7 @@ class AuthService
      */
     public static function handleChangePassword($user, $passwordData)
     {
-        // Retrieve user complete data (including email)
-        $userData = UserRepository::getUserByID($user->id);
-
-        // Validate the new password data
-        self::validatePassword($passwordData);
-
-        // Validate the current password
-        self::validateUserCurrentPassword($userData->email, $passwordData['old_password'] ?? '');
-
-        // Sanitize the new password data to prevent unrelated data modification
-        $transformedPasswordData = self::transformPasswordData($passwordData);
-
-        // Update user's password using transformed password data
-        UserRepository::updateUser($user->id, $transformedPasswordData);
+        // Change user password by first checking old password
+        self::changePassword($user->id, $passwordData);
     }
 }
