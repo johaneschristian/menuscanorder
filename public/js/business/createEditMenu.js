@@ -11,16 +11,23 @@ function displayUploadedImage() {
 
 	// Check if a file has been uploaded
 	if (imageInput.files && imageInput.files[0]) {
-		// Create a new FileReader object to read the selected file
-		const fileReader = new FileReader();
+		if (imageInput.files[0].size > 1000000) {
+			// Prevent file from being greater than 1 MB
+			imageInput.value = "";
+			displayErrorToast("File cannot be greater than 1MB");
 
-		// Set the src attribute of the image element to the data URL representing the image
-		// when the file has been loaded (displaying the preview)
-		fileReader.onload = () => {
-			imageInputPreview.src = fileReader.result;
-		};
+		} else {
+			// Create a new FileReader object to read the selected file
+			const fileReader = new FileReader();
 
-		// Read the selected file as a data URL and invoke onload when done
-		fileReader.readAsDataURL(imageInput.files[0]);
+			// Set the src attribute of the image element to the data URL representing the image
+			// when the file has been loaded (displaying the preview)
+			fileReader.onload = () => {
+				imageInputPreview.src = fileReader.result;
+			};
+
+			// Read the selected file as a data URL and invoke onload when done
+			fileReader.readAsDataURL(imageInput.files[0]);
+		}
 	}
 }
