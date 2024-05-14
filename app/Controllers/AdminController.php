@@ -109,7 +109,7 @@ class AdminController extends BaseController
     /**
      * Handler for changing password of a user.
      *
-     * @param int $userID ID of user whose password want to be viewed
+     * @param int $userID ID of user whose password want to be updated
      * @return \CodeIgniter\HTTP\RedirectResponse Redirect to last page when successful/failing.
      */
     public function changeUserPassword($userID)

@@ -9,7 +9,6 @@ use App\Services\OrderService;
 use CodeIgniter\Controller;
 use Exception;
 
-const HOME_PATH = '/';
 const BUSINESS_ORDERS_PATH = 'business/orders';
 const CUSTOMER_ORDERS_PATH = 'customer/orders';
 const JSON_CONTENT_TYPE = 'application/json';
@@ -56,7 +55,6 @@ class OrderController extends Controller {
             $requestData = $this->request->getJSON(true);
 
             // Create order based on submitted data
-
             OrderService::handleCreateOrder($user, $requestData);
 
             // Set success message upon successful order registration

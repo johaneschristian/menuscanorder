@@ -57,7 +57,7 @@ class AuthService
      */
     public static function handleLogin($userData)
     {
-        // Retrieve user data from the UserRepository based on email
+        // Retrieve user data based on email
         $user = UserRepository::getUserByEmail($userData['email']);
 
         // Validate if the user can login

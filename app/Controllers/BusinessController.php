@@ -7,7 +7,6 @@ use App\CustomExceptions\ObjectNotFoundException;
 use App\Services\BusinessService;
 use Exception;
 
-const HOME_PATH = '/';
 const BUSINESS_CATEGORIES_PATH = 'business/categories/';
 const BUSINESS_MENU_PATH = 'business/menu/';
 const BUSINESS_ORDERS_PATH = 'business/orders/';
@@ -22,7 +21,7 @@ class BusinessController extends BaseController
      *
      * @return \CodeIgniter\HTTP\RedirectResponse|string The business registration page or redirect when user owns a business.
      */
-    public function registerBusiness() 
+    public function registerBusiness()
     {
         try {
             // Retrieve authenticated user
@@ -110,7 +109,7 @@ class BusinessController extends BaseController
             $requestData = $this->request->getGet();
             
             // Retrieve all categories of business, matching name if requested
-            $categoriesData = BusinessService::handleGetCategoryList($user, $requestData);
+            $categoriesData = BusinessService::handleGetPaginatedCategoryList($user, $requestData);
             $data = [
                 ...$categoriesData,
                 'business_name' => session()->get('business_name'),
@@ -251,7 +250,7 @@ class BusinessController extends BaseController
                     // Get other form data
                     $requestData = $this->request->getPost();
                     
-                    // Edit menu based on submitted data
+                    // Create or edit menu based on submitted data
                     BusinessService::handleCreateOrEditMenu($user, $menuID, $requestData, $imageFile);
                     
                     // Set success flashdata when successful
@@ -332,7 +331,7 @@ class BusinessController extends BaseController
     public function menuGetImage($menuID)
     {
         try {
-            // Retrieve menu image data from the BusinessService
+            // Retrieve menu image data
             $menuImageData = BusinessService::handleMenuGetImage($menuID);
 
             // Return the image response

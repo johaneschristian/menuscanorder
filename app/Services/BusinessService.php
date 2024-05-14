@@ -167,7 +167,6 @@ class BusinessService
         }
     }
 
-
     /**
      * Checks if the specified category belongs to the given business.
      *
@@ -195,7 +194,7 @@ class BusinessService
      * @param object $user The user object representing the logged-in business, creating/updating the category.
      * @param array $requestData The request data containing category details.
      * @throws NotAuthorizedException If the user affiliated business does not own the category (during an update).
-     * @throws InvalidRequestException If validation of category data fails during update process.
+     * @throws InvalidRequestException If validation of category data fails during the process.
      * @throws ObjectNotFoundException If category matching ID does not exist (during an update).
      */
     public static function handleCreateOrEditCategory($user, $requestData) {
@@ -222,13 +221,36 @@ class BusinessService
     }
 
     /**
+     * Handle the retrieval all categories associated with a user's business.
+     *
+     * @param object $user The user object representing the logged-in business.
+     * @param array $requestData The request data containing search and pagination parameters.
+     * @return array An array containing paginated categories and search parameter.
+     */
+    public static function handleGetCategoryList($user, $requestData)
+    {
+        // Retrieve paginated categories associated with the user's business
+        $businessCategories = CategoryRepository::getCategoriesOfBusiness(
+            $user->business_id,
+            $requestData['search'] ?? '',
+            FALSE,
+        );
+
+        // Return paginated categories, search parameter, and pager information
+        return [
+            'categories' => $businessCategories,
+            'search' => $requestData['search'] ?? '',
+        ];
+    }
+
+    /**
      * Handle the retrieval of a paginated list of categories associated with a user's business.
      *
      * @param object $user The user object representing the logged-in business.
      * @param array $requestData The request data containing search and pagination parameters.
      * @return array An array containing paginated categories, search parameter, and pager information.
      */
-    public static function handleGetCategoryList($user, $requestData)
+    public static function handleGetPaginatedCategoryList($user, $requestData)
     {
         // Retrieve paginated categories associated with the user's business
         $businessCategoriesPaginated = CategoryRepository::getPaginatedCategoriesOfBusiness(
@@ -543,11 +565,11 @@ class BusinessService
      * Handle the creation or editing of a menu and assigning an image to the menu.
      *
      * @param object $user The user object representing the logged-in business, creating/updating the menu data.
-     * @param string|null $menuID The ID of the menu being edited.
+     * @param string|null $menuID The ID of the menu being edited, null when it is create.
      * @param array $requestData The request data containing the menu details.
      * @param \CodeIgniter\HTTP\Files\UploadedFile $menuImage The uploaded menu image.
      * @throws InvalidRequestException If validation of menu data fails during update/create process.
-     * @throws ObjectNotFoundException If menu matching the ID does not exist.
+     * @throws ObjectNotFoundException If menu matching the ID does not exist (during update).
      * @throws NotAuthorizedException If the user affiliated business does not own the menu (during update).
      */
     public static function handleCreateOrEditMenu($user, $menuID, $requestData, $menuImage)

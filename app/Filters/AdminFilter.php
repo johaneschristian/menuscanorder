@@ -3,7 +3,7 @@
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\Filters\FilterInterface;
-use CodeIgniter\Config\Services;
+use const App\Controllers\HOME_PATH;
 
 class AdminFilter implements FilterInterface
 {
@@ -25,7 +25,7 @@ class AdminFilter implements FilterInterface
         if (is_null($user) || !$user->is_admin) {
             // If not an admin, set flash data error message and redirect to home page
             session()->setFlashData("error", "User is not an admin or has not been authenticated.");
-            return redirect()->to('/');
+            return redirect()->to(HOME_PATH);
         }
     }
 

@@ -134,7 +134,7 @@ class AdminService {
     /**
      * Handle the creation or edit of a user by Admin.
      *
-     * @param int|null $updatedUserID The ID of the user to be updated or null if it is for create.
+     * @param int|null $userID The ID of the user to be updated or null if it is for create.
      * @param array $requestData The request data containing updated user details.
      * @throws InvalidRequestException If admin submitted data validation fails.
      */

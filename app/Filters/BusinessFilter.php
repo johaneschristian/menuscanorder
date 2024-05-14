@@ -7,6 +7,9 @@ use CodeIgniter\Filters\FilterInterface;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 
+use const App\Controllers\HOME_PATH;
+use const App\Controllers\LOGIN_PATH;
+
 class BusinessFilter implements FilterInterface
 {
     /**
@@ -25,7 +28,7 @@ class BusinessFilter implements FilterInterface
         
         if (is_null($user)) {
             session()->setFlashdata('error', 'You must log in to access this page');
-            return redirect()->to('/login');
+            return redirect()->to(LOGIN_PATH);
         }
 
         // Retrieve the business associated with the user
@@ -35,7 +38,7 @@ class BusinessFilter implements FilterInterface
         if (is_null($userBusiness) || $userBusiness->business_is_archived) {
             // If not associated or archived, set flash data error message and redirect to home page
             session()->setFlashdata('error', 'User is not a business or affiliated business has been archived');
-            return redirect()->to('/');
+            return redirect()->to(HOME_PATH);
         }
 
         // Set session data for business ID and business name
