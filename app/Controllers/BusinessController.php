@@ -56,7 +56,7 @@ class BusinessController extends BaseController
         } catch (Exception $exception) {
             // Set error message and redirect if exception not related to payload occurs
             session()->setFlashData('error', $exception->getMessage());
-            return redirect()->to(HOME_PATH);
+            return redirect()->to('/');
         }
     }
 
@@ -121,7 +121,7 @@ class BusinessController extends BaseController
         } catch (Exception $exception) {
             // Set error message and redirect to home page if an unexpected exception occurs
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to(HOME_PATH);
+            return redirect()->to('/');
         }
     }
 
@@ -223,7 +223,7 @@ class BusinessController extends BaseController
         } catch (Exception $exception) {
             // Set error message if an unexpected exception occurs and redirect to home page
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to(HOME_PATH);
+            return redirect()->to('/');
         }
     }
 
@@ -288,7 +288,7 @@ class BusinessController extends BaseController
         } catch (Exception $exception) {
             // Set error message if an unexpected exception occurs and redirect to home page
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to(HOME_PATH);
+            return redirect()->to('/');
         }
     }
 
@@ -397,7 +397,7 @@ class BusinessController extends BaseController
         } catch (Exception $exception) {
             // Set error message if an unexpected exception occurs and redirect to home page
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to(HOME_PATH);
+            return redirect()->to('/');
         }
     }
 

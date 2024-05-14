@@ -108,7 +108,7 @@ class OrderController extends Controller {
         } catch (Exception $exception) {
             // Set error message if an unexpected exception occurs and redirect to home page
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to(HOME_PATH);
+            return redirect()->to('/');
         }
     }
 
@@ -138,7 +138,7 @@ class OrderController extends Controller {
         } catch (Exception $exception) {
             // Set error message if an unexpected exception occurs and redirect to home page
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to(HOME_PATH);
+            return redirect()->to('/');
         }
     }
 
@@ -172,7 +172,7 @@ class OrderController extends Controller {
         } catch (Exception $exception) {
             // Set error message if an unexpected exception occurs and redirect to home page
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to(HOME_PATH);
+            return redirect()->to('/');
         }
     }
 
@@ -209,7 +209,7 @@ class OrderController extends Controller {
         } catch (Exception $exception) {
             // Set error message if an unexpected exception occurs and redirect to home page
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to(HOME_PATH);
+            return redirect()->to('/');
         }
     }
 
@@ -245,7 +245,7 @@ class OrderController extends Controller {
         } catch (Exception $exception) {
             // Set error message if an unexpected exception occurs and redirect to home page
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to(HOME_PATH);
+            return redirect()->to('/');
         }
     }
 
@@ -268,7 +268,7 @@ class OrderController extends Controller {
         } catch (Exception $exception) {
             // Set error message if an unexpected exception occurs and redirect to home page
             session()->setFlashdata('error', $exception->getMessage());
-            return redirect()->to(HOME_PATH);
+            return redirect()->to('/');
         }
     }
 

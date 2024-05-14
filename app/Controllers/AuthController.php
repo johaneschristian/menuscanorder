@@ -5,7 +5,6 @@ namespace App\Controllers;
 use App\Services\AuthService;
 use Exception;
 
-const HOME_PATH = '/';
 const CUSTOMER_PROFILE_PATH = '/customer/profile';
 const LOGIN_PATH = '/login';
 
@@ -48,7 +47,7 @@ class AuthController extends BaseController
                     return redirect()->to($redirectURL);
 
                 } else {
-                    return redirect()->to(HOME_PATH);
+                    return redirect()->to('/');
                 }
 
             } catch (Exception $exception) {
@@ -97,7 +96,7 @@ class AuthController extends BaseController
     {
         // Logout user and redirect to home page
         auth()->logout();
-        return redirect()->to(HOME_PATH);
+        return redirect()->to('/');
     }
 
     /**
